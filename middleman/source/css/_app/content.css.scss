@@ -1,0 +1,21 @@
+
+/* -------------------------------------------------- 
+	:: content
+---------------------------------------------------*/
+	#content {
+		padding-top: 80px;
+	}
+	@media only screen and (max-width: $breakPointPortrait) {
+		#content {
+			padding-top: 0px;
+		}
+	}
+
+
+	/* -----------------------------------------
+	   :: content pages
+	----------------------------------------- */
+	.border-bottom {
+        margin-bottom: $gutterWidth;
+        border-bottom: $border;
+    }

@@ -1,0 +1,31 @@
+
+/*	--------------------------------------------------
+	:: Links
+	-------------------------------------------------- */
+	a {
+        color: $linkColor;
+        text-decoration: none;
+        line-height: inherit;
+        cursor: pointer;
+		-webkit-tap-highlight-color: rgba(229, 15, 231, 0.5);
+    
+        .desktop &:hover {
+            color: $linkColorHover;
+        }
+        .desktop &:focus, .desktop &:active {
+            color: #ff6600;
+            outline: none;
+        }
+        p &, p &:visited {
+            line-height: inherit;
+        }
+        
+        i {
+            top: 2px;
+        }
+    
+    }
+	[class*="foundicon-"] {
+        position: relative;
+        margin-right: 6px;
+    }

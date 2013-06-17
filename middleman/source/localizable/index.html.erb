@@ -1,0 +1,55 @@
+---
+title: Test Page
+layout: layout
+link: index
+---
+<section class="row">
+    <hgroup class="twelve columns">
+        <h1><%= I18n.t("index.h1") %></h1>
+        <h2><%= I18n.t("index.h2") %></h2>
+    </hgroup>
+</section>
+
+<section class="row">
+    <figure class="four columns">
+        <img alt="<%= I18n.t("image-alt") %>" id="image-1" src="img/blank.gif"/>
+    </figure>
+    <figure class="four columns">
+        <img alt="<%= I18n.t("image-alt") %>" id="image-2" src="img/blank.gif"/>
+    </figure>
+    <figure class="four columns">
+        <img alt="<%= I18n.t("image-alt") %>" id="image-3" src="img/blank.gif"/>
+    </figure>
+</section>
+
+<section class="row">
+    <h3 class="four columns"><%= I18n.t("index.h3-1") %></h3>
+    <article class="eight columns">
+        <div class="row">
+            <p class="twelve columns lead"><%= I18n.t("index.lead-1") %></p>
+        </div>
+        <div class="row">
+            <p class="six columns"><%= I18n.t("index.p1") %></p>
+            <p class="six columns"><%= I18n.t("index.p2") %></p>
+        </div>
+        
+        <div class="row">
+            <nav class="twelve columns align-center">
+                <a class="btn btn-ajax tooltip" href="https://github.com/ulrich-merkel/client-side-cache" target="_blank" title="<%= I18n.t("index.btn.title") %>"><i class="general foundicon-search"></i><%= I18n.t("index.btn.label") %></a>
+            </nav>
+        </div>
+    </article>
+</section>
+<section class="row border-bottom">
+    <h3 class="four columns"><%= I18n.t("index.h3-2") %></h3>
+    <article class="eight columns">
+        <div class="row">
+            <p class="twelve columns lead"><%= I18n.t("index.lead-2") %></p>
+        </div>
+        <div class="row" id="log">
+            
+        </div>
+    </article>
+</section>
+
+<%= partial "partials/totop" %>

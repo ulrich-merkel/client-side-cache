@@ -1,0 +1,11 @@
+//= require "_app/helper/namespace.js"
+//= require "_app/helper/utils.js"
+//= require "_app/helper/client.js"
+//= require "_app/helper/append.js"
+
+//= require "_app/cache/storage/controller.js"
+//= require "_app/cache/storage/adapter/fileSystem.js"
+//= require "_app/cache/storage/adapter/indexedDatabase.js"
+//= require "_app/cache/storage/adapter/webSqlDatabase.js"
+//= require "_app/cache/storage/adapter/webStorage.js"
+//= require "_app/cache/controller.js"
