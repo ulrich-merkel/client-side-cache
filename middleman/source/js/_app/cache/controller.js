@@ -23,7 +23,7 @@
  * - 0.1 basic functions and plugin structur
  *
  * @see
- * - http://www.winktoolkit.org/ cache component
+ * - http://www.winktoolkit.org/, http://www.winktoolkit.org/documentation/symbols/wink.cache.html
  * 
  * @bugs
  * - 
@@ -387,40 +387,4 @@
     app.cache.controller = controller;
 
 
-    /**
-     * load additional resources on window load
-     *
-     */
-    bind(window, 'load', function () {
-        utils.logTimerStart('Cache');
-
-        var baseUrl = window.baseurl ? window.baseurl : utils.url(window.location.pathname).folder;
-
-        controller.init(function () {
-
-            /**
-             * here we define the resources to be loaded and cached
-             *
-             * there are muliple async calls for resources via controller.load possible
-             * the callback function is just used to hide the loading layer
-             *
-             */
-            controller.load([
-                { "url": baseUrl + "css/app.css", "type": "css", "group": "0", "version": "1.2123", "lastmod": "1371494419253"},
-                { "url": baseUrl + "js/lib.js", "type": "js", "group": "0", "version": "1.5", "lastmod": "1371494419253"},
-                { "url": baseUrl + "js/plugin.js", "type": "js", "group": "1", "version": "1.5", "lastmod": "1371494419253"}
-            ], function () {
-                utils.logTimerEnd('Cache');
-                document.getElementById('layer-loading').style.display = 'none';
-            });
-
-            controller.load([
-                { "url": baseUrl + "img/test/test-1.jpg", "type": "img", "group": "0", "version": "1.2123", "lastmod": "1371494419253", "node": {"id": "image-1"}},
-                { "url": baseUrl + "img/test/test-2.jpg", "type": "img", "group": "0", "version": "1.2123", "lastmod": "1371494419253", "node": {"id": "image-2"}},
-                { "url": baseUrl + "img/test/test-3.jpg", "type": "img", "group": "0", "version": "1.2123", "lastmod": "1371494419253", "node": {"id": "image-3"}}
-            ]);
-        });
-
-    });
-
-}(window, document, window.app || {}));
+}(window, document, window.app || {})); // immediatly invoke function

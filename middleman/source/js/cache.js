@@ -9,3 +9,4 @@
 //= require "_app/cache/storage/adapter/webSqlDatabase.js"
 //= require "_app/cache/storage/adapter/webStorage.js"
 //= require "_app/cache/controller.js"
+//= require "_app/cache/bootstrap.js"

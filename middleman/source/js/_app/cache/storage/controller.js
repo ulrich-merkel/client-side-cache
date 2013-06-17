@@ -640,4 +640,4 @@
     app.cache.storage.controller = Storage;
 
 
-}(document, window.app || {}));
+}(document, window.app || {})); // immediatly invoke function
