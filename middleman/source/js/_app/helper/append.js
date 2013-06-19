@@ -12,16 +12,22 @@
  * @description
  * - provide utility functions
  * 
- * @version: 0.1.3
+ * @version: 0.1.6
  * @author: Ulrich Merkel, 2013
  * 
  * @namespace: app
  * 
  * @changelog
+ * - 0.1.6 new createDomNode function
+ * - 0.1.5 bug fixes for appending images, when there is no data
+ * - 0.1.4 bug fixes script loading ie < 8, 
  * - 0.1.3 elemId paramter added
  * - 0.1.2 refactoring
  * - 0.1.1 bug fixes css onload, js onload
  * - 0.1 basic functions and structur
+ *
+ * @see
+ * - http://www.jspatterns.com/the-ridiculous-case-of-adding-a-script-element/
  *
  */
 (function (document, app, undefined) {
@@ -45,6 +51,56 @@
 
 
     /**
+     * create dom node element
+     *
+     * @param {string} name The node element name type
+     * @param {object} attributes Name/value mapping of the element attributes
+     *
+     * @return {object} The created html object
+     */
+    function createDomNode(name, attributes) {
+
+        var node = document.createElement(name),
+            attribute;
+
+        if (attributes) {
+            for (attribute in attributes) {
+
+                if (attributes.hasOwnProperty(attribute)) {
+                    node.setAttribute(attribute, attributes[attribute]);
+                }
+
+            }
+        }
+
+        return node;
+
+    }
+
+
+    /**
+     * check node parameters
+     *
+     * @param {object|null} element The node element
+     * @param {object} node Object to test for parameters
+     *
+     * @return {object} The converted element
+     */
+    function checkNodeParameters(element, node) {
+
+        if (node) {
+            if (node.dom) {
+                element = node.dom;
+            } else if (node.id) {
+                element = document.getElementById(node.id);
+            }
+        }
+
+        return element;
+    }
+
+
+    /**
      * utility functions
      *
      * following the singleton design pattern
@@ -60,6 +116,7 @@
             privateAppendedJs = [],
             privateAppendedImg = [],
             headNode = document.getElementsByTagName('head')[0];
+
 
         return {
 
@@ -80,21 +137,27 @@
                     var link = null,
                         textNode;
 
-                    // check for element id parameter
-                    if (node && node.id !== undefined) {
-                        link = document.getElementById(node.id);
-                    }
+                    // check for node parameter
+                    link = checkNodeParameters(link, node);
 
                     // if there is data 
                     if (null !== data) {
 
                         // create style element and set attributes
                         if (!link) {
-                            link = document.createElement('style');
-                            link.setAttribute('type', 'text/css');
+                            link = createDomNode('style', {'type': 'text/css'});
                         }
-                        textNode = document.createTextNode(data);
-                        link.appendChild(textNode);
+
+                        /**
+                         * ie lt9 doesn't allow the appendChild() method on a
+                         * link element, so we have to check this here
+                         */
+                        if (!link.styleSheet) {
+                            textNode = document.createTextNode(data);
+                            link.appendChild(textNode);
+                        } else {
+                            link.styleSheet.cssText = data;
+                        }
                         callback();
 
                     // if there is no data but the url parameter
@@ -102,9 +165,7 @@
 
                         // create link element and set attributes
                         if (!link) {
-                            link = document.createElement('link');
-                            link.rel = 'stylesheet';
-                            link.type = 'text/css';
+                            link = createDomNode('link', {'rel': 'stylesheet', 'type': 'text/css'});
                         }
 
                         /**
@@ -149,74 +210,78 @@
                 // check if script is already appended
                 if (utils.inArray(url, privateAppendedJs) === -1) {
 
-                    // dynamic script tag insertion
-                    var script = null;
+                    // init dom and local vars
+                    var script = createDomNode('script'),
+                        firstScript = document.getElementsByTagName('script')[0],
+                        loaded = false;
 
-                    // check for element id parameter
-                    if (!node) {
-                        script = document.createElement('script');
-                        script.type = 'text/javascript';
-                    } else if (node && node.id !== undefined) {
-                        script = document.getElementById(node.id);
-                    }
+                    // check for node parameter
+                    script = checkNodeParameters(script, node);
 
-                    if (!script) {
-                        callback();
+                    // set sript attributes
+                    script.type = 'text/javascript';
+                    script.async = true;
+
+                    // add script event listeners
+                    script.onreadystatechange = script.onload = function () {
+                        if (!loaded && (!this.readyState || this.readyState === 'complete' || this.readyState === 'loaded')) {
+
+                            this.onreadystatechange = script.onload = null;
+                            loaded = true;
+
+                            callback();
+                        }
+                    };
+
+                    // try to handle script errors
+                    if (script.onerror) {
+                        script.onerror = function () {
+                            this.onload = this.onreadystatechange = this.onerror = null;
+                            callback();
+                        };
                     }
 
                     // if there is data 
-                    if (null !== data) {
-
-                        // set script content and append it to head dom
-                        script.textContent = data;
-                        if (!node) {
-                            headNode.appendChild(script);
-                        }
-                        privateAppendedJs.push(url);
-                        callback();
-
-                    // if there is no data but the url parameter
-                    } else if (url !== null) {
+                    if (!!data && !loaded) {
 
                         /**
-                         * setup and unbind event handlers when
-                         * called to avoid callback get's called twice
+                         * try to add data string to script element
+                         *
+                         * due to different browser capabilities we have to test
+                         * for sundry dom methods (e.g. old ie's need script.text)
                          */
-
-                        if (script.readyState) { // internet explorer
-                            script.onreadystatechange = function () {
-                                if (script.readyState === 'loaded' || script.readyState === 'complete') {
-                                    script.onreadystatechange = null;
-                                    callback();
-                                }
-                            };
-                        } else { // other browsers
-                            if (script.onload) {
-                                script.onload = function () {
-                                    script.onload = script.onerror = null;
-                                    callback();
-                                };  
-                            }
-                            if (script.onerror) {
-                                script.onerror = function () {
-                                    script.onload = script.onerror = null;
-                                    callback();
-                                };
-                            }
+                        if (script.textContent) {
+                            script.textContent = data;
+                        } else if (script.nodeValue) {
+                            script.nodeValue = data;
+                        } else {
+                            script.text = data;
                         }
 
-                        // load script and append it to head dom
-                        script.src = url;
-                        if (!node) {
-                            headNode.appendChild(script);
-                        }
-                        privateAppendedJs.push(url);
+                        // mark script as loaded
+                        loaded = true;
 
+                    } else if (null !== url) {
+                        script.src = data;
+                    }
+
+                    // append script to according dom node
+                    if (firstScript) {
+                        firstScript.parentNode.insertBefore(script, firstScript);
+                    } else {
+                        headNode.appendChild(script);
+                    }
+
+                    // check loaded state if file is ready on load
+                    if (loaded) {
+                        callback();
                     }
 
                 } else {
+
                     // script is already appended to dom
                     callback();
+
                 }
             },
 
@@ -231,25 +296,25 @@
              */
             appendImg: function (url, data, callback, node) {
 
+                // init local vars
                 var image = null;
 
-                // check for element id parameter
-                if (node && node.id !== undefined) {
-                    image = document.getElementById(node.id);
-                }
+                // check for node parameter
+                image = checkNodeParameters(image, node);
 
                 if (!image) {
                     callback();
                     return;
                 }
 
+                // add loaded event listener
                 image.onload = callback;
 
-                // if there is data 
-                if (null !== data) {
+                if (data) {
+                    // if there is data 
                     image.src = data;
-                // if there is no data but the url parameter
-                } else if (url !== null) {
+                } else if (url) {
+                    // if there is no data but the url parameter
                     image.src = url;
                 }
 

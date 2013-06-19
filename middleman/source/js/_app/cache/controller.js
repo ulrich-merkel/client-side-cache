@@ -48,13 +48,12 @@
      */
 
     // module vars
-    var controllerType = 'cache controller',                    // controllerType {string} The controller type string
+    var controllerType = 'cache',                               // controllerType {string} The controller type string
         helper = app.helper,                                    // helper {object} Shortcut for helper functions
         append = helper.append,                                 // append {function} Shortcut for append helper
         utils = helper.utils,                                   // utils {object} Shortcut for utils functions
         log = utils.log,                                        // log {function} Shortcut for utils.log function
         checkCallback = utils.callback,                         // checkCallback {function} Shortcut for utils.callback function
-        bind = utils.bind,                                      // bind {function} Shortcut for bind helper
         controller = {};                                        // controller {object} Cache controller public functions and vars
 
 
@@ -146,7 +145,7 @@
                         callback = function () {
                             loadResourceGroupQueue.loaded();
                         },
-                        node = resource.node ? resource.node: null;
+                        node = resource.node || null;
 
                     // load file according to type
                     switch (resource.type) {
@@ -178,6 +177,8 @@
                         callback = function (cbResource) {
                             if (cbResource && cbResource.data) {
                                 appendFile(cbResource, cbResource.data);
+                            } else {
+                                appendFile(cbResource);
                             }
                         };
 
@@ -197,7 +198,7 @@
                          * created - it just returns the data via xhr
                          */
                         if (!item || !item.data) {
-                            log('[' + controllerType + '] Resource or resource data is not available in storage adapter: type ' + resource.type + ', url ' + resource.url);
+                            log('[' + controllerType + ' controller] Resource or resource data is not available in storage adapter: type ' + resource.type + ', url ' + resource.url);
                             self.storage.create(resource, callback);
                             return;
                         }
@@ -211,11 +212,11 @@
                          *
                          * if this comparison failed, the resource will be updated
                          */
-                        if (parseInt(item.expires) !== -1 && item.lastmod === resource.lastmod && resource.version === item.version && (item.lastmod + item.expires) > now) {
-                            log('[' + controllerType + '] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
+                        if (parseInt(item.expires, 10) !== -1 && item.lastmod === resource.lastmod && resource.version === item.version && (item.lastmod + item.expires) > now) {
+                            log('[' + controllerType + ' controller] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
                             data = item.data;
                         } else {
-                            log('[' + controllerType + '] Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
+                            log('[' + controllerType + ' controller] Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
                             self.storage.update(resource, callback);
                             return;
                         }
@@ -313,15 +314,15 @@
                  * main load function, chain resource group loading
                  *
                  * @param {array} resources All the grouped resources
-                 * @param {function} callback The callback function
+                 * @param {function} callback The main callback function
                  * @param {integer} index The optional group index
                  */
                 load = function (resources, callback, index) {
-                
+
                     // init local vars
                     var length = resources.length,
                         group;
-                
+
                     /**
                      * check for corrent index value
                      * on first load index is undefined/optional, so we set
@@ -330,26 +331,27 @@
                     if (!index) {
                         index = 0;
                     }
+
                     while (!resources[index] && index < length) {
                         index = index + 1;
                     }
-                
+
                     // end of resources array reached
                     if (index >= length) {
                         callback();
                         return;
                     }
-                
+
                     // load resources, increase group index recursiv
                     group = resources[index];
                     loadResourceGroup(group, function () {
                         load(resources, callback, index + 1);
                     });
-                
+
                 };
 
             // call main function
-            log('[' + controllerType + '] Load resource function called: resources count ' + resources.length);
+            log('[' + controllerType + ' controller] Load resource function called: resources count ' + resources.length);
             load(groupResources(resources), checkCallback(mainCallback));
 
         },
@@ -371,10 +373,12 @@
             callback = checkCallback(callback);
 
             // init storage
-            log('[' + controllerType + '] Cache initializing and checking for storage adapters');
+            log('[' + controllerType + ' controller] Cache initializing and checking for storage adapters');
             storage = new app.cache.storage.controller(function (storage) {
+
                 self.storage = storage;
                 callback();
+
             }, parameters);
 
         }

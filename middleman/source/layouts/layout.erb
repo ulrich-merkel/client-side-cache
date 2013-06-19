@@ -30,7 +30,35 @@
 
 		<%= partial "partials/layers" %>
 
-        <%= javascript_include_tag  "cache" %>
+		<%= javascript_include_tag  "cache" %>
 
+		<script type="text/javascript">
+//<![CDATA[
+
+//(function() {
+//    var script = document.createElement('script'),
+//    	firstScript = document.getElementsByTagName('script')[0],
+//		loaded;
+//
+//    script.type = 'text/javascript';
+//    script.async = true;
+//    script.onreadystatechange = script.onload = function(e) {
+//		if (!loaded && (!this.readyState || this.readyState === 'complete' || this.readyState === 'loaded')) {
+//			this.onreadystatechange = null;
+//			loaded = 1;
+//            
+//	        (function() {
+//	            // JS fun here
+//	        }());
+//        }
+//    };
+//    script.src = 'js/test.js';
+//	//script.textContent = 'alert("hi");';
+//    firstScript.parentNode.insertBefore(script, firstScript);
+//})();
+//
+////]]>
+</script>
+		
     </body>
 </html>

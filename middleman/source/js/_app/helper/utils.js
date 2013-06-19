@@ -12,12 +12,13 @@
  * @description
  * - provide utility functions
  * 
- * @version: 0.1
+ * @version: 0.1.1
  * @author: Ulrich Merkel, 2013
  * 
  * @namespace: app
  * 
  * @changelog
+ * - 0.1.1 bug fix xhr when trying to read binary data on ie
  * - 0.1 basic functions and structur
  *
  */
@@ -266,12 +267,24 @@
                          */
 
                         if (reqObject.readyState === 4 && ((reqObject.status >= 200 && reqObject.status < 400) || reqObject.status === 0)) {
-                            var data = reqObject.responseText;
-                            if (data) {
-                                callback(data);
-                            } else {
+
+                            /**
+                             * checking additionally for response text parsing
+                             * 
+                             * binary data could not be resolved in ie for ajax calls (like images) and throws
+                             * an error if we try to do so
+                             */
+                            try {
+                                var data = reqObject.responseText;
+                                if (data) {
+                                    callback(data);
+                                } else {
+                                    callback(false);
+                                }
+                            } catch (e) {
                                 callback(false);
                             }
+
                         }
 
                     };

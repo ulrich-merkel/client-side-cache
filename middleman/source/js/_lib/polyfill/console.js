@@ -2,7 +2,7 @@
 /** Avoid `console` errors in browsers that lack a console.
  * removed time and timeEnd due to implementation below
  */
-(function() {
+(function(window) {
     var method;
     var noop = function () {};
     var methods = [
@@ -22,7 +22,7 @@
             console[method] = noop;
         }
     }
-}());
+}(window));
 
 /*-------------------------------------------------------------------------------------*/
 /*

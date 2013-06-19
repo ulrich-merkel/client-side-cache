@@ -1,104 +1,443 @@
-/*
-Syntax error: File to import not found or unreadable: icons/general_foundicons_ie7.
-              Load paths:
-                /Library/WebServer/Documents/www.bachelor.dev/middleman/source/css
-                /Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/compass-0.12.2/frameworks/blueprint/stylesheets
-                /Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/compass-0.12.2/frameworks/compass/stylesheets
-                Compass::SpriteImporter
-        on line 42 of /Library/WebServer/Documents/www.bachelor.dev/middleman/source/css/lt-ie9.css.scss
+/* --------------------------------------------------
+	:: Grid
+	-------------------------------------------------- */
+/* line 5, lt-ie9.css.scss */
+.lt-ie8 .column, .columns {
+  margin-left: 1.5%; }
 
-37:                 }
-38:             }
-39:         }
-40:     }
-41: 
-42: @import "icons/general_foundicons_ie7";
-43: @import "icons/general_enclosed_foundicons_ie7";
-44: @import "icons/social_foundicons_ie7";
-45: @import "icons/_settings_multiple";
-46: 
-47: .lt-ie8 i.general, .lt-ie8 span.general {
+    /* -----------------------------------------
+	   :: Navigation Main
+	----------------------------------------- */
+/* line 17, lt-ie9.css.scss */
+nav.main ul.navigation li a .text, nav.mobile ul.navigation li a .text {
+  display: block !important; }
 
-Backtrace:
-/Library/WebServer/Documents/www.bachelor.dev/middleman/source/css/lt-ie9.css.scss:42
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/import_node.rb:67:in `rescue in import'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/import_node.rb:45:in `import'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/import_node.rb:28:in `imported_file'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/import_node.rb:37:in `css_import?'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/perform.rb:215:in `visit_import'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/base.rb:37:in `visit'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/perform.rb:98:in `visit'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/base.rb:53:in `block in visit_children'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/base.rb:53:in `map'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/base.rb:53:in `visit_children'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/perform.rb:107:in `block in visit_children'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/perform.rb:119:in `with_environment'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/perform.rb:106:in `visit_children'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/base.rb:37:in `block in visit'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/perform.rb:126:in `visit_root'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/base.rb:37:in `visit'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/perform.rb:98:in `visit'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/visitors/perform.rb:7:in `visit'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/tree/root_node.rb:20:in `render'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/engine.rb:315:in `_render'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sass-3.2.3/lib/sass/engine.rb:262:in `render'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-sass-0.8.0/lib/sprockets/sass/sass_template.rb:40:in `evaluate'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/middleman-sprockets-3.0.4/lib/middleman-sprockets/sass.rb:45:in `evaluate'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/tilt-1.3.3/lib/tilt/template.rb:76:in `render'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/context.rb:197:in `block in evaluate'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/context.rb:194:in `each'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/context.rb:194:in `evaluate'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/processed_asset.rb:12:in `initialize'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/base.rb:350:in `new'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/base.rb:350:in `block in build_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/base.rb:371:in `circular_call_protection'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/base.rb:349:in `build_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/index.rb:93:in `block in build_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/caching.rb:51:in `cache_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/index.rb:92:in `build_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/base.rb:270:in `find_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/index.rb:60:in `find_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/bundled_asset.rb:16:in `initialize'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/base.rb:353:in `new'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/base.rb:353:in `build_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/index.rb:93:in `block in build_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/caching.rb:51:in `cache_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/index.rb:92:in `build_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/base.rb:270:in `find_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/index.rb:60:in `find_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/environment.rb:74:in `find_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/middleman-sprockets-3.0.4/lib/middleman-sprockets/extension.rb:118:in `find_asset'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/sprockets-2.4.5/lib/sprockets/server.rb:47:in `call'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/rack-1.4.1/lib/rack/builder.rb:134:in `call'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/rack-1.4.1/lib/rack/urlmap.rb:64:in `block in call'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/rack-1.4.1/lib/rack/urlmap.rb:49:in `each'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/rack-1.4.1/lib/rack/urlmap.rb:49:in `call'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/rack-1.4.1/lib/rack/builder.rb:134:in `call'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/rack-test-0.6.2/lib/rack/mock_session.rb:30:in `request'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/rack-test-0.6.2/lib/rack/test.rb:230:in `process_request'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/rack-test-0.6.2/lib/rack/test.rb:57:in `get'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/middleman-core-3.0.6/lib/middleman-core/cli/build.rb:235:in `block in execute!'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/middleman-core-3.0.6/lib/middleman-core/cli/build.rb:232:in `each'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/middleman-core-3.0.6/lib/middleman-core/cli/build.rb:232:in `execute!'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/middleman-core-3.0.6/lib/middleman-core/cli/build.rb:174:in `invoke!'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/thor-0.15.4/lib/thor/actions.rb:95:in `action'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/middleman-core-3.0.6/lib/middleman-core/cli/build.rb:64:in `build'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/thor-0.15.4/lib/thor/task.rb:27:in `run'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/thor-0.15.4/lib/thor/invocation.rb:120:in `invoke_task'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/thor-0.15.4/lib/thor.rb:275:in `dispatch'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/thor-0.15.4/lib/thor/base.rb:425:in `start'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/middleman-core-3.0.6/lib/middleman-core/cli.rb:77:in `method_missing'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/thor-0.15.4/lib/thor/task.rb:29:in `run'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/thor-0.15.4/lib/thor/task.rb:126:in `run'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/thor-0.15.4/lib/thor/invocation.rb:120:in `invoke_task'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/thor-0.15.4/lib/thor.rb:275:in `dispatch'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/thor-0.15.4/lib/thor/base.rb:425:in `start'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/middleman-core-3.0.6/lib/middleman-core/cli.rb:22:in `start'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/middleman-core-3.0.6/bin/middleman:18:in `<top (required)>'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/bin/middleman:23:in `load'
-/Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/bin/middleman:23:in `<main>'
-*/
-body:before {
-  white-space: pre;
-  font-family: monospace;
-  content: "Syntax error: File to import not found or unreadable: icons/general_foundicons_ie7.\A               Load paths:\A                 /Library/WebServer/Documents/www.bachelor.dev/middleman/source/css\A                 /Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/compass-0.12.2/frameworks/blueprint/stylesheets\A                 /Users/Ulrich/.rvm/gems/ruby-1.9.3-p327/gems/compass-0.12.2/frameworks/compass/stylesheets\A                 Compass::SpriteImporter\A         on line 42 of /Library/WebServer/Documents/www.bachelor.dev/middleman/source/css/lt-ie9.css.scss\A \A 37:                 }\A 38:             }\A 39:         }\A 40:     }\A 41: \A 42: @import \"icons/general_foundicons_ie7\";\A 43: @import \"icons/general_enclosed_foundicons_ie7\";\A 44: @import \"icons/social_foundicons_ie7\";\A 45: @import \"icons/_settings_multiple\";\A 46: \A 47: .lt-ie8 i.general, .lt-ie8 span.general {"; }
+/* -------------------------------------------------- 
+	:: Plugin Slider
+---------------------------------------------------*/
+/* line 35, lt-ie9.css.scss */
+.js .slider .slides .slide {
+  cursor: default; }
+
+/* line 1, _icons/general_foundicons_ie7.css.scss */
+.lt-ie8 {
+  /* general icons for IE7 */ }
+  /* line 5, _icons/general_foundicons_ie7.css.scss */
+  .lt-ie8 [class*="foundicon-"] {
+    font-family: "GeneralFoundicons";
+    font-weight: normal;
+    font-style: normal; }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-settings {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf000;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-heart {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf001;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-star {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf002;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-plus {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf003;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-minus {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf004;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-checkmark {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf005;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-remove {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf006;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-mail {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf007;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-calendar {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf008;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-page {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf009;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-tools {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00a;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-globe {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00b;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-home {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00c;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-quote {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00d;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-people {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00e;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-monitor {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00f;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-laptop {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf010;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-phone {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf011;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-cloud {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf012;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-error {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf013;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-right-arrow {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf014;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-left-arrow {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf015;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-up-arrow {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf016;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-down-arrow {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf017;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-trash {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf018;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-add-doc {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf019;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-edit {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01a;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-lock {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01b;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-unlock {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01c;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-refresh {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01d;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-paper-clip {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01e;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-video {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01f;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-photo {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf020;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-graph {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf021;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-idea {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf022;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-mic {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf023;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-cart {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf024;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-address-book {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf025;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-compass {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf026;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-flag {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf027;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-location {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf028;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-clock {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf029;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-folder {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf02a;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-inbox {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf02b;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-website {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf02c;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-smiley {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf02d;"); }
+  /* line 12, _icons/_settings_general_foundicons.css.scss */
+  .lt-ie8 .foundicon-search {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf02e;"); }
+
+/* line 1, _icons/general_enclosed_foundicons_ie7.css.scss */
+.lt-ie8 {
+  /* general icons for IE7 */ }
+  /* line 5, _icons/general_enclosed_foundicons_ie7.css.scss */
+  .lt-ie8 [class*="foundicon-"] {
+    font-family: "GeneralEnclosedFoundicons";
+    font-weight: normal;
+    font-style: normal; }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-settings {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf000;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-heart {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf001;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-star {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf002;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-plus {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf003;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-minus {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf004;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-checkmark {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf005;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-remove {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf006;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-mail {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf007;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-calendar {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf008;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-page {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf009;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-tools {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00a;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-globe {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00b;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-home {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00c;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-quote {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00d;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-people {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00e;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-monitor {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00f;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-laptop {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf010;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-phone {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf011;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-cloud {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf012;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-error {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf013;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-right-arrow {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf014;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-left-arrow {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf015;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-up-arrow {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf016;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-down-arrow {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf017;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-trash {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf018;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-add-doc {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf019;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-edit {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01a;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-lock {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01b;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-unlock {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01c;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-refresh {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01d;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-paper-clip {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01e;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-video {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01f;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-photo {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf020;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-graph {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf021;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-idea {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf022;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-mic {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf023;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-cart {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf024;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-address-book {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf025;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-compass {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf026;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-flag {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf027;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-location {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf028;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-clock {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf029;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-folder {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf02a;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-inbox {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf02b;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-website {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf02c;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-smiley {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf02d;"); }
+  /* line 12, _icons/_settings_general_enclosed_foundicons.css.scss */
+  .lt-ie8 .foundicon-search {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf02e;"); }
+
+/* line 1, _icons/social_foundicons_ie7.css.scss */
+.lt-ie8 {
+  /* general icons for IE7 */ }
+  /* line 5, _icons/social_foundicons_ie7.css.scss */
+  .lt-ie8 [class*="foundicon-"] {
+    font-family: "SocialFoundicons";
+    font-weight: normal;
+    font-style: normal; }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-thumb-up {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf000;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-thumb-down {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf001;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-rss {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf002;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-facebook {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf003;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-twitter {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf004;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-pinterest {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf005;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-github {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf006;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-path {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf007;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-linkedin {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf008;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-dribbble {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf009;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-stumble-upon {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00a;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-behance {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00b;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-reddit {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00c;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-google-plus {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00d;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-youtube {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00e;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-vimeo {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf00f;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-flickr {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf010;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-slideshare {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf011;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-picassa {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf012;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-skype {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf013;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-steam {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf014;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-instagram {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf015;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-foursquare {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf016;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-delicious {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf017;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-chat {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf018;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-torso {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf019;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-tumblr {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01a;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-video-chat {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01b;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-digg {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01c;"); }
+  /* line 12, _icons/_settings_social_foundicons.css.scss */
+  .lt-ie8 .foundicon-wordpress {
+    *zoom: expression(this.runtimeStyle['zoom'] = "1", this.innerHTML = "&#xf01d;"); }
+
+/* line 1, _icons/_settings_multiple.css.scss */
+[class*="general foundicon-"]:before {
+  font-family: "GeneralFoundicons"; }
+
+/* line 4, _icons/_settings_multiple.css.scss */
+[class*="general-enclosed foundicon-"]:before {
+  font-family: "GeneralEnclosedFoundicons"; }
+
+/* line 7, _icons/_settings_multiple.css.scss */
+[class*="social foundicon-"]:before {
+  font-family: "SocialFoundicons"; }
+
+/* line 47, lt-ie9.css.scss */
+.lt-ie8 i.general, .lt-ie8 span.general {
+  font-family: "GeneralFoundicons" !important; }
+
+/* line 50, lt-ie9.css.scss */
+.lt-ie8 i.general-enclosed, .lt-ie8 span.general-enclosed {
+  font-family: "GeneralEnclosedFoundicons" !important; }
+
+/* line 53, lt-ie9.css.scss */
+.lt-ie8 i.social, .lt-ie8 span.social {
+  font-family: "SocialFoundicons" !important; }

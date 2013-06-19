@@ -19,7 +19,7 @@
  * @namespace app
  *
  * @changelog
- * - 0.1.3 bug fix when checking adapter support - additionally checking with adapter.open and not just isSupported
+ * - 0.1.3 bug fix when checking adapter support - additionally checking with adapter.open and not just isSupported, modified getStorageAdapter function
  * - 0.1.2 refactoring, js lint
  * - 0.1.1 bug fix init when cache storage is disabled
  * - 0.1 basic functions and structur
@@ -47,7 +47,7 @@
      */
 
     // module vars
-    var controllerType = 'storage controller',                  // controllerType {string} The controller type string
+    var controllerType = 'storage',                             // controllerType {string} The controller type string
         helper = app.helper,                                    // helper {object} Shortcut for helper functions
         client = helper.client,                                 // client {object} Shortcut for client functions
         utils = helper.utils,                                   // utils {object} Shortcut for utils functions
@@ -61,7 +61,7 @@
          * adapters {array} Config array with objects for different storage types
          * 
          * this is the place to configure which types of adapters will be checked
-         * and which resources are stored in which adapter type
+         * and which resource types are stored in which adapter type
          */
         adapters = [
             {type: 'fileSystem', css: true, js: true, html: true, img: true },
@@ -83,11 +83,12 @@
             size: 4 * 1024 * 1024,                              // adapterDefaults.size {integer} Default db size 4 MB
             version: '1.0',                                     // adapterDefaults.version {string} Default db version, needs to be string for web sql database and should be 1.0
             key: 'key',                                         // adapterDefaults.key {string} Default db primary key
-            lifetime: 'local'                                   // lifetime {string} Default lifetime for webstorage
+            lifetime: 'local',                                  // adapterDefaults.lifetime {string} Default lifetime for webstorage
+            type: ''                                            // adapterDefaults.type {string} Placeholder for storage adapter type string
         },
 
         adapterAvailable = null,                                // adapterAvailable {string} The name of the best available adapter
-        adapterAvailableConfig = {},                            // adapterAvailableConfig {object} The adapter config for the available type (see adapters)
+        adapterAvailableConfig = null,                          // adapterAvailableConfig {object} The adapter config for the available type (see adapters)
 
 
         /**
@@ -99,12 +100,12 @@
             group: 0,                                           // resourceDefaults.group {integer} Default resource group
             lastmod: new Date().getTime(),                      // resourceDefaults.lastmod {integer} Default last modification timestamp
             type: 'css',                                        // resourceDefaults.type {string} Default resource type
-            version: 1
+            version: 1                                          // resourceDefaults.version {integer} Default resource version
         };
 
 
     /**
-     * helper function convert json object to string
+     * helper function to convert a json object to string
      *
      * @param {object} object The json object to convert
      *
@@ -116,7 +117,7 @@
 
 
     /**
-     * helper function convert json string to object
+     * helper function to convert a json string to object
      *
      * @param {string} string The json string to convert
      *
@@ -134,7 +135,7 @@
      * @param {function} callback The callback function after success
      * @param {string} imageType The image type (jpeg, png)
      *
-     * @returns {string} Returns converted data as callback parameter
+     * @returns {string} Returns converted data as callback parameter or false
      */
     function convertImageToBase64(url, callback, imageType) {
 
@@ -182,6 +183,11 @@
             image.src = url;
 
         } else {
+
+            /**
+             * just do a false callback and don't get the data via xhr to
+             * avoid the parsing of binary data via response text
+             */
             callback(false);
         }
     }
@@ -193,7 +199,7 @@
      * @param {string} data The data content string
      * @param {object} resource The resource object item
      *
-     * @returns {string} Returns converted data
+     * @returns {string} Returns converted or source data
      */
     function convertRelativeToAbsoluteUrls(data, resource) {
 
@@ -234,17 +240,21 @@
     /**
      * check if resource is cachable due to adapter config
      *
-     * @param {string} resourceType The resource type
+     * @param {string} resourceType The resource type (css, js, html, ...)
      * 
      * @returns {boolean} Returns true or false depending on resource type
      */
     function isRessourceStorable(resourceType) {
-        return adapterAvailableConfig[resourceType];
+        if (adapterAvailableConfig && adapterAvailableConfig[resourceType]) {
+            return !!adapterAvailableConfig[resourceType];
+        }
+        return false;
     }
 
 
     /**
      * get available storage adapter recursivly
+     * automatically try to init each storage adapter until a supported adapter is found
      *
      * @param {array} storageAdapters The storage types
      * @param {function} callback The callback function 
@@ -252,28 +262,36 @@
     function getAvailableStorageAdapter(storageAdapters, callback) {
 
         // init local vars
-        var adapter = null;
+        var adapter = null,
+            storageType;
 
-        // end of recursive loop reached
-        if (!storageAdapters.length) {
-            callback(false);
+        // end of recursive loop reached, no adapter available
+        /**
+         * IE incorrectly interprets a single trailing comma as an elision and adds one to the length when it shouldn't (ECMA-262 sect. 11.1.4).
+         */
+        if (!storageAdapters || !storageAdapters.length) {
+            if (!adapterAvailable) {
+                callback(false);
+            }
             return;
         }
 
         // init storage and check support
-        log('[' + controllerType + '] Testing for storage adapter: type ' + storageAdapters[0].type);
-        adapter = new app.cache.storage.adapter[storageAdapters[0].type](adapterDefaults);
+        storageType = storageAdapters[0].type;
+        log('[' + controllerType + ' controller] Testing for storage adapter type: ' + storageType);
+        adapter = new app.cache.storage.adapter[storageType](adapterDefaults);
 
         if (adapter && adapter.isSupported()) {
 
             // storage api is avaibable, try to open storage
             adapter.open(function (success) {
+
                 if (!!success) {
 
-                    adapterAvailable = storageAdapters[0].type;
+                    adapterAvailable = storageType;
                     adapterAvailableConfig = storageAdapters[0];
 
-                    log('[' + controllerType + '] Used storage type: ' + adapterAvailable);
+                    log('[' + controllerType + ' controller] Used storage adapter type: ' + adapterAvailable);
                     callback(adapter);
 
                 } else {
@@ -283,8 +301,9 @@
 
                 }
             });
+
         } else {
-    
+
             // recursiv call
             getAvailableStorageAdapter(storageAdapters.slice(1), callback);
         }
@@ -300,37 +319,58 @@
     function getStorageAdapter(callback, storageType) {
 
         // init local vars
-        var adapter = null;
+        var adapter = null,
+            i = 0,
+            length;
 
         // if storage type is set, try to initialize it
         if (storageType) {
 
             try {
                 // init storage and check support
-                log('[' + controllerType + '] Testing for storage adapter: type ' + storageType);
+                log('[' + controllerType + ' controller] Testing for storage adapter type: ' + storageType);
                 adapter = new app.cache.storage.adapter[storageType](adapterDefaults);
 
                 if (adapter && adapter.isSupported()) {
+
                     // storage api is avaibable, try to open storage
                     adapter.open(function (success) {
                         if (!!success) {
-                            adapterAvailable = adapter.type;
-                            adapterAvailableConfig = storageAdapters[0];
 
-                            log('[' + controllerType + '] Used storage type: ' + adapterAvailable);
-                            callback(adapter);
-                        } else {
+                            adapterAvailable = storageType;
+                            length = adapters.length;
+
+                            for (i = 0; i < length; i = i + 1) {
+                                if (adapters[i].type === storageType) {
+                                    adapterAvailableConfig = adapters[i];
+                                }
+                            }
+
+                            if (adapterAvailableConfig) {
+                                log('[' + controllerType + ' controller] Used storage type: ' + adapterAvailable);
+                                callback(adapter);
+                                return;
+                            }
+
+                            log('[' + controllerType + ' controller] Storage config not found: ' + adapterAvailable);
                             getStorageAdapter(callback);
+
+                        } else {
+
+                            getStorageAdapter(callback);
+
                         }
                     });
                 } else {
                     getStorageAdapter(callback);
                 }
             } catch (e) {
+                log('[' + controllerType + ' controller] Storage adapter could not be initialized: type ' + storageType);
                 getStorageAdapter(callback);
             }
 
         } else {
+            // automatic init with global adapters array
             getAvailableStorageAdapter(adapters, callback);
         }
     }
@@ -345,21 +385,24 @@
     function Storage(callback, parameters) {
 
         /**
-         * this.isEnabled = true {boolean} Enable client side storage
+         * this.isEnabled = true {boolean} Enable or disable client side storage
          *
          * enable or disable client side cache or load resources just
-         * via xhr if this option is set to false
+         * via xhr if this option/parameter is set to false
          */
         this.isEnabled = true;
-        if (parameters && parameters.isEnabled !== undefined) {
-            this.isEnabled = !!parameters.isEnabled;
-        }
 
 
         /**
          * this.adapter {object} The instance of the best available storage adapter
          */
         this.adapter = null;
+
+
+         /**
+         * this.offline {object} The instance of the application cache storage adapter
+         */
+        this.offline = null;
 
 
         // run init function
@@ -402,12 +445,12 @@
                         */
                         try {
                             // create storage entry
-                            self.adapter.create(key, content, function (success) {;
+                            self.adapter.create(key, content, function (success) {
                                 if (success) {
-                                    log('[' + controllerType + '] Create new resource in storage adapter: type ' + resource.type + ', url ' + resource.url);
+                                    log('[' + controllerType + ' controller] Create new resource in storage adapter: type ' + resource.type + ', url ' + resource.url);
                                     callback(resource);
                                 } else {
-                                    log('[' + controllerType + '] Storage adapter could not create resource callback');
+                                    log('[' + controllerType + ' controller] Storage adapter could not create resource callback');
                                     callback(false);
                                 }
                             });
@@ -417,7 +460,7 @@
                         }
 
                     } else {
-                        log('[' + controllerType + '] Resource type is not cachable or storage adapter is not available: type ' + resource.type + ', url ' + resource.url);
+                        log('[' + controllerType + ' controller] Resource type is not cachable or storage adapter is not available: type ' + resource.type + ', url ' + resource.url);
                         callback(resource);
                     }
                 };
@@ -452,7 +495,8 @@
             // try to read from storage
             if (null !== this.adapter && isRessourceStorable(resource.type)) {
 
-                log('[' + controllerType + '] Trying to read resource from storage: type ' + resource.type + ', url ' + resource.url);
+                log('[' + controllerType + ' controller] Trying to read resource from storage: type ' + resource.type + ', url ' + resource.url);
+
                 /**
                  * there is a bug in older browser versions (seamonkey)
                  * when trying to read from db (due to non-standard implementation),
@@ -463,10 +507,10 @@
                         if (data) {
                             resource = convertStringToObject(data);
                             resource.url = url;
-                            log('[' + controllerType + '] Successfully read resource from storage: type ' + resource.type + ', url ' + resource.url);
+                            log('[' + controllerType + ' controller] Successfully read resource from storage: type ' + resource.type + ', url ' + resource.url);
                             callback(resource);
                         } else {
-                            log('[' + controllerType + '] There is no data coming back from storage: type ' + resource.type + ', url ' + resource.url);
+                            log('[' + controllerType + ' controller] There is no data coming back from storage: type ' + resource.type + ', url ' + resource.url);
                             callback(false);
                         }
                     });
@@ -474,7 +518,7 @@
                     xhr(url, function (data) {
                         // append data to resource object
                         resource.data = data;
-                        log('[' + controllerType + '] Try to read resource from storage, but storage adapter is not available: type ' + resource.type + ', url ' + resource.url);
+                        log('[' + controllerType + ' controller] Try to read resource from storage, but storage adapter is not available: type ' + resource.type + ', url ' + resource.url);
                         callback(resource);
                     });
                 }
@@ -515,16 +559,16 @@
                     // update storage entry
                     self.adapter.update(key, content, function (success) {
                         if (success) {
-                            log('[' + controllerType + '] Update resource in storage: type ' + resource.type + ', url ' + resource.url);
+                            log('[' + controllerType + ' controller] Update resource in storage: type ' + resource.type + ', url ' + resource.url);
                             callback(resource);
                         } else {
-                            log('[' + controllerType + '] Update resource in storage failed, the adapter returned no data: type ' + resource.type + ', url ' + resource.url);
+                            log('[' + controllerType + ' controller] Update resource in storage failed, the adapter returned no data: type ' + resource.type + ', url ' + resource.url);
                             callback(false);
                         }
                     });
 
                 } else {
-                    log('[' + controllerType + '] Update resource in storage failed, resource type is not cachable or there is no storage adapter: type ' + resource.type + ', url ' + resource.url);
+                    log('[' + controllerType + ' controller] Update resource in storage failed, resource type is not cachable or there is no storage adapter: type ' + resource.type + ', url ' + resource.url);
                     callback(resource);
                 }
 
@@ -552,11 +596,11 @@
                 self.adapter.remove(convertObjectToString(url), function (data) {
                     resource = convertStringToObject(data);
                     resource.url = url;
-                    log('[' + controllerType + '] Delete resource form storage: type ' + resource.type + ', url ' + resource.url);
+                    log('[' + controllerType + ' controller] Delete resource form storage: type ' + resource.type + ', url ' + resource.url);
                     callback(resource);
                 });
             } else {
-                log('[' + controllerType + '] Delete resource from storage failed, resource type is not cachable or there is no storage adapter: type ' + resource.type + ', url ' + resource.url);
+                log('[' + controllerType + ' controller] Delete resource from storage failed, resource type is not cachable or there is no storage adapter: type ' + resource.type + ', url ' + resource.url);
                 callback(resource);
             }
 
@@ -574,6 +618,10 @@
             // init local vars
             var self = this,
                 storageType = false;
+
+            if (parameters && parameters.isEnabled !== undefined) {
+                this.isEnabled = !!parameters.isEnabled;
+            }
 
             if (this.isEnabled && json) {
 
@@ -598,10 +646,14 @@
                         adapterDefaults.table = String(parameters.table);
                     }
                     if (parameters.type) {
-                        adapterDefaults.type = storageType = String(parameters.type);
+                        adapterDefaults.type = String(parameters.type);
+                        storageType = adapterDefaults.type;
                     }
                     if (parameters.version) {
                         adapterDefaults.version = parameters.version;
+                    }
+                    if (parameters.offline) {
+                        adapterDefaults.offline = parameters.offline;
                     }
                 }
 
@@ -619,6 +671,18 @@
                     callback(self);
                 }, storageType);
 
+                /**
+                 * check for using application cache
+                 *
+                 * this is a separate call because application cache
+                 * differs from the idea of the other api's in controlling
+                 * and handling data
+                 */
+
+                //if (parameters && !!parameters.offline) {
+                //    //code
+                //}
+
             } else {
 
                 /**
@@ -627,6 +691,7 @@
                  * available
                  */
 
+                log('[' + controllerType + ' controller]  Caching and storing data is disabled or there is no json support');
                 callback(self);
             }
         }

@@ -89,9 +89,9 @@
 
             // load page css and js files
             controller.load([
-                { "url": baseUrl + "css/app.css", "type": "css", "group": "0", "version": "1.2123", "lastmod": "1371494419253"},
-                { "url": baseUrl + "js/lib.js", "type": "js", "group": "0", "version": "1.5", "lastmod": "1371494419253"},
-                { "url": baseUrl + "js/plugin.js", "type": "js", "group": "1", "version": "1.5", "lastmod": "1371494419253"}
+                { "url": baseUrl + "css/app.css", "type": "css", "group": "0", "version": "1.4", "lastmod": "1371599205110"},
+                { "url": baseUrl + "js/lib.js", "type": "js", "group": "0", "version": "1.7", "lastmod": "1371599205110"},
+                { "url": baseUrl + "js/plugin.js", "type": "js", "group": "2", "version": "1.7", "lastmod": "1371599205110"}
             ], function () {
                 utils.logTimerEnd('Page css and js files');
                 document.getElementById('layer-loading').style.display = 'none';
@@ -99,9 +99,9 @@
 
             // load page images
             controller.load([
-                { "url": baseUrl + "img/test/test-1.jpg", "type": "img", "group": "0", "version": "1.2123", "lastmod": "1371494419253", "node": {"id": "image-1"}},
-                { "url": baseUrl + "img/test/test-2.jpg", "type": "img", "group": "0", "version": "1.2123", "lastmod": "1371494419253", "node": {"id": "image-2"}},
-                { "url": baseUrl + "img/test/test-3.jpg", "type": "img", "group": "0", "version": "1.2123", "lastmod": "1371494419253", "node": {"id": "image-3"}}
+                { "url": baseUrl + "img/test/test-1.jpg", "type": "img", "group": "0", "version": "1", "lastmod": "1371599205110", "node": {"id": "image-1"}},
+                { "url": baseUrl + "img/test/test-2.jpg", "type": "img", "group": "0", "version": "1", "lastmod": "1371599205110", "node": {"id": "image-2"}},
+                { "url": baseUrl + "img/test/test-3.jpg", "type": "img", "group": "0", "version": "1", "lastmod": "1371599205110", "node": {"id": "image-3"}}
             ], function () {
                 utils.logTimerEnd('Page images');
             });

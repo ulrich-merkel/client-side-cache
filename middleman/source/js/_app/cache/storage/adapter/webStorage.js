@@ -12,12 +12,13 @@
  * @description
  * - provide a storage api for web storage
  * 
- * @version 0.1.1
+ * @version 0.1.2
  * @author Ulrich Merkel, 2013
  * 
  * @namespace app
  *
  * @changelog
+ * - 0.1.2 bug fixes for non-standard browsers, added trying to read item to open function
  * - 0.1.1 refactoring, js lint
  * - 0.1 basic functions and structur
  *
@@ -67,7 +68,7 @@
         }
 
         // init local vars
-        var msg = '[' + storageType + ' Adapter] Event - key: ' + e.key + ', url: ' + e.url + ', oldValue: ' + e.oldValue + ', newValue: ' + e.newValue;
+        var msg = '[' + storageType + ' Adapter] Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event');
 
         // log event
         log(msg);
@@ -185,9 +186,12 @@
          */
         read: function (key, callback) {
 
+            var self = this,
+                data;
+
             try {
                 // try to load data
-                var data = this.adapter.getItem(key);
+                data = self.adapter.getItem(key);
 
                 // return data
                 if (data) {
@@ -197,11 +201,13 @@
                 }
 
             } catch (e) {
+
                 // handle errors
                 handleStorageEvents(e);
                 callback(false, e);
 
             }
+
 
         },
 
@@ -215,6 +221,7 @@
          */
         update: function (key, content, callback) {
 
+            // same logic as this.create
             this.create(key, content, callback);
 
         },
@@ -257,10 +264,37 @@
 
             // check for database
             if (null === adapter) {
-                adapter = self.adapter = window[type];
-                utils.bind(window, 'storage', handleStorageEvents);
+                try {
+
+                    /* init global object */
+                    adapter = self.adapter = window[type];
+                    utils.bind(window, 'storage', handleStorageEvents);
+
+                    /* create test item */
+                    log('[' + storageType + ' Adapter] Try to create test resource');
+                    self.create('test-item', '{test: "content"}', function (success) {
+                        if (!!success) {
+                            self.remove('test-item', function () {
+                                log('[' + storageType + ' Adapter] Test resource created and successfully deleted');
+                                callback(adapter);
+                                return;
+                            });
+                        } else {
+
+                            callback(false);
+                        }
+
+                    });
+
+                } catch (e) {
+                    callback(false);
+                    return;
+                }
+            } else if (self.isSupported()) {
+
+                // adapter already initialized
+                callback(adapter);
             }
-            callback(adapter);
 
         },
 
