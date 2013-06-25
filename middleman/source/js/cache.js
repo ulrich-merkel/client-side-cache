@@ -3,11 +3,11 @@
 //= require "_app/helpers/client.js"
 //= require "_app/helpers/append.js"
 
-//= require "_app/cache/storage/controller.js"
 //= require "_app/cache/storage/adapter/fileSystem.js"
 //= require "_app/cache/storage/adapter/indexedDatabase.js"
 //= require "_app/cache/storage/adapter/webSqlDatabase.js"
 //= require "_app/cache/storage/adapter/webStorage.js"
 //= require "_app/cache/storage/adapter/applicationCache.js"
+//= require "_app/cache/storage/controller.js"
 //= require "_app/cache/controller.js"
 //= require "_app/cache/bootstrap.js"

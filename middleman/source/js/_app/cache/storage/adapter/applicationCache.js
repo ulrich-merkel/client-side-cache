@@ -106,7 +106,7 @@
                  * when trying to save data with application cache, we
                  * avoid the usage for this one
                  */
-                boolIsSupported = !!window.applicationCache && !client.isFirefox() && !!htmlNode.getAttribute('manifest');
+                boolIsSupported = !!window.applicationCache && !!htmlNode.getAttribute('manifest');
                 if (!boolIsSupported) {
                     log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
                 }

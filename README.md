@@ -16,7 +16,7 @@ The test page is generated with middleman app - if you want to edit them you nee
 
 ### Tested and supported browsers:
 
- - Internet explorer 8.0 +
+ - Internet Explorer 8.0 +
  - Firefox 19.0 +
  - Google Crome 21.0 +
  - Safari 6.0 +
@@ -51,7 +51,7 @@ It is recommended that you combine all the single files into one and minimize th
 files which you want to cache locally. Below you will find a sample version of the bootstrap file.
 
 ### Examples
-#### Example cache initializing:
+#### Cache initializing:
 
     (function (window, app, undefined) {
         'use strict';
@@ -105,12 +105,12 @@ files which you want to cache locally. Below you will find a sample version of t
                  * {string} url The required url of the resource
                  * {string} type The required content type of the resource (css, js, img, html)
                  * {string|integer} group The optional loading group of the resource, this is used for handling dependencies, a following group begins to start loading when the previous has finished
-                 * {string|integer} version The optional version number of the resource, used to mark a resource to be updated
+                 * {string|float} version The optional version number of the resource, used to mark a resource to be updated
                  * {string|integer} lastmod The optional lastmod timestamp of the resource, used to mark a resource to be updated
                  * {string|integer} lifetime The optional lifetime time in milliseconds of the resource, used to mark a resource to be updated after a given period if time, if set to -1 the resource will always be loaded from network
                  * {object} node Container for additional dom node informations
                  * {string} node.id The id from the dom element to append the data to
-                 * {string} node.dom The current dom element to append the data to
+                 * {object} node.dom The current dom element to append the data to
                  *
                  */
     
@@ -120,16 +120,16 @@ files which you want to cache locally. Below you will find a sample version of t
                     {url: baseUrl + "js/lib.js", type: "js"},
                     {url: baseUrl + "js/app.js", type: "js", group: 1}
                 ], function () {
-                    // do somesthing when css and js files are loaded
+                    // do something when css and js files are loaded
                 });
     
                 // load page images
                 controller.load([
-                    { "url": baseUrl + "img/410x144/test-1.jpg", "type": "img", "node": {"id": "image-1"}},
-                    { "url": baseUrl + "img/410x144/test-2.jpg", "type": "img", "node": {"id": "image-2"}},
-                    { "url": baseUrl + "img/410x144/test-3.jpg", "type": "img", "node": {"id": "image-3"}}
+                    {url: baseUrl + "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
+                    {url: baseUrl + "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
+                    {url: baseUrl + "img/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
                 ], function () {
-                    // do somesthing when images are loaded
+                    // do something when images are loaded
                 });
     
     
@@ -139,7 +139,7 @@ files which you want to cache locally. Below you will find a sample version of t
     
     }(window, window.app || {}));
 
-#### Example offline application cache initializing:
+#### Offline application cache initializing:
         ...
         controller.init(function (storage) {
 
