@@ -10,6 +10,21 @@
  * - main functions/controller for handling client-side cache
  * - connect to storage controller and read/write data or get data via xhr
  * - handle logic to check for outdated data
+ *
+ * - tested and supported browsers for storing data client-side:
+ * - Internet explorer 8.0 +
+ * - Firefox 19.0 +
+ * - Google Crome 21.0 +
+ * - Safari 6.0 +
+ * - Opera 12.5 +
+ * - Camino 2.1.2 +
+ * - Fake 1.8 +
+ * - Maxthon 4.0.5 +
+ * - Omni Web 5.11 +
+ * - Seamonkey 2.15 +
+ * - Stainless 0.8 +
+ * - Sunrise 2.2 +
+ *
  * 
  * @author Ulrich Merkel (hello@ulrichmerkel.com)
  * @version 0.1.3
@@ -19,11 +34,13 @@
  * @changelog
  * - 0.1.3 bug fix check for outdated data
  * - 0.1.2 resource attrib check on loadResource function added
- * - 0.1.1 bug fix load resource (item.expires is set check added)
+ * - 0.1.1 bug fix load resource (item.lifetime is set check added)
  * - 0.1 basic functions and plugin structur
  *
  * @see
  * - http://www.winktoolkit.org/, http://www.winktoolkit.org/documentation/symbols/wink.cache.html
+ *
+ * 
  * 
  * @bugs
  * - 
@@ -49,9 +66,9 @@
 
     // module vars
     var controllerType = 'cache',                               // controllerType {string} The controller type string
-        helper = app.helper,                                    // helper {object} Shortcut for helper functions
-        append = helper.append,                                 // append {function} Shortcut for append helper
-        utils = helper.utils,                                   // utils {object} Shortcut for utils functions
+        helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
+        append = helpers.append,                                // append {function} Shortcut for append helper
+        utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
         log = utils.log,                                        // log {function} Shortcut for utils.log function
         checkCallback = utils.callback,                         // checkCallback {function} Shortcut for utils.callback function
         controller = {};                                        // controller {object} Cache controller public functions and vars
@@ -180,15 +197,28 @@
                             } else {
                                 appendFile(cbResource);
                             }
-                        };
+                        },
+                        resourceDefaults = self.storage.resourceDefaults,
+                        lastmodCheck = true;
 
-                    // check resource attributes for handling outdated data
-                    resource.expires = resource.expires ? parseInt(resource.expires, 10) : 0;
-                    resource.lastmod = resource.lastmod ? parseInt(resource.lastmod, 10) : now;
-                    resource.version = resource.version ? parseFloat(resource.version) : 1.0;
+
+                    // check optional resource attributes and set defaults
+                    resource.version = resource.version ? parseFloat(resource.version) : resourceDefaults.version;
+                    resource.group = resource.group ? parseFloat(resource.group) : resourceDefaults.group;
 
                     // read resource via storage controller
                     self.storage.read(resource, function (item) {
+
+                        // check resource lastmod for handling outdated data
+                        if (resource.lastmod && item && item.lastmod) {
+                            resource.lastmod = parseInt(resource.lastmod, 10);
+                            lastmodCheck = (item.lastmod === resource.lastmod);
+                        } else if (!resource.lastmod && item && item.lastmod) {
+                            resource.lastmod = item.lastmod;
+                        } else {
+                            resource.lastmod = resourceDefaults.lastmod;
+                        }
+
 
                         /**
                          * if there is no item create it
@@ -203,16 +233,15 @@
                             return;
                         }
 
+
                         /**
                          * check for outdated data
                          *
-                         * if item.expires is set to -1 the resource will always be loaded from cache
+                         * if item.lifetime is set to '-1' the resource will always be loaded from network
                          * also the item.lastmod and cached resource.lastmod (and item.version/resource.version) needs to be the same
                          * finally there is a check if the item is expired using the current timestamp
-                         *
-                         * if this comparison failed, the resource will be updated
                          */
-                        if (parseInt(item.expires, 10) !== -1 && item.lastmod === resource.lastmod && resource.version === item.version && (item.lastmod + item.expires) > now) {
+                        if (parseInt(item.lifetime, 10) !== -1 && lastmodCheck && resource.version === item.version && item.expires > now) {
                             log('[' + controllerType + ' controller] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
                             data = item.data;
                         } else {
@@ -244,13 +273,13 @@
                         length = group.length,
                         resource = null;
 
-                    // init queue manager for this group
+                    // init queue manager for this group to invoke a callback when group finished loading
                     loadResourceGroupQueue.init(length, callback);
 
                     // toggle through group
                     for (i = 0; i < length; i = i + 1) {
 
-                        // check resource
+                        // check resource and load it
                         resource = group[i];
                         if (resource && resource.url) {
                             loadResource(resource);
@@ -377,7 +406,7 @@
             storage = new app.cache.storage.controller(function (storage) {
 
                 self.storage = storage;
-                callback();
+                callback(storage);
 
             }, parameters);
 

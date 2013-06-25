@@ -49,7 +49,7 @@
 
     // create the global vars once
     var storageType = 'fileSystem',                             // storageType {string} The storage type string
-        utils = app.helper.utils,                               // utils {object} Shortcut for utils functions
+        utils = app.helpers.utils,                              // utils {object} Shortcut for utils functions
         log = utils.log,                                        // log {function} Shortcut for utils.log function
         checkCallback = utils.callback,                         // shortcut for utils.callback function
         boolIsSupported = null;                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
@@ -162,17 +162,20 @@
 
     /**
      * the actual instance constructor
-     * directly called after new Storage()
+     * directly called after new Adapter()
      * 
      * @param {object} parameters The instance parameters
      */
-    function Storage(parameters) {
+    function Adapter(parameters) {
 
         // init local vars
         var self = this;
 
+        // adapter vars
         self.adapter = null;
         self.type = storageType;
+
+        // default filesystem size
         self.size = 1024 * 1024;
 
         // run init function
@@ -182,9 +185,11 @@
 
 
     /**
-     * instance methods
+     * public instance methods
+     *
+     * Adapter.fn is just a shortcut for Adapter.prototype
      */
-    Storage.prototype = {
+    Adapter.prototype = Adapter.fn = {
 
         /**
          * test if the browser supports this type of caching
@@ -230,6 +235,8 @@
                     callback(adapter);
                 }, handleStorageEvents);
 
+            } else {
+                callback(adapter);
             }
 
         },
@@ -412,7 +419,7 @@
      * app.cache.webStorage() calls under the
      * app.cache namespace
      */
-    app.cache.storage.adapter[storageType] = Storage;
+    app.cache.storage.adapter[storageType] = Adapter;
 
 
 }(window, window.app || {})); // immediatly invoke function

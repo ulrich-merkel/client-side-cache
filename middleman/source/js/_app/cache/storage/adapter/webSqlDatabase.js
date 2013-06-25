@@ -1,17 +1,18 @@
 /*global window */
 
 /**
- * app.cache.webSqlDatabase
+ * app.cache.storage.adapter.webSqlDatabase
  *
  * @description
  * - provide a storage api for web sql database
  *
- * @version 0.1.2
+ * @version 0.1.3
  * @author Ulrich Merkel, 2013
  * 
  * @namespace app
  *
  * @changelog
+ * - 0.1.3 refactoring, js lint
  * - 0.1.2 several version change bug fixes
  * - 0.1.1 refactoring, js lint
  * - 0.1 basic functions and structur
@@ -46,7 +47,7 @@
 
     // create the global vars once
     var storageType = 'webSqlDatabase',                         // storageType {string} The storage type string
-        utils = app.helper.utils,                               // utils {object} Shortcut for utils functions
+        utils = app.helpers.utils,                              // utils {object} Shortcut for utils functions
         log = utils.log,                                        // log {function} Shortcut for utils.log function
         boolIsSupported = null;                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
 
@@ -111,7 +112,7 @@
 
     /**
      * the actual instance constructor
-     * directly called after new Storage()
+     * directly called after new Adapter()
      * 
      * @param {object} parameters The instance parameters
      */
@@ -120,12 +121,13 @@
         // init local vars
         var self = this;
 
+        // adapter vars
         self.adapter = null;
         self.type = storageType;
         self.dbName = 'merkel';
 
         /**
-         * Be careful with switch the database number
+         * Be careful with switching the database number
          * there are known bugs with the changeVersion method
          */
         self.dbVersion = '1.0';
@@ -145,9 +147,11 @@
 
 
     /**
-     * instance methods
+     * public instance methods
+     *
+     * Adapter.fn is just a shortcut for Adapter.prototype
      */
-    Adapter.prototype = {
+    Adapter.prototype = Adapter.fn = {
 
         /**
          * test if the browser supports this type of caching
@@ -336,7 +340,6 @@
                         transaction
                     );
                 },
-
 
                 /**
                  * function to be executed on version change

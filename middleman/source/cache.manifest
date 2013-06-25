@@ -1,0 +1,50 @@
+CACHE MANIFEST
+
+# Our cached resources
+# version 1
+
+CACHE:
+# html files
+./index.html
+
+# js files
+./js/cache.js
+
+# css files
+./css/base.css
+
+# images
+./img/bg/ajax-loader.gif
+./img/blank.gif
+
+./img/1280x396/test-1.jpg
+./img/1280x396/test-2.jpg
+./img/1280x396/test-3.jpg
+./img/1280x396/test-4.jpg
+./img/1280x396/test-5.jpg
+./img/1280x396/test-6.jpg
+
+./img/1280x220/test-1.jpg
+./img/1280x220/test-2.jpg
+./img/1280x220/test-3.jpg
+./img/1280x220/test-4.jpg
+./img/1280x220/test-5.jpg
+./img/1280x220/test-6.jpg
+
+./img/954x600/test-1.jpg
+./img/954x600/test-2.jpg
+./img/954x600/test-3.jpg
+./img/954x600/test-4.jpg
+./img/954x600/test-5.jpg
+./img/954x600/test-6.jpg
+
+# fonts
+./fonts/general_foundicons.woff
+./fonts/social_foundicons.woff
+
+
+NETWORK:
+*
+
+
+FALLBACK:

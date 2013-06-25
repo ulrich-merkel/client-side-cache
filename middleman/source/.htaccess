@@ -1,20 +1,7 @@
 # ----------------------------------------------------------------------
-# Zend Setup
+# Rewrite Setup
 # ----------------------------------------------------------------------
-
-SetEnv APPLICATION_ENV development
-
 RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} -s [OR]
-RewriteCond %{REQUEST_FILENAME} -l [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^.*$ - [NC,L]
-RewriteRule ^.*$ index.html [NC,L]
-
-#php_flag magic_quotes_gpc off
-#php_flag magic_quotes_runtime off
-#php_value session.auto_start 0
-
 
 # ----------------------------------------------------------------------
 # Proper MIME type for all files

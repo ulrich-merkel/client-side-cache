@@ -5,7 +5,7 @@
 
 
 /**
- * app.cache.indexedDatabase
+ * app.cache.storage.adapter.indexedDatabase
  *
  * @description
  * - provide a storage api for indexed database
@@ -49,25 +49,27 @@
 
     // create the global vars once
     var storageType = 'indexedDatabase',                        // storageType {string} The storage type string
-        utils = app.helper.utils,                               // utils {object} Shortcut for utils functions
+        utils = app.helpers.utils,                              // utils {object} Shortcut for utils functions
         log = utils.log,                                        // log {function} Shortcut for utils.log function
         boolIsSupported = null;                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
 
 
     /**
      * the actual instance constructor
-     * directly called after new Storage()
+     * directly called after new Adapter()
      * 
      * @param {object} parameters The instance parameters
      */
-    function Storage(parameters) {
+    function Adapter(parameters) {
 
         // init vars
         var self = this;
 
-        // defaults
+        // adapter vars
         self.adapter = null;
         self.type = storageType;
+
+        // defaults
         self.dbName = 'merkel';
         self.dbVersion = '1.0';
         self.dbTable = 'offline';
@@ -80,9 +82,11 @@
     }
 
     /**
-     * instance methods
+     * public instance methods
+     *
+     * Adapter.fn is just a shortcut for Adapter.prototype
      */
-    Storage.prototype = {
+    Adapter.prototype = Adapter.fn = {
 
         /**
          * test if the browser supports this type of caching
@@ -321,7 +325,7 @@
                         };
 
                         // set version is successful, create new object store
-                        setVersionRequest.onsuccess = function(e) {
+                        setVersionRequest.onsuccess = function (e) {
                             var db = request.result,
                                 store = db.createObjectStore(dbTable, {keyPath: self.dbKey});
 
@@ -445,7 +449,7 @@
      * app.cache.storage.adapter.indexedDatabase() calls under the
      * app.cache namespace
      */
-    app.cache.storage.adapter[storageType] = Storage;
+    app.cache.storage.adapter[storageType] = Adapter;
 
 
 }(window, window.app || {})); // immediatly invoke function

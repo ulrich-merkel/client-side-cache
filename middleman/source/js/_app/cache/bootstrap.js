@@ -43,8 +43,8 @@
      */
 
     // module vars
-    var helper = app.helper,                                    // helper {object} Shortcut for helper functions
-        utils = helper.utils,                                   // utils {object} Shortcut for utils functions
+    var helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
+        utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
         bind = utils.bind,                                      // bind {function} Shortcut for bind helper
         controller = {};                                        // controller {object} Cache controller public functions and vars
 
@@ -61,12 +61,15 @@
      *
      */
     bind(window, 'load', function () {
-        utils.logTimerStart('Page css and js files');
-        utils.logTimerStart('Page images');
+        utils.logTimerStart('Page css and js files loaded');
+        utils.logTimerStart('Page images loaded');
 
-        var baseUrl = window.baseurl || utils.url(window.location.pathname).folder;
 
-        controller.init(function () {
+        var baseUrl = window.baseurl || utils.url(window.location.pathname).folder,
+            loaded = 0;
+
+
+        controller.init(function (storage) {
 
             /**
              * here we define the resources to be loaded and cached
@@ -76,35 +79,52 @@
              *
              * possible options are:
              *
-             * {string} url The url of the resource
-             * {string} type The content type of the resource (css, js, img, html)
-             * {string|integer} group The loading group of the resource, this is used for handling dependencies, a following group begins to start loading when the previous has finished
-             * {string|integer} version The version number of the resource, used to mark a resource to be updated
-             * {string|integer} lastmod The lastmod timestamp of the resource, used to mark a resource to be updated
-             * {string|integer} expires The expires time in milliseconds of the resource, used to mark a resource to be updated, if set to -1 the resource will always be loaded from network
+             * {string} url The required url of the resource
+             * {string} type The required content type of the resource (css, js, img, html)
+             * {string|integer} group The optional loading group of the resource, this is used for handling dependencies, a following group begins to start loading when the previous has finished
+             * {string|integer} version The optional version number of the resource, used to mark a resource to be updated
+             * {string|integer} lastmod The optional lastmod timestamp of the resource, used to mark a resource to be updated
+             * {string|integer} lifetime The optional lifetime time in milliseconds of the resource, used to mark a resource to be updated after a given period if time, if set to -1 the resource will always be loaded from network
              * {object} node Container for additional dom node informations
-             * {string} node.id The dom element id to append the data to
+             * {string} node.id The id from the dom element to append the data to
+             * {string} node.dom The current dom element to append the data to
              *
              */
 
             // load page css and js files
             controller.load([
-                { "url": baseUrl + "css/app.css", "type": "css", "group": "0", "version": "1.4", "lastmod": "1371599205110"},
-                { "url": baseUrl + "js/lib.js", "type": "js", "group": "0", "version": "1.7", "lastmod": "1371599205110"},
-                { "url": baseUrl + "js/plugin.js", "type": "js", "group": "2", "version": "1.7", "lastmod": "1371599205110"}
+                {url: baseUrl + "css/app.css", type: "css"},
+                {url: baseUrl + "js/lib.js", type: "js"},
+                {url: baseUrl + "js/app.js", type: "js", group: 1}
             ], function () {
-                utils.logTimerEnd('Page css and js files');
-                document.getElementById('layer-loading').style.display = 'none';
+                utils.logTimerEnd('Page css and js files loaded');
+                loaded = loaded + 1;
+                if (loaded === 2) {
+                    document.getElementById('layer-loading').style.display = 'none';
+                }
             });
 
             // load page images
             controller.load([
-                { "url": baseUrl + "img/test/test-1.jpg", "type": "img", "group": "0", "version": "1", "lastmod": "1371599205110", "node": {"id": "image-1"}},
-                { "url": baseUrl + "img/test/test-2.jpg", "type": "img", "group": "0", "version": "1", "lastmod": "1371599205110", "node": {"id": "image-2"}},
-                { "url": baseUrl + "img/test/test-3.jpg", "type": "img", "group": "0", "version": "1", "lastmod": "1371599205110", "node": {"id": "image-3"}}
+                { "url": baseUrl + "img/410x144/test-1.jpg", "type": "img", "node": {"id": "image-1"}},
+                { "url": baseUrl + "img/410x144/test-2.jpg", "type": "img", "node": {"id": "image-2"}},
+                { "url": baseUrl + "img/410x144/test-3.jpg", "type": "img", "node": {"id": "image-3"}}
             ], function () {
-                utils.logTimerEnd('Page images');
+                utils.logTimerEnd('Page images loaded');
             });
+
+
+            /**
+             * initialize application cache and wait for loaded
+             */
+            storage.appCacheAdapter.open(function () {
+                loaded = loaded + 1;
+                if (loaded === 2) {
+                    document.getElementById('layer-loading').style.display = 'none';
+                }
+            });
+
+
         });
 
     });
