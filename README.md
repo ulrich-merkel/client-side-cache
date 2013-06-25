@@ -37,7 +37,6 @@ The files you will need to use caching are listed in /middleman/source/js/_app/c
 - _app/helpers/utils.js
 - _app/helpers/client.js
 - _app/helpers/append.js
-
 - _app/cache/storage/controller.js
 - _app/cache/storage/adapter/fileSystem.js
 - _app/cache/storage/adapter/indexedDatabase.js
@@ -51,7 +50,8 @@ The files you will need to use caching are listed in /middleman/source/js/_app/c
 It is recommended that you combine all the single files into one and minimize the combined file. In the last bootstrap.js file are you able to edit the
 files which you want to cache locally. Below you will find a sample version of the bootstrap file.
 
-### Example:
+### Examples
+#### Example cache initializing:
 
     (function (window, app, undefined) {
         'use strict';
@@ -139,3 +139,16 @@ files which you want to cache locally. Below you will find a sample version of t
     
     }(window, window.app || {}));
 
+#### Example offline application cache initializing:
+        ...
+        controller.init(function (storage) {
+
+            /**
+             * initialize application cache and wait for loaded
+             */
+            storage.appCacheAdapter.open(function () {
+                // do something when offline cache is loaded
+            });
+
+        });
+        ...
