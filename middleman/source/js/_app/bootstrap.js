@@ -25,6 +25,8 @@
 
 	$(document).ready(function () {
 
+		alert("document ready");
+
 		// client depending init
         $html.removeClass('no-js').addClass('js');
 		if (client.isMobile()) {
@@ -40,7 +42,7 @@
 		new FastClick(document.body);
 
 		app.controllers.controller.init(function () {
-            alert("controller loaded");
+            alert("page controller loaded");
         });
 
 		

@@ -13,12 +13,13 @@
  * @description
  * - provide a storage api for file system
  *
- * @version 0.1.1
+ * @version 0.1.2
  * @author Ulrich Merkel, 2013
  *
  * @namespace app
  *
  * @changelog
+ * - 0.1.2 creating test item while open added, bug fixes for chrome 17
  * - 0.1.1 refactoring, js lint
  * - 0.1 basic functions and structur
  *
@@ -175,8 +176,8 @@
         self.adapter = null;
         self.type = storageType;
 
-        // default filesystem size
-        self.size = 1024 * 1024;
+        // default filesystem size 50 MB
+        self.size = 50 * 1024 * 1024;
 
         // run init function
         self.init(parameters);
@@ -232,7 +233,26 @@
                 // open filesystem
                 window.requestFileSystem(window.TEMPORARY, self.size, function (filesystem) {
                     adapter = self.adapter = filesystem;
-                    callback(adapter);
+
+                    /* create test item */
+                    log('[' + storageType + ' Adapter] Try to create test resource');
+                    try {
+                        self.create('test-item', utils.jsonToString({test: "test-content"}), function (success) {
+                            if (!!success) {
+                                self.remove('test-item', function () {
+                                    log('[' + storageType + ' Adapter] Test resource created and successfully deleted');
+                                    callback(adapter);
+                                    return;
+                                });
+                            } else {
+                                callback(false);
+                            }
+                        });
+                    } catch (e) {
+                        handleStorageEvents(e);
+                        callback(false);
+                    }
+                    //callback(adapter);
                 }, handleStorageEvents);
 
             } else {
@@ -275,10 +295,23 @@
                         // error callback
                         fileWriter.onerror = errorHandler;
 
-                        var blob = new Blob([content], {type: 'text/plain'});
+                        /**
+                         * try catch added for chrome 17, complains "illegal constructor"
+                         * while creating new blob
+                         */
+                        try {
+                            var blob = new Blob([content], {type: 'text/plain'});
 
-                        // write data
-                        fileWriter.write(blob);
+                            // write data
+                            fileWriter.write(blob);
+
+                        } catch (e) {
+                            errorHandler(e);
+                        }
+                        
+
+                        
+                        
 
                     }, errorHandler);
 

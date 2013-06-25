@@ -67,8 +67,8 @@
             privateLandscapeMode = "landscapeMode",                         // privateLandscapeMode {string} The landscape mode string
             privatePortraitMode = "portraitMode",                           // privatePortraitMode {string} The portrait mode string
             privateOrientationMode,                                         // privateOrientationMode {boolean} The current view mode (landscape/portrait)
-            privateHasCanvas,                                               // privateHasCanvas {boolean} Whether this browser has canvas support or not
-            ua = navigator.userAgent || navigator.vendor || window.opera,   // ua {string} The user agent string of this browser
+            privateHasCanvas,                                               // privateHasCanvas {boolean} Whether the browser has canvas support or not
+            ua = navigator.userAgent || navigator.vendor || window.opera,   // ua {string} The user agent string of the current browser
             utils = app.helpers.utils,                                      // utils {object} Shortcut for utils functions
             bind = utils.bind;                                              // bind {object} Shortcut for bind function
 

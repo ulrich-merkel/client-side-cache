@@ -67,8 +67,12 @@
      * check to see if we have non-standard support for localStorage and
      * implement that behaviour
      *
+     * try catch if ie disc space is full (tested with ie10)
+     *
      * @see https://github.com/wojodesign/local-storage-js/blob/master/storage.js
      */
+    try {
+
     if (!window.localStorage) {
 
         /**
@@ -178,6 +182,9 @@
 
             }
         }
+    }
+    } catch (e) {
+        alert(e);
     }
 
 
@@ -412,7 +419,7 @@
 
                     /* create test item */
                     log('[' + storageType + ' Adapter] Try to create test resource');
-                    self.create('test-item', '{test: "content"}', function (success) {
+                    self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
                                 log('[' + storageType + ' Adapter] Test resource created and successfully deleted');

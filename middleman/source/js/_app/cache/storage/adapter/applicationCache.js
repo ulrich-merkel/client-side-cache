@@ -102,9 +102,8 @@
             // check for global var
             if (null === boolIsSupported) {
                 /**
-                 * because firefox on desktop in general promts a popup
-                 * when trying to save data with application cache, we
-                 * avoid the usage for this one
+                 * firefox on desktop in general promts a popup
+                 * when trying to save data with application cache
                  */
                 boolIsSupported = !!window.applicationCache && !!htmlNode.getAttribute('manifest');
                 if (!boolIsSupported) {

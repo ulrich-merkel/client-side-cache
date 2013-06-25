@@ -106,17 +106,15 @@
 
             // load page images
             controller.load([
-                { "url": baseUrl + "img/410x144/test-1.jpg", "type": "img", "node": {"id": "image-1"}},
-                { "url": baseUrl + "img/410x144/test-2.jpg", "type": "img", "node": {"id": "image-2"}},
-                { "url": baseUrl + "img/410x144/test-3.jpg", "type": "img", "node": {"id": "image-3"}}
+                {url: baseUrl + "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
+                {url: baseUrl + "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
+                {url: baseUrl + "img/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
             ], function () {
                 utils.logTimerEnd('Page images loaded');
             });
 
 
-            /**
-             * initialize application cache and wait for loaded
-             */
+            // initialize application cache and wait for loaded
             storage.appCacheAdapter.open(function () {
                 loaded = loaded + 1;
                 if (loaded === 2) {

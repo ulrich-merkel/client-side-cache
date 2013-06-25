@@ -2,30 +2,97 @@
 
 /**
  * app.helpers.namespace
- *
+ * 
  * @description
- * - init global app namespaces
+ * - init app namespaces and provide helper function
  * 
- * @version: 0.1
- * @author: Ulrich Merkel, 2013
- * 
- * @namespace: app
+ * @author Ulrich Merkel, 2013
+ * @version 0.1
+ *
+ * @namespace app
  * 
  * @changelog
- * - 0.1 basic functions and structur
- *
+ * - 0.1 basic functions and plugin structur
+ * 
  */
 
+(function (exports, app, undefined) {
+    'use strict';
 
-var app = window.app || {};
+    /**
+     * undefined is used here as the undefined global
+     * variable in ECMAScript 3 and is mutable (i.e. it can
+     * be changed by someone else). undefined isn't really
+     * being passed in so we can ensure that its value is
+     * truly undefined. In ES5, undefined can no longer be
+     * modified.
+     * 
+     * window and app are passed through as local
+     * variables rather than as globals, because this (slightly)
+     * quickens the resolution process and can be more
+     * efficiently minified (especially when both are
+     * regularly referenced in this module).
+     */
 
-app.helpers = {};
-app.cache = {};
-app.cache.storage = {};
-app.cache.storage.adapter = {};
-app.controllers = {};
-app.models = {};
-app.views = {};
+
+    /**
+     * helper function to defining package structur
+     *
+     * within the global app object the given namespaces will
+     * be created as javascript objects
+     *
+     * @see http://de.slideshare.net/s.barysiuk/javascript-and-ui-architecture-best-practices-presentation
+     *
+     * @param {string} name The namespace string separated with dots (name.name.name)
+     *
+     * @return {boolean} The success of this function
+     */
+    function namespace(name) {
+        if (name) {
+
+            // init loop vars
+            var names = name.split('.'),
+                current = app,
+                i;
+
+            // toggle through names array
+            for (i in names) {
+
+                // if this namespace doesn't exist, create it
+                if (!current[names[i]]) {
+                    current[names[i]] = {};
+                }
+
+                // set current to checked namespace for the next loop
+                current = current[names[i]];
+
+            }
+
+            return true;
+
+        }
+
+        return false;
+
+    };  
+
+
+    // init app namespaces
+    namespace('cache.storage.adapter');
+    namespace('helpers');
+    namespace('controllers');
+    namespace('models');
+    namespace('views');
+
+
+    // export app to globals
+    exports.app = app;
+
+
+}(window, window.app || {}));
+
+
+
 
 
 /*jslint browser: true, devel: true */
@@ -160,7 +227,10 @@ app.views = {};
             /**
              * add event handler
              *
-             * following the lazy loading design pattern
+             * following the lazy loading design pattern, the bind function will be
+             * overridden with the correct implemation the first the it will be
+             * called. after that all consequent calls deliver the correct one without
+             * conditions for different browsers.
              * 
              * @param {string} target The dom object
              * @param {string} target The event type to bind
@@ -169,15 +239,18 @@ app.views = {};
             bind: function (target, eventType, handler) {
 
                 // override existing function
-                if (typeof window.addEventListener === 'function') { // dom2 event
+                if (typeof window.addEventListener === 'function') {
+                    // dom2 event
                     utils.bind = function (target, eventType, handler) {
                         target.addEventListener(eventType, handler, false);
                     };
-                } else if (typeof document.attachEvent === 'function') { // ie event
+                } else if (typeof document.attachEvent === 'function') {
+                    // ie event
                     utils.bind = function (target, eventType, handler) {
                         target.attachEvent('on' + eventType, handler);
                     };
-                } else { // older browers
+                } else {
+                    // older browers
                     utils.bind = function (target, eventType, handler) {
                         target['on' + eventType] = handler;
                     };
@@ -191,7 +264,10 @@ app.views = {};
             /**
              * remove event handler
              *
-             * following the lazy loading design pattern
+             * following the lazy loading design pattern, the unbind function will be
+             * overridden with the correct implemation the first the it will be
+             * called. after that all consequent calls deliver the correct one without
+             * conditions for different browsers.
              * 
              * @param {string} target The dom object
              * @param {string} target The event type to unbind
@@ -200,15 +276,18 @@ app.views = {};
             unbind: function (target, eventType, handler) {
 
                 // override existing function
-                if (typeof window.removeEventListener === 'function') { // dom2 event
+                if (typeof window.removeEventListener === 'function') {
+                    // dom2 event
                     utils.unbind = function (target, eventType, handler) {
                         target.removeEventListener(eventType, handler, false);
                     };
-                } else if (typeof document.detachEvent === 'function') { // ie event
+                } else if (typeof document.detachEvent === 'function') {
+                    // ie event
                     utils.unbind = function (target, eventType, handler) {
                         target.detachEvent('on' + eventType, handler);
                     };
-                } else { // older browsers
+                } else {
+                    // older browsers
                     utils.unbind = function (target, eventType) {
                         target['on' + eventType] = null;
                     };
@@ -344,8 +423,8 @@ app.views = {};
                             /**
                              * checking additionally for response text parsing
                              * 
-                             * binary data (like images) could not be resolved in ie for ajax
-                             * calls and throws an error if we try to do so
+                             * binary data (like images) could not be resolved for ajax
+                             * calls in ie and is throwing an error if we try to do so
                              */
                             try {
                                 var data = reqObject.responseText;
@@ -365,7 +444,7 @@ app.views = {};
                     // open ajax request and listen for events
                     reqObject.open(reqType, url, true);
 
-                    // listen to results, onload added for non-standard browers (camino)
+                    // listen to results, onload added for non-standard browers (e.g. camino)
                     if (reqObject.onreadystatechange !== undefined) {
                         reqObject.onreadystatechange = reqCallback;
                     } else if (reqObject.onload !== undefined) {
@@ -403,9 +482,11 @@ app.views = {};
 
 
             /**
-             * get json object
+             * convert json object to string
              *
-             * @return {object} The window.JSON object or null
+             * @param {object} object The object to be parsed
+             * 
+             * @return {string} The converted string
              */
             jsonToString: function (object) {
 
@@ -429,9 +510,11 @@ app.views = {};
 
 
             /**
-             * get json object
+             * convert string into json object
              *
-             * @return {object} The window.JSON object or null
+             * @param {string} string The string to be parsed
+             * 
+             * @return {object} The converted object
              */
             jsonToObject: function (string) {
 
@@ -454,9 +537,11 @@ app.views = {};
 
 
             /**
-             * get url infos
+             * get url information
              * 
              * @param {string} url The url to extract
+             *
+             * @return {object} Current url information
              */
             url: function (url) {
 
@@ -496,6 +581,8 @@ app.views = {};
              * check for callback function
              * 
              * @param {function} callback The function to check
+             *
+             * @return {function} The checked callback function
              */
             callback: function (callback) {
                 // check if param is function, if not set it to empty function
@@ -512,6 +599,8 @@ app.views = {};
              * check if value is array
              * 
              * @param {array} value The value to check
+             *
+             * @param {boolean} Whether the given value is an array or not
              */
             isArray: function (value) {
                 return value instanceof Array;
@@ -633,8 +722,8 @@ app.views = {};
             privateLandscapeMode = "landscapeMode",                         // privateLandscapeMode {string} The landscape mode string
             privatePortraitMode = "portraitMode",                           // privatePortraitMode {string} The portrait mode string
             privateOrientationMode,                                         // privateOrientationMode {boolean} The current view mode (landscape/portrait)
-            privateHasCanvas,                                               // privateHasCanvas {boolean} Whether this browser has canvas support or not
-            ua = navigator.userAgent || navigator.vendor || window.opera,   // ua {string} The user agent string of this browser
+            privateHasCanvas,                                               // privateHasCanvas {boolean} Whether the browser has canvas support or not
+            ua = navigator.userAgent || navigator.vendor || window.opera,   // ua {string} The user agent string of the current browser
             utils = app.helpers.utils,                                      // utils {object} Shortcut for utils functions
             bind = utils.bind;                                              // bind {object} Shortcut for bind function
 
@@ -1133,8 +1222,8 @@ app.views = {};
                          * ie lt9 doesn't allow the appendChild() method on a
                          * link element, so we have to check this here
                          *
-                         * these ie's also need the link element to be appended
-                         * before the data could be set/parsed in browser
+                         * these ie's also need that the link element is appended
+                         * before the css data could be set/parsed in browser
                          */
                         if (!node) {
                             headNode.appendChild(link);
@@ -1162,7 +1251,7 @@ app.views = {};
                         }
 
                         /**
-                         * link doesn't support onload function
+                         * link element doesn't support onload function
                          *
                          * only internet explorer and opera support the onload
                          * event handler for link elements
@@ -1189,7 +1278,7 @@ app.views = {};
 
 
             /**
-             * append javascipt to dom
+             * append javascript to dom
              * 
              * @param {string} url The js url path
              * @param {string} data The js data string
@@ -1218,26 +1307,32 @@ app.views = {};
                         if (!loaded && (!this.readyState || this.readyState === 'complete' || this.readyState === 'loaded')) {
 
                             // avoid memory leaks in ie
-                            this.onreadystatechange = script.onload = null;
+                            this.onreadystatechange = this.onload = null;
                             loaded = true;
+                            privateAppendedJs.push(url);
 
                             callback();
                         }
                     };
 
                     // try to handle script errors
-                    if (script.onerror) {
+                    if (script.onerror) { // ????? really needed condition?
                         script.onerror = function () {
+
+                            // avoid memory leaks in ie
                             this.onload = this.onreadystatechange = this.onerror = null;
                             callback();
+
                         };
                     }
 
                     // append script to according dom node
-                    if (firstScript) {
-                        firstScript.parentNode.insertBefore(script, firstScript);
-                    } else {
-                        headNode.appendChild(script);
+                    if (!node) {
+                        if (firstScript) {
+                            firstScript.parentNode.insertBefore(script, firstScript);
+                        } else {
+                            headNode.appendChild(script);
+                        }   
                     }
 
                     // if there is data 
@@ -1266,6 +1361,7 @@ app.views = {};
 
                     // check loaded state if file is already loaded
                     if (loaded) {
+                        privateAppendedJs.push(url);
                         callback();
                     }
 
@@ -1279,7 +1375,7 @@ app.views = {};
 
 
             /**
-             * append cascading stylesheet to dom
+             * append image files to dom
              * 
              * @param {string} url The css url path
              * @param {string} data The css data string
@@ -1295,8 +1391,7 @@ app.views = {};
                 image = checkNodeParameters(image, node);
 
                 if (!image) {
-                    callback();
-                    return;
+                    image = new Image();
                 }
 
                 // add loaded event listener
@@ -1343,12 +1438,13 @@ app.views = {};
  * @description
  * - provide a storage api for file system
  *
- * @version 0.1.1
+ * @version 0.1.2
  * @author Ulrich Merkel, 2013
  *
  * @namespace app
  *
  * @changelog
+ * - 0.1.2 creating test item while open added, bug fixes for chrome 17
  * - 0.1.1 refactoring, js lint
  * - 0.1 basic functions and structur
  *
@@ -1506,8 +1602,8 @@ app.views = {};
         self.adapter = null;
         self.type = storageType;
 
-        // default filesystem size
-        self.size = 1024 * 1024;
+        // default filesystem size 50 MB
+        self.size = 50 * 1024 * 1024;
 
         // run init function
         self.init(parameters);
@@ -1563,7 +1659,26 @@ app.views = {};
                 // open filesystem
                 window.requestFileSystem(window.TEMPORARY, self.size, function (filesystem) {
                     adapter = self.adapter = filesystem;
-                    callback(adapter);
+
+                    /* create test item */
+                    log('[' + storageType + ' Adapter] Try to create test resource');
+                    try {
+                        self.create('test-item', utils.jsonToString({test: "test-content"}), function (success) {
+                            if (!!success) {
+                                self.remove('test-item', function () {
+                                    log('[' + storageType + ' Adapter] Test resource created and successfully deleted');
+                                    callback(adapter);
+                                    return;
+                                });
+                            } else {
+                                callback(false);
+                            }
+                        });
+                    } catch (e) {
+                        handleStorageEvents(e);
+                        callback(false);
+                    }
+                    //callback(adapter);
                 }, handleStorageEvents);
 
             } else {
@@ -1606,10 +1721,23 @@ app.views = {};
                         // error callback
                         fileWriter.onerror = errorHandler;
 
-                        var blob = new Blob([content], {type: 'text/plain'});
+                        /**
+                         * try catch added for chrome 17, complains "illegal constructor"
+                         * while creating new blob
+                         */
+                        try {
+                            var blob = new Blob([content], {type: 'text/plain'});
 
-                        // write data
-                        fileWriter.write(blob);
+                            // write data
+                            fileWriter.write(blob);
+
+                        } catch (e) {
+                            errorHandler(e);
+                        }
+                        
+
+                        
+                        
 
                     }, errorHandler);
 
@@ -2763,8 +2891,12 @@ app.views = {};
      * check to see if we have non-standard support for localStorage and
      * implement that behaviour
      *
+     * try catch if ie disc space is full (tested with ie10)
+     *
      * @see https://github.com/wojodesign/local-storage-js/blob/master/storage.js
      */
+    try {
+
     if (!window.localStorage) {
 
         /**
@@ -2874,6 +3006,9 @@ app.views = {};
 
             }
         }
+    }
+    } catch (e) {
+        alert(e);
     }
 
 
@@ -3108,7 +3243,7 @@ app.views = {};
 
                     /* create test item */
                     log('[' + storageType + ' Adapter] Try to create test resource');
-                    self.create('test-item', '{test: "content"}', function (success) {
+                    self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
                                 log('[' + storageType + ' Adapter] Test resource created and successfully deleted');
@@ -3284,9 +3419,8 @@ app.views = {};
             // check for global var
             if (null === boolIsSupported) {
                 /**
-                 * because firefox on desktop in general promts a popup
-                 * when trying to save data with application cache, we
-                 * avoid the usage for this one
+                 * firefox on desktop in general promts a popup
+                 * when trying to save data with application cache
                  */
                 boolIsSupported = !!window.applicationCache && !!htmlNode.getAttribute('manifest');
                 if (!boolIsSupported) {
@@ -4280,10 +4414,10 @@ app.views = {};
                 storageType = false;
 
             if (parameters && parameters.isEnabled !== undefined) {
-                this.isEnabled = !!parameters.isEnabled;
+                self.isEnabled = !!parameters.isEnabled;
             }
 
-            if (this.isEnabled && json) {
+            if (self.isEnabled && json) {
 
                 // set parameters
                 if (parameters) {
@@ -4346,7 +4480,7 @@ app.views = {};
                 if (!json) {
                     log('[' + controllerType + ' controller] There is no json support');
                 }
-                if (!this.isEnabled) {
+                if (!self.isEnabled) {
                     log('[' + controllerType + ' controller] Caching data is disabled');
                 }
 
@@ -4454,6 +4588,12 @@ app.views = {};
          * {object} The storage controller instance
          */
         storage: null,
+
+
+        /**
+         * {boolean} The indicator if the controller is already initialized
+         */
+        initialized: false,
 
 
         /**
@@ -4683,7 +4823,7 @@ app.views = {};
                         resource = resources[i];
                         resourceGroup = resource.group;
 
-                        // if resource group isn't set, set it the zero
+                        // if resource group isn't set in resource parameters, set it the zero
                         if (!resourceGroup) {
                             resourceGroup = 0;
                         }
@@ -4765,6 +4905,12 @@ app.views = {};
             // init local vars
             var self = this,
                 storage;
+
+            if (self.initialized) {
+                callback(storage);
+                return;
+            }
+
 
             // check callback function
             callback = checkCallback(callback);
@@ -4899,17 +5045,15 @@ app.views = {};
 
             // load page images
             controller.load([
-                { "url": baseUrl + "img/410x144/test-1.jpg", "type": "img", "node": {"id": "image-1"}},
-                { "url": baseUrl + "img/410x144/test-2.jpg", "type": "img", "node": {"id": "image-2"}},
-                { "url": baseUrl + "img/410x144/test-3.jpg", "type": "img", "node": {"id": "image-3"}}
+                {url: baseUrl + "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
+                {url: baseUrl + "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
+                {url: baseUrl + "img/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
             ], function () {
                 utils.logTimerEnd('Page images loaded');
             });
 
 
-            /**
-             * initialize application cache and wait for loaded
-             */
+            // initialize application cache and wait for loaded
             storage.appCacheAdapter.open(function () {
                 loaded = loaded + 1;
                 if (loaded === 2) {

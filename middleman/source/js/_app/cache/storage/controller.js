@@ -694,10 +694,10 @@
                 storageType = false;
 
             if (parameters && parameters.isEnabled !== undefined) {
-                this.isEnabled = !!parameters.isEnabled;
+                self.isEnabled = !!parameters.isEnabled;
             }
 
-            if (this.isEnabled && json) {
+            if (self.isEnabled && json) {
 
                 // set parameters
                 if (parameters) {
@@ -760,7 +760,7 @@
                 if (!json) {
                     log('[' + controllerType + ' controller] There is no json support');
                 }
-                if (!this.isEnabled) {
+                if (!self.isEnabled) {
                     log('[' + controllerType + ' controller] Caching data is disabled');
                 }
 

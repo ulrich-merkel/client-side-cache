@@ -125,8 +125,8 @@
                          * ie lt9 doesn't allow the appendChild() method on a
                          * link element, so we have to check this here
                          *
-                         * these ie's also need the link element to be appended
-                         * before the data could be set/parsed in browser
+                         * these ie's also need that the link element is appended
+                         * before the css data could be set/parsed in browser
                          */
                         if (!node) {
                             headNode.appendChild(link);
@@ -154,7 +154,7 @@
                         }
 
                         /**
-                         * link doesn't support onload function
+                         * link element doesn't support onload function
                          *
                          * only internet explorer and opera support the onload
                          * event handler for link elements
@@ -181,7 +181,7 @@
 
 
             /**
-             * append javascipt to dom
+             * append javascript to dom
              * 
              * @param {string} url The js url path
              * @param {string} data The js data string
@@ -210,26 +210,32 @@
                         if (!loaded && (!this.readyState || this.readyState === 'complete' || this.readyState === 'loaded')) {
 
                             // avoid memory leaks in ie
-                            this.onreadystatechange = script.onload = null;
+                            this.onreadystatechange = this.onload = null;
                             loaded = true;
+                            privateAppendedJs.push(url);
 
                             callback();
                         }
                     };
 
                     // try to handle script errors
-                    if (script.onerror) {
+                    if (script.onerror) { // ????? really needed condition?
                         script.onerror = function () {
+
+                            // avoid memory leaks in ie
                             this.onload = this.onreadystatechange = this.onerror = null;
                             callback();
+
                         };
                     }
 
                     // append script to according dom node
-                    if (firstScript) {
-                        firstScript.parentNode.insertBefore(script, firstScript);
-                    } else {
-                        headNode.appendChild(script);
+                    if (!node) {
+                        if (firstScript) {
+                            firstScript.parentNode.insertBefore(script, firstScript);
+                        } else {
+                            headNode.appendChild(script);
+                        }   
                     }
 
                     // if there is data 
@@ -258,6 +264,7 @@
 
                     // check loaded state if file is already loaded
                     if (loaded) {
+                        privateAppendedJs.push(url);
                         callback();
                     }
 
@@ -271,7 +278,7 @@
 
 
             /**
-             * append cascading stylesheet to dom
+             * append image files to dom
              * 
              * @param {string} url The css url path
              * @param {string} data The css data string
@@ -287,8 +294,7 @@
                 image = checkNodeParameters(image, node);
 
                 if (!image) {
-                    callback();
-                    return;
+                    image = new Image();
                 }
 
                 // add loaded event listener

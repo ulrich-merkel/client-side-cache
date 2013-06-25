@@ -129,7 +129,10 @@
             /**
              * add event handler
              *
-             * following the lazy loading design pattern
+             * following the lazy loading design pattern, the bind function will be
+             * overridden with the correct implemation the first the it will be
+             * called. after that all consequent calls deliver the correct one without
+             * conditions for different browsers.
              * 
              * @param {string} target The dom object
              * @param {string} target The event type to bind
@@ -138,15 +141,18 @@
             bind: function (target, eventType, handler) {
 
                 // override existing function
-                if (typeof window.addEventListener === 'function') { // dom2 event
+                if (typeof window.addEventListener === 'function') {
+                    // dom2 event
                     utils.bind = function (target, eventType, handler) {
                         target.addEventListener(eventType, handler, false);
                     };
-                } else if (typeof document.attachEvent === 'function') { // ie event
+                } else if (typeof document.attachEvent === 'function') {
+                    // ie event
                     utils.bind = function (target, eventType, handler) {
                         target.attachEvent('on' + eventType, handler);
                     };
-                } else { // older browers
+                } else {
+                    // older browers
                     utils.bind = function (target, eventType, handler) {
                         target['on' + eventType] = handler;
                     };
@@ -160,7 +166,10 @@
             /**
              * remove event handler
              *
-             * following the lazy loading design pattern
+             * following the lazy loading design pattern, the unbind function will be
+             * overridden with the correct implemation the first the it will be
+             * called. after that all consequent calls deliver the correct one without
+             * conditions for different browsers.
              * 
              * @param {string} target The dom object
              * @param {string} target The event type to unbind
@@ -169,15 +178,18 @@
             unbind: function (target, eventType, handler) {
 
                 // override existing function
-                if (typeof window.removeEventListener === 'function') { // dom2 event
+                if (typeof window.removeEventListener === 'function') {
+                    // dom2 event
                     utils.unbind = function (target, eventType, handler) {
                         target.removeEventListener(eventType, handler, false);
                     };
-                } else if (typeof document.detachEvent === 'function') { // ie event
+                } else if (typeof document.detachEvent === 'function') {
+                    // ie event
                     utils.unbind = function (target, eventType, handler) {
                         target.detachEvent('on' + eventType, handler);
                     };
-                } else { // older browsers
+                } else {
+                    // older browsers
                     utils.unbind = function (target, eventType) {
                         target['on' + eventType] = null;
                     };
@@ -313,8 +325,8 @@
                             /**
                              * checking additionally for response text parsing
                              * 
-                             * binary data (like images) could not be resolved in ie for ajax
-                             * calls and throws an error if we try to do so
+                             * binary data (like images) could not be resolved for ajax
+                             * calls in ie and is throwing an error if we try to do so
                              */
                             try {
                                 var data = reqObject.responseText;
@@ -334,7 +346,7 @@
                     // open ajax request and listen for events
                     reqObject.open(reqType, url, true);
 
-                    // listen to results, onload added for non-standard browers (camino)
+                    // listen to results, onload added for non-standard browers (e.g. camino)
                     if (reqObject.onreadystatechange !== undefined) {
                         reqObject.onreadystatechange = reqCallback;
                     } else if (reqObject.onload !== undefined) {
@@ -372,9 +384,11 @@
 
 
             /**
-             * get json object
+             * convert json object to string
              *
-             * @return {object} The window.JSON object or null
+             * @param {object} object The object to be parsed
+             * 
+             * @return {string} The converted string
              */
             jsonToString: function (object) {
 
@@ -398,9 +412,11 @@
 
 
             /**
-             * get json object
+             * convert string into json object
              *
-             * @return {object} The window.JSON object or null
+             * @param {string} string The string to be parsed
+             * 
+             * @return {object} The converted object
              */
             jsonToObject: function (string) {
 
@@ -423,9 +439,11 @@
 
 
             /**
-             * get url infos
+             * get url information
              * 
              * @param {string} url The url to extract
+             *
+             * @return {object} Current url information
              */
             url: function (url) {
 
@@ -465,6 +483,8 @@
              * check for callback function
              * 
              * @param {function} callback The function to check
+             *
+             * @return {function} The checked callback function
              */
             callback: function (callback) {
                 // check if param is function, if not set it to empty function
@@ -481,6 +501,8 @@
              * check if value is array
              * 
              * @param {array} value The value to check
+             *
+             * @param {boolean} Whether the given value is an array or not
              */
             isArray: function (value) {
                 return value instanceof Array;

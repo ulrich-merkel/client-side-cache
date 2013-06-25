@@ -89,6 +89,12 @@
 
 
         /**
+         * {boolean} The indicator if the controller is already initialized
+         */
+        initialized: false,
+
+
+        /**
          * load multiple resources
          *
          * @param {array} resources The array with resource objects
@@ -315,7 +321,7 @@
                         resource = resources[i];
                         resourceGroup = resource.group;
 
-                        // if resource group isn't set, set it the zero
+                        // if resource group isn't set in resource parameters, set it the zero
                         if (!resourceGroup) {
                             resourceGroup = 0;
                         }
@@ -397,6 +403,12 @@
             // init local vars
             var self = this,
                 storage;
+
+            if (self.initialized) {
+                callback(storage);
+                return;
+            }
+
 
             // check callback function
             callback = checkCallback(callback);
