@@ -10,21 +10,6 @@
  * - main functions/controller for handling client-side cache
  * - connect to storage controller and read/write data or get data via xhr
  * - handle logic to check for outdated data
- *
- * - tested and supported browsers for storing data client-side:
- * - Internet explorer 8.0 +
- * - Firefox 19.0 +
- * - Google Crome 21.0 +
- * - Safari 6.0 +
- * - Opera 12.5 +
- * - Camino 2.1.2 +
- * - Fake 1.8 +
- * - Maxthon 4.0.5 +
- * - Omni Web 5.11 +
- * - Seamonkey 2.15 +
- * - Stainless 0.8 +
- * - Sunrise 2.2 +
- *
  * 
  * @author Ulrich Merkel (hello@ulrichmerkel.com)
  * @version 0.1.3
@@ -38,7 +23,8 @@
  * - 0.1 basic functions and plugin structur
  *
  * @see
- * - http://www.winktoolkit.org/, http://www.winktoolkit.org/documentation/symbols/wink.cache.html
+ * - http://www.winktoolkit.org/
+ * - http://www.winktoolkit.org/documentation/symbols/wink.cache.html
  *
  * 
  * 
@@ -86,12 +72,6 @@
          * {object} The storage controller instance
          */
         storage: null,
-
-
-        /**
-         * {boolean} The indicator if the controller is already initialized
-         */
-        initialized: false,
 
 
         /**
@@ -180,6 +160,9 @@
                         break;
                     case 'img':
                         append.appendImg(url, data, callback, node);
+                        break;
+                    case 'html':
+                        append.appendHtml(url, data, callback, node);
                         break;
                     default:
                         break;
@@ -403,12 +386,6 @@
             // init local vars
             var self = this,
                 storage;
-
-            if (self.initialized) {
-                callback(storage);
-                return;
-            }
-
 
             // check callback function
             callback = checkCallback(callback);

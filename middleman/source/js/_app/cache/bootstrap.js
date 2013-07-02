@@ -63,11 +63,17 @@
     bind(window, 'load', function () {
         utils.logTimerStart('Page css and js files loaded');
         utils.logTimerStart('Page images loaded');
+        utils.logTimerStart('Html loaded');
 
 
         var baseUrl = window.baseurl || utils.url(window.location.pathname).folder,
-            loaded = 0;
-
+            loaded = 0,
+            loadedCallback = function () {
+                loaded = loaded + 1;
+                if (loaded === 2) {
+                    document.getElementById('layer-loading').style.display = 'none';
+                }
+            };
 
         controller.init(function (storage) {
 
@@ -98,10 +104,7 @@
                 {url: baseUrl + "js/app.js", type: "js", group: 1}
             ], function () {
                 utils.logTimerEnd('Page css and js files loaded');
-                loaded = loaded + 1;
-                if (loaded === 2) {
-                    document.getElementById('layer-loading').style.display = 'none';
-                }
+                loadedCallback();
             });
 
             // load page images
@@ -113,14 +116,21 @@
                 utils.logTimerEnd('Page images loaded');
             });
 
+            // load html
+            controller.load([
+                {url: baseUrl + "ajax.html", type: "html", node: {id: "ajax"}}
+            ], function () {
+                utils.logTimerEnd('Html loaded');
+            });
 
             // initialize application cache and wait for loaded
-            storage.appCacheAdapter.open(function () {
-                loaded = loaded + 1;
-                if (loaded === 2) {
-                    document.getElementById('layer-loading').style.display = 'none';
-                }
-            });
+            if (storage && storage.appCacheAdapter) {
+                storage.appCacheAdapter.open(function () {
+                    loadedCallback();
+                });
+            } else {
+                loadedCallback();
+            }
 
 
         });

@@ -663,11 +663,12 @@
  * - provide information about the client and device
  * 
  * @author Ulrich Merkel, 2013
- * @version 0.3.5
+ * @version 0.3.6
  *
  * @namespace app
  * 
  * @changelog
+ * - 0.3.6 hide (mobile) status bar added
  * - 0.3.5 checkNetworkConnection added
  * - 0.3.4 check for mobile browsers modified and browser version check added
  * - 0.3.3 check if is ipad added
@@ -723,6 +724,7 @@
             privatePortraitMode = "portraitMode",                           // privatePortraitMode {string} The portrait mode string
             privateOrientationMode,                                         // privateOrientationMode {boolean} The current view mode (landscape/portrait)
             privateHasCanvas,                                               // privateHasCanvas {boolean} Whether the browser has canvas support or not
+            privateHideStatusbarTimeout,                                    // privateHideStatusbarTimeout {integer} Placeholder for window.setTimeout
             ua = navigator.userAgent || navigator.vendor || window.opera,   // ua {string} The user agent string of the current browser
             utils = app.helpers.utils,                                      // utils {object} Shortcut for utils functions
             bind = utils.bind;                                              // bind {object} Shortcut for bind function
@@ -1080,6 +1082,23 @@
                     privateHasCanvas = (!!(canvas.getContext && canvas.getContext('2d')));
                 }
                 return privateHasCanvas;
+            },
+
+            // hide mobile status bar
+            hideStatusbar: function (delay) {
+
+                // check params
+                if (!delay) {
+                    delay = 0;
+                }
+
+                // set delay and hide status bar if view is on top
+                window.clearTimeout(privateHideStatusbarTimeout);
+                privateHideStatusbarTimeout = window.setTimeout(function () {
+                    if (parseInt(window.pageYOffset, 10) === 0) {
+                        window.scrollTo(0, 1);
+                    }
+                }, delay);
             }
 
         };
@@ -1185,6 +1204,7 @@
             privateAppendedCss = [],                                // privateAppendedCss {array} Storage for appended css files
             privateAppendedJs = [],                                 // privateAppendedJs {array} Storage for appended js files
             privateAppendedImg = [],                                // privateAppendedImg {array} Storage for appended img files
+            privateAppendedHtml = [],                               // privateAppendedHtml {array} Storage for appended html files
             headNode = document.getElementsByTagName('head')[0];    // headNode {object} The html dom head object
 
 
@@ -1390,6 +1410,7 @@
                 // check for node parameter
                 image = checkNodeParameters(image, node);
 
+                // create empty image object if there is no node param
                 if (!image) {
                     image = new Image();
                 }
@@ -1406,6 +1427,59 @@
                 }
 
                 privateAppendedImg.push(url);
+
+            },
+
+
+            /**
+             * append image files to dom
+             * 
+             * @param {string} url The css url path
+             * @param {string} data The css data string
+             * @param {function} callback The success function
+             * @param {object} node The optional dom node element information object to append the data to
+             */
+            appendHtml: function (url, data, callback, node) {
+
+                // init local vars
+                var html = null,
+                    textNode;
+
+                // check for node parameter
+                html = checkNodeParameters(html, node);
+
+                if (!html) {
+                    callback();
+                    return;
+                }
+
+                // if there is data 
+                if (data) {
+                    /**
+                     * innerHTML is not possible for table elements (table, thead, tbody, tfoot and tr) in internet explorer
+                     *
+                     * in IE8, html.innerHTML will do nothing if the HTML coming in isn't perfectly formatted (against the DTD
+                     * being used) - it doesn't tolerate any mistakes unlike when it's parsing normally.
+                     *
+                     * @see
+                     * - http://blog.rakeshpai.me/2007/02/ies-unknown-runtime-error-when-using.html
+                     * - http://msdn.microsoft.com/en-us/library/ms533897%28VS.85%29.aspx
+                     * - http://domscripting.com/blog/display.php/99
+                     */
+                    try {
+                        html.innerHTML = data;
+                        if (node.id) {
+                            // force ie 8 to render (or update) the html content
+                            document.styleSheets[0].addRule("#" + node.id + ":after", "content: ' ';");
+                        }   
+                    } catch (e) {
+                        html.innerText = data;
+                    }
+
+                }
+
+                callback();
+                privateAppendedHtml.push(url);
 
             }
 
@@ -2265,7 +2339,18 @@
                  */
 
                 if (setVersion) {
-                    request = windowObject.open(dbName, self.dbVersion);
+
+                    /**
+                     * try catch here if ie tries to access database and the disc space is full
+                     * (tested with ie10)
+                     */
+                    try {
+                        request = windowObject.open(dbName, self.dbVersion);
+                    } catch(e) {
+                        log(e);
+                        request = windowObject.open(dbName);
+                    }
+                    
                 } else {
                     request = windowObject.open(dbName);
                 }
@@ -2891,124 +2976,125 @@
      * check to see if we have non-standard support for localStorage and
      * implement that behaviour
      *
-     * try catch if ie disc space is full (tested with ie10)
+     * try catch here if ie tries to access database and the disc space is full
+     * (tested with ie10)
      *
      * @see https://github.com/wojodesign/local-storage-js/blob/master/storage.js
      */
     try {
 
-    if (!window.localStorage) {
-
-        /**
-         * globalStorage
-         *
-         * non-standard: Firefox 2+
-         * https://developer.mozilla.org/en/dom/storage#globalStorage
-         */
-        if (window.globalStorage) {
-
-            // try/catch for file protocol in Firefox
-            try {
-                window.localStorage = window.globalStorage;
-            } catch (e) {
-                log('[' + storageType + ' Adapter] Try to init globalStorage failed');
-            }
-
-        }
-
-
-        /**
-         * ie userData
-         *
-         * non-standard: IE 5+
-         * http://msdn.microsoft.com/en-us/library/ms531424(v=vs.85).aspx
-         */
         if (!window.localStorage) {
 
-            // create dom element to store the data
-            div = document.createElement('div');
-            attrKey = 'localStorage';
+            /**
+             * globalStorage
+             *
+             * non-standard: Firefox 2+
+             * https://developer.mozilla.org/en/dom/storage#globalStorage
+             */
+            if (window.globalStorage) {
 
-            div.style.display = 'none';
-            document.getElementsByTagName('head')[0].appendChild(div);
-
-            if (div.addBehavior) {
-                div.addBehavior('#default#userdata');
-                //div.style.behavior = "url('#default#userData')";
-
-                /**
-                 * convert invalid characters to dashes
-                 * simplified to assume the starting character is valid
-                 *
-                 * @see http://www.w3.org/TR/REC-xml/#NT-Name
-                 */
-                cleanKey = function (key) {
-                    return key.replace(/[^\-._0-9A-Za-z\xb7\xc0-\xd6\xd8-\xf6\xf8-\u037d\u37f-\u1fff\u200c-\u200d\u203f\u2040\u2070-\u218f]/g, '-');
-                };
-
-
-                // set polfyfill api
-                localStorage = window[attrKey] = {
-
-                    length: 0,
-
-                    setItem: function (key, value) {
-                        div.load(attrKey);
-                        key = cleanKey(key);
-
-                        if (!div.getAttribute(key)) {
-                            this.length = this.length + 1;
-                        }
-                        div.setAttribute(key, value);
-
-                        div.save(attrKey);
-                    },
-
-                    getItem: function (key) {
-                        div.load(attrKey);
-                        key = cleanKey(key);
-                        return div.getAttribute(key);
-
-                    },
-
-                    removeItem: function (key) {
-                        div.load(attrKey);
-                        key = cleanKey(key);
-                        div.removeAttribute(key);
-
-                        div.save(attrKey);
-                        this.length = this.length - 1;
-                        if (this.length < 0) {
-                            this.length = 0;
-                        }
-                    },
-
-                    clear: function () {
-                        div.load(attrKey);
-                        var i = 0;
-                        while (attr = div.XMLDocument.documentElement.attributes[i++]) {
-                            div.removeAttribute(attr.name);
-                        }
-                        div.save(attrKey);
-                        this.length = 0;
-                    },
-
-                    key: function (key) {
-                        div.load(attrKey);
-                        return div.XMLDocument.documentElement.attributes[key];
-                    }
-
-                };
-
-
-                div.load(attrKey);
-                localStorage.length = div.XMLDocument.documentElement.attributes.length;
+                // try/catch for file protocol in Firefox
+                try {
+                    window.localStorage = window.globalStorage;
+                } catch (e) {
+                    log('[' + storageType + ' Adapter] Try to init globalStorage failed');
+                }
 
             }
+
+
+            /**
+             * ie userData
+             *
+             * non-standard: IE 5+
+             * http://msdn.microsoft.com/en-us/library/ms531424(v=vs.85).aspx
+             */
+            if (!window.localStorage) {
+
+                // create dom element to store the data
+                div = document.createElement('div');
+                attrKey = 'localStorage';
+
+                div.style.display = 'none';
+                document.getElementsByTagName('head')[0].appendChild(div);
+
+                if (div.addBehavior) {
+                    div.addBehavior('#default#userdata');
+                    //div.style.behavior = "url('#default#userData')";
+
+                    /**
+                     * convert invalid characters to dashes
+                     * simplified to assume the starting character is valid
+                     *
+                     * @see http://www.w3.org/TR/REC-xml/#NT-Name
+                     */
+                    cleanKey = function (key) {
+                        return key.replace(/[^\-._0-9A-Za-z\xb7\xc0-\xd6\xd8-\xf6\xf8-\u037d\u37f-\u1fff\u200c-\u200d\u203f\u2040\u2070-\u218f]/g, '-');
+                    };
+
+
+                    // set polfyfill api
+                    localStorage = window[attrKey] = {
+
+                        length: 0,
+
+                        setItem: function (key, value) {
+                            div.load(attrKey);
+                            key = cleanKey(key);
+
+                            if (!div.getAttribute(key)) {
+                                this.length = this.length + 1;
+                            }
+                            div.setAttribute(key, value);
+
+                            div.save(attrKey);
+                        },
+
+                        getItem: function (key) {
+                            div.load(attrKey);
+                            key = cleanKey(key);
+                            return div.getAttribute(key);
+
+                        },
+
+                        removeItem: function (key) {
+                            div.load(attrKey);
+                            key = cleanKey(key);
+                            div.removeAttribute(key);
+
+                            div.save(attrKey);
+                            this.length = this.length - 1;
+                            if (this.length < 0) {
+                                this.length = 0;
+                            }
+                        },
+
+                        clear: function () {
+                            div.load(attrKey);
+                            var i = 0;
+                            while (attr = div.XMLDocument.documentElement.attributes[i++]) {
+                                div.removeAttribute(attr.name);
+                            }
+                            div.save(attrKey);
+                            this.length = 0;
+                        },
+
+                        key: function (key) {
+                            div.load(attrKey);
+                            return div.XMLDocument.documentElement.attributes[key];
+                        }
+
+                    };
+
+
+                    div.load(attrKey);
+                    localStorage.length = div.XMLDocument.documentElement.attributes.length;
+
+                }
+            }
         }
-    }
     } catch (e) {
-        alert(e);
+        log(e);
     }
 
 
@@ -3330,8 +3416,9 @@
  * @namespace app
  *
  * @changelog
+ * - 0.1.4 renamed addEventListener to adapterEvent, bug fixes progress event
  * - 0.1.3 improved module structur
- * - 0.1.2 images loaded removed (seems to be buggy on edge connections), fadeout loading layer after ca. 10 sec for slow connections
+ * - 0.1.2 initializing call via images loaded removed (seems to be buggy on edge connections), invoke main callback after 10 sec for slow connections
  * - 0.1.1 update ready event bug fixes
  * - 0.1 basic functions
  *
@@ -3368,6 +3455,9 @@
      * the application cache can be checked/debugged in chrome with
      * chrome://appcache-internals/ to view and delete cached files or check the console
      * while the page is loading
+     *
+     * firefox on desktop in general promts a popup
+     * when trying to save data with application cache
      */
 
 
@@ -3375,11 +3465,10 @@
     var storageType = 'applicationCache',                       // storageType {string} The storage type string
         helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
         utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-        client = helpers.client,                                // client {function} Shortcut for client functions
         log = utils.log,                                        // log {function} Shortcut for utils.log function
         checkCallback = utils.callback,                         // shortcut for utils.callback function
         boolIsSupported = null,                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
-        htmlNode = document.getElementsByTagName('html')[0];    //
+        htmlNode = document.getElementsByTagName('html')[0];    // htmlNode {object} The dom html element
 
 
     /**
@@ -3396,7 +3485,7 @@
         self.adapter = null;
         self.type = storageType;
         self.isLoaded = false;
-        self.delay = 0;
+        self.delay = 25;
 
         // run init function
         self.init();
@@ -3418,10 +3507,6 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                /**
-                 * firefox on desktop in general promts a popup
-                 * when trying to save data with application cache
-                 */
                 boolIsSupported = !!window.applicationCache && !!htmlNode.getAttribute('manifest');
                 if (!boolIsSupported) {
                     log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
@@ -3453,6 +3538,7 @@
 
         },
 
+
         /**
          * open and initialize storage if not already done
          * 
@@ -3463,6 +3549,7 @@
             // init local function vars
             var self = this,
                 adapter = self.adapter,
+                adapterEvent = adapter.addEventListener,
                 manifestProgressCount = 0,
                 onUpdateReady;
 
@@ -3475,7 +3562,7 @@
                 /**
                  * handle updates
                  */
-                onUpdateReady = function() {
+                onUpdateReady = function () {
                     log('[' + storageType + ' Adapter] Event updateready');
 
                     // avoid errors in browsers that are not capable of swapCache
@@ -3485,7 +3572,8 @@
                         log('[' + storageType + ' Adapter] Event updateready: swapcache is not available');
                     }
 
-                    if (confirm("Es ist eine neue Version dieser Webseite verfügbar. Möchten Sie die Seite aktualisieren?")) {
+                    // ask user for refreshing the page
+                    if (confirm("A new version of this website is available. Do you want to an update?")) {
                         window.location.reload(true);
                     } else {
                         self.loaded(callback);
@@ -3501,7 +3589,7 @@
                  * If the manifest file has not changed, and the app is already cached,
                  * the noupdate event is fired and the process ends.
                  */
-                adapter.addEventListener('checking', function () {
+                adapterEvent('checking', function () {
                     log('[' + storageType + ' Adapter] Event checking');
 
                     return false;
@@ -3514,7 +3602,7 @@
                  * If the manifest file has not changed, and the app is already cached,
                  * the noupdate event is fired and the process ends.
                  */
-                adapter.addEventListener('noupdate', function () {
+                adapterEvent('noupdate', function () {
                     log('[' + storageType + ' Adapter] Event noupdate');
                     self.loaded(callback);
 
@@ -3529,7 +3617,7 @@
                  * the browser downloads and caches everything listed in the manifest.
                  * The downloading event signals the start of this download process.
                  */
-                adapter.addEventListener('downloading', function () {
+                adapterEvent('downloading', function () {
                     log('[' + storageType + ' Adapter] Event downloading');
                     manifestProgressCount = 0;
 
@@ -3542,24 +3630,29 @@
                  * 
                  * progress events are fired periodically during the downloading process,
                  * typically once for each file downloaded.
+                 *
+                 * @param {object} e The progress event object holding additionally information
                  */
-                adapter.addEventListener('progress', function (e) {
+                adapterEvent('progress', function (e) {
                     log('[' + storageType + ' Adapter] Event progress');
-
-                    // to run the css animation smooth until end
-                    self.delay = 500;
 
                     var progress = "",
                         bar = document.getElementById('layer-loading-bar');
 
+                    // to run the css animation smooth until end
+                    self.delay = 500;
+
+                    manifestProgressCount = manifestProgressCount + 1;
+
                     // Progress event: compute percentage
                     if (e && e.lengthComputable !== undefined) {
                         progress = " " + Math.round(100 * e.loaded / e.total) + "%";
-                        if (bar) {
-                            bar.style.width = progress;
-                        }
                     } else {
-                        manifestProgressCount = manifestProgressCount + 1;
+                        progress = " " + Math.round(100 * manifestProgressCount / 20) + "%";
+                    }
+
+                    if (bar) {
+                        bar.style.width = progress;
                     }
 
                     return false;
@@ -3572,7 +3665,7 @@
                  * The first time an application is downloaded into the cache, the browser
                  * fires the cached event when the download is complete.
                  */
-                adapter.addEventListener('cached', function () {
+                adapterEvent('cached', function () {
                     log('[' + storageType + ' Adapter] Event cached');
                     self.loaded(callback);
 
@@ -3587,7 +3680,7 @@
                  * the browser fires "updateready". Note that the user will still be seeing
                  * the old version of the application when this event arrives.
                  */
-                adapter.addEventListener('updateready', function () {
+                adapterEvent('updateready', function () {
                     onUpdateReady();
                 });
 
@@ -3599,7 +3692,7 @@
                  * an obsolete event is fired and the application is removed from the cache.
                  * Subsequent loads are done from the network rather than from the cache.
                  */
-                adapter.addEventListener('obsolete', function () {
+                adapterEvent('obsolete', function () {
                     log('[' + storageType + ' Adapter] Event obsolete');
                     window.location.reload(true);
 
@@ -3613,7 +3706,7 @@
                  * If there is an error with the cache file or
                  * ressources can't be loaded
                  */
-                adapter.addEventListener('error', function () {
+                adapterEvent('error', function () {
                     log('[' + storageType + ' Adapter] Event error');
                     self.loaded(callback);
 
@@ -3666,6 +3759,9 @@
                  * call the main callback after certain time for slow
                  * internet connections or uncovered non-standard behaviours
                  * throwing errors
+                 *
+                 * the page is already accessable because all application cache
+                 * files will be loaded async in the background
                  */
                 window.setTimeout(function () {
                     if (!self.isLoaded) {
@@ -3731,6 +3827,7 @@
  * - connect to different storage types if available
  * - provide consistent api for different storage types
  * - store and read via storage adapter
+ * - convert resource data, encode data into storable formats and decode data form storage
  * 
  * @version 0.1.3
  * @author Ulrich Merkel, 2013
@@ -4511,21 +4608,6 @@
  * - main functions/controller for handling client-side cache
  * - connect to storage controller and read/write data or get data via xhr
  * - handle logic to check for outdated data
- *
- * - tested and supported browsers for storing data client-side:
- * - Internet explorer 8.0 +
- * - Firefox 19.0 +
- * - Google Crome 21.0 +
- * - Safari 6.0 +
- * - Opera 12.5 +
- * - Camino 2.1.2 +
- * - Fake 1.8 +
- * - Maxthon 4.0.5 +
- * - Omni Web 5.11 +
- * - Seamonkey 2.15 +
- * - Stainless 0.8 +
- * - Sunrise 2.2 +
- *
  * 
  * @author Ulrich Merkel (hello@ulrichmerkel.com)
  * @version 0.1.3
@@ -4539,7 +4621,8 @@
  * - 0.1 basic functions and plugin structur
  *
  * @see
- * - http://www.winktoolkit.org/, http://www.winktoolkit.org/documentation/symbols/wink.cache.html
+ * - http://www.winktoolkit.org/
+ * - http://www.winktoolkit.org/documentation/symbols/wink.cache.html
  *
  * 
  * 
@@ -4588,12 +4671,6 @@
          * {object} The storage controller instance
          */
         storage: null,
-
-
-        /**
-         * {boolean} The indicator if the controller is already initialized
-         */
-        initialized: false,
 
 
         /**
@@ -4682,6 +4759,9 @@
                         break;
                     case 'img':
                         append.appendImg(url, data, callback, node);
+                        break;
+                    case 'html':
+                        append.appendHtml(url, data, callback, node);
                         break;
                     default:
                         break;
@@ -4906,12 +4986,6 @@
             var self = this,
                 storage;
 
-            if (self.initialized) {
-                callback(storage);
-                return;
-            }
-
-
             // check callback function
             callback = checkCallback(callback);
 
@@ -5002,11 +5076,17 @@
     bind(window, 'load', function () {
         utils.logTimerStart('Page css and js files loaded');
         utils.logTimerStart('Page images loaded');
+        utils.logTimerStart('Html loaded');
 
 
         var baseUrl = window.baseurl || utils.url(window.location.pathname).folder,
-            loaded = 0;
-
+            loaded = 0,
+            loadedCallback = function () {
+                loaded = loaded + 1;
+                if (loaded === 2) {
+                    document.getElementById('layer-loading').style.display = 'none';
+                }
+            };
 
         controller.init(function (storage) {
 
@@ -5037,10 +5117,7 @@
                 {url: baseUrl + "js/app.js", type: "js", group: 1}
             ], function () {
                 utils.logTimerEnd('Page css and js files loaded');
-                loaded = loaded + 1;
-                if (loaded === 2) {
-                    document.getElementById('layer-loading').style.display = 'none';
-                }
+                loadedCallback();
             });
 
             // load page images
@@ -5052,14 +5129,21 @@
                 utils.logTimerEnd('Page images loaded');
             });
 
+            // load html
+            controller.load([
+                {url: baseUrl + "ajax.html", type: "html", node: {id: "ajax"}}
+            ], function () {
+                utils.logTimerEnd('Html loaded');
+            });
 
             // initialize application cache and wait for loaded
-            storage.appCacheAdapter.open(function () {
-                loaded = loaded + 1;
-                if (loaded === 2) {
-                    document.getElementById('layer-loading').style.display = 'none';
-                }
-            });
+            if (storage && storage.appCacheAdapter) {
+                storage.appCacheAdapter.open(function () {
+                    loadedCallback();
+                });
+            } else {
+                loadedCallback();
+            }
 
 
         });

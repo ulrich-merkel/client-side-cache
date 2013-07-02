@@ -12,6 +12,7 @@
  * - connect to different storage types if available
  * - provide consistent api for different storage types
  * - store and read via storage adapter
+ * - convert resource data, encode data into storable formats and decode data form storage
  * 
  * @version 0.1.3
  * @author Ulrich Merkel, 2013

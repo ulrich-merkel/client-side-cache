@@ -6,32 +6,17 @@
 		$html = $('html'),
 		helpers = app.helpers,
 		client = helpers.client,
-		bind = helpers.utils.bind,
-		timeout;
+		bind = helpers.utils.bind;
 
-	/**
-	 * hide status bar on mobile devices
-	 *
-	 */
-	function hideStatusbar() {
-		window.clearTimeout(timeout);
-        timeout = window.setTimeout(function () {
-            if (parseInt(window.pageYOffset, 10) === 0) {
-                window.scrollTo(0, 1);
-            }
-        }, 1000);
-    }
 
 
 	$(document).ready(function () {
-
-		alert("document ready");
 
 		// client depending init
         $html.removeClass('no-js').addClass('js');
 		if (client.isMobile()) {
 			$html.addClass('mobile');
-			hideStatusbar();
+			client.hideStatusbar(1000);
 			bind(document, 'DOMContentLoaded', hideStatusbar);
 			bind(window, 'orientationchange', hideStatusbar);
 		} else {
@@ -41,11 +26,11 @@
 		// mobile fast clicks
 		new FastClick(document.body);
 
-		app.controllers.controller.init(function () {
-            alert("page controller loaded");
-        });
+		//app.controllers.controller.init(function () {
+            //alert("page controller loaded");
+        //});
 
-		
+		//alert("document ready");
 	});
 
 }(window.jQuery, window, document, window.app));

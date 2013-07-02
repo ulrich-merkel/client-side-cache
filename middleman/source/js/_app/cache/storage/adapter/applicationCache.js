@@ -14,8 +14,9 @@
  * @namespace app
  *
  * @changelog
+ * - 0.1.4 renamed addEventListener to adapterEvent, bug fixes progress event
  * - 0.1.3 improved module structur
- * - 0.1.2 images loaded removed (seems to be buggy on edge connections), fadeout loading layer after ca. 10 sec for slow connections
+ * - 0.1.2 initializing call via images loaded removed (seems to be buggy on edge connections), invoke main callback after 10 sec for slow connections
  * - 0.1.1 update ready event bug fixes
  * - 0.1 basic functions
  *
@@ -51,6 +52,9 @@
      * the application cache can be checked/debugged in chrome with
      * chrome://appcache-internals/ to view and delete cached files or check the console
      * while the page is loading
+     *
+     * firefox on desktop in general promts a popup
+     * when trying to save data with application cache
      */
 
 
@@ -58,11 +62,10 @@
     var storageType = 'applicationCache',                       // storageType {string} The storage type string
         helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
         utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-        client = helpers.client,                                // client {function} Shortcut for client functions
         log = utils.log,                                        // log {function} Shortcut for utils.log function
         checkCallback = utils.callback,                         // shortcut for utils.callback function
         boolIsSupported = null,                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
-        htmlNode = document.getElementsByTagName('html')[0];    //
+        htmlNode = document.getElementsByTagName('html')[0];    // htmlNode {object} The dom html element
 
 
     /**
@@ -79,7 +82,7 @@
         self.adapter = null;
         self.type = storageType;
         self.isLoaded = false;
-        self.delay = 0;
+        self.delay = 25;
 
         // run init function
         self.init();
@@ -101,10 +104,6 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                /**
-                 * firefox on desktop in general promts a popup
-                 * when trying to save data with application cache
-                 */
                 boolIsSupported = !!window.applicationCache && !!htmlNode.getAttribute('manifest');
                 if (!boolIsSupported) {
                     log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
@@ -136,6 +135,7 @@
 
         },
 
+
         /**
          * open and initialize storage if not already done
          * 
@@ -146,6 +146,7 @@
             // init local function vars
             var self = this,
                 adapter = self.adapter,
+                adapterEvent = adapter.addEventListener,
                 manifestProgressCount = 0,
                 onUpdateReady;
 
@@ -158,7 +159,7 @@
                 /**
                  * handle updates
                  */
-                onUpdateReady = function() {
+                onUpdateReady = function () {
                     log('[' + storageType + ' Adapter] Event updateready');
 
                     // avoid errors in browsers that are not capable of swapCache
@@ -168,7 +169,8 @@
                         log('[' + storageType + ' Adapter] Event updateready: swapcache is not available');
                     }
 
-                    if (confirm("Es ist eine neue Version dieser Webseite verfügbar. Möchten Sie die Seite aktualisieren?")) {
+                    // ask user for refreshing the page
+                    if (confirm("A new version of this website is available. Do you want to an update?")) {
                         window.location.reload(true);
                     } else {
                         self.loaded(callback);
@@ -184,7 +186,7 @@
                  * If the manifest file has not changed, and the app is already cached,
                  * the noupdate event is fired and the process ends.
                  */
-                adapter.addEventListener('checking', function () {
+                adapterEvent('checking', function () {
                     log('[' + storageType + ' Adapter] Event checking');
 
                     return false;
@@ -197,7 +199,7 @@
                  * If the manifest file has not changed, and the app is already cached,
                  * the noupdate event is fired and the process ends.
                  */
-                adapter.addEventListener('noupdate', function () {
+                adapterEvent('noupdate', function () {
                     log('[' + storageType + ' Adapter] Event noupdate');
                     self.loaded(callback);
 
@@ -212,7 +214,7 @@
                  * the browser downloads and caches everything listed in the manifest.
                  * The downloading event signals the start of this download process.
                  */
-                adapter.addEventListener('downloading', function () {
+                adapterEvent('downloading', function () {
                     log('[' + storageType + ' Adapter] Event downloading');
                     manifestProgressCount = 0;
 
@@ -225,24 +227,29 @@
                  * 
                  * progress events are fired periodically during the downloading process,
                  * typically once for each file downloaded.
+                 *
+                 * @param {object} e The progress event object holding additionally information
                  */
-                adapter.addEventListener('progress', function (e) {
+                adapterEvent('progress', function (e) {
                     log('[' + storageType + ' Adapter] Event progress');
-
-                    // to run the css animation smooth until end
-                    self.delay = 500;
 
                     var progress = "",
                         bar = document.getElementById('layer-loading-bar');
 
+                    // to run the css animation smooth until end
+                    self.delay = 500;
+
+                    manifestProgressCount = manifestProgressCount + 1;
+
                     // Progress event: compute percentage
                     if (e && e.lengthComputable !== undefined) {
                         progress = " " + Math.round(100 * e.loaded / e.total) + "%";
-                        if (bar) {
-                            bar.style.width = progress;
-                        }
                     } else {
-                        manifestProgressCount = manifestProgressCount + 1;
+                        progress = " " + Math.round(100 * manifestProgressCount / 20) + "%";
+                    }
+
+                    if (bar) {
+                        bar.style.width = progress;
                     }
 
                     return false;
@@ -255,7 +262,7 @@
                  * The first time an application is downloaded into the cache, the browser
                  * fires the cached event when the download is complete.
                  */
-                adapter.addEventListener('cached', function () {
+                adapterEvent('cached', function () {
                     log('[' + storageType + ' Adapter] Event cached');
                     self.loaded(callback);
 
@@ -270,7 +277,7 @@
                  * the browser fires "updateready". Note that the user will still be seeing
                  * the old version of the application when this event arrives.
                  */
-                adapter.addEventListener('updateready', function () {
+                adapterEvent('updateready', function () {
                     onUpdateReady();
                 });
 
@@ -282,7 +289,7 @@
                  * an obsolete event is fired and the application is removed from the cache.
                  * Subsequent loads are done from the network rather than from the cache.
                  */
-                adapter.addEventListener('obsolete', function () {
+                adapterEvent('obsolete', function () {
                     log('[' + storageType + ' Adapter] Event obsolete');
                     window.location.reload(true);
 
@@ -296,7 +303,7 @@
                  * If there is an error with the cache file or
                  * ressources can't be loaded
                  */
-                adapter.addEventListener('error', function () {
+                adapterEvent('error', function () {
                     log('[' + storageType + ' Adapter] Event error');
                     self.loaded(callback);
 
@@ -349,6 +356,9 @@
                  * call the main callback after certain time for slow
                  * internet connections or uncovered non-standard behaviours
                  * throwing errors
+                 *
+                 * the page is already accessable because all application cache
+                 * files will be loaded async in the background
                  */
                 window.setTimeout(function () {
                     if (!self.isLoaded) {

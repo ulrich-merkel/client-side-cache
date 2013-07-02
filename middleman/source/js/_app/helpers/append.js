@@ -88,6 +88,7 @@
             privateAppendedCss = [],                                // privateAppendedCss {array} Storage for appended css files
             privateAppendedJs = [],                                 // privateAppendedJs {array} Storage for appended js files
             privateAppendedImg = [],                                // privateAppendedImg {array} Storage for appended img files
+            privateAppendedHtml = [],                               // privateAppendedHtml {array} Storage for appended html files
             headNode = document.getElementsByTagName('head')[0];    // headNode {object} The html dom head object
 
 
@@ -293,6 +294,7 @@
                 // check for node parameter
                 image = checkNodeParameters(image, node);
 
+                // create empty image object if there is no node param
                 if (!image) {
                     image = new Image();
                 }
@@ -309,6 +311,59 @@
                 }
 
                 privateAppendedImg.push(url);
+
+            },
+
+
+            /**
+             * append image files to dom
+             * 
+             * @param {string} url The css url path
+             * @param {string} data The css data string
+             * @param {function} callback The success function
+             * @param {object} node The optional dom node element information object to append the data to
+             */
+            appendHtml: function (url, data, callback, node) {
+
+                // init local vars
+                var html = null,
+                    textNode;
+
+                // check for node parameter
+                html = checkNodeParameters(html, node);
+
+                if (!html) {
+                    callback();
+                    return;
+                }
+
+                // if there is data 
+                if (data) {
+                    /**
+                     * innerHTML is not possible for table elements (table, thead, tbody, tfoot and tr) in internet explorer
+                     *
+                     * in IE8, html.innerHTML will do nothing if the HTML coming in isn't perfectly formatted (against the DTD
+                     * being used) - it doesn't tolerate any mistakes unlike when it's parsing normally.
+                     *
+                     * @see
+                     * - http://blog.rakeshpai.me/2007/02/ies-unknown-runtime-error-when-using.html
+                     * - http://msdn.microsoft.com/en-us/library/ms533897%28VS.85%29.aspx
+                     * - http://domscripting.com/blog/display.php/99
+                     */
+                    try {
+                        html.innerHTML = data;
+                        if (node.id) {
+                            // force ie 8 to render (or update) the html content
+                            document.styleSheets[0].addRule("#" + node.id + ":after", "content: ' ';");
+                        }   
+                    } catch (e) {
+                        html.innerText = data;
+                    }
+
+                }
+
+                callback();
+                privateAppendedHtml.push(url);
 
             }
 

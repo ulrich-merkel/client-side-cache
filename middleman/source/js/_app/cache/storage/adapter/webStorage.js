@@ -67,124 +67,125 @@
      * check to see if we have non-standard support for localStorage and
      * implement that behaviour
      *
-     * try catch if ie disc space is full (tested with ie10)
+     * try catch here if ie tries to access database and the disc space is full
+     * (tested with ie10)
      *
      * @see https://github.com/wojodesign/local-storage-js/blob/master/storage.js
      */
     try {
 
-    if (!window.localStorage) {
-
-        /**
-         * globalStorage
-         *
-         * non-standard: Firefox 2+
-         * https://developer.mozilla.org/en/dom/storage#globalStorage
-         */
-        if (window.globalStorage) {
-
-            // try/catch for file protocol in Firefox
-            try {
-                window.localStorage = window.globalStorage;
-            } catch (e) {
-                log('[' + storageType + ' Adapter] Try to init globalStorage failed');
-            }
-
-        }
-
-
-        /**
-         * ie userData
-         *
-         * non-standard: IE 5+
-         * http://msdn.microsoft.com/en-us/library/ms531424(v=vs.85).aspx
-         */
         if (!window.localStorage) {
 
-            // create dom element to store the data
-            div = document.createElement('div');
-            attrKey = 'localStorage';
+            /**
+             * globalStorage
+             *
+             * non-standard: Firefox 2+
+             * https://developer.mozilla.org/en/dom/storage#globalStorage
+             */
+            if (window.globalStorage) {
 
-            div.style.display = 'none';
-            document.getElementsByTagName('head')[0].appendChild(div);
-
-            if (div.addBehavior) {
-                div.addBehavior('#default#userdata');
-                //div.style.behavior = "url('#default#userData')";
-
-                /**
-                 * convert invalid characters to dashes
-                 * simplified to assume the starting character is valid
-                 *
-                 * @see http://www.w3.org/TR/REC-xml/#NT-Name
-                 */
-                cleanKey = function (key) {
-                    return key.replace(/[^\-._0-9A-Za-z\xb7\xc0-\xd6\xd8-\xf6\xf8-\u037d\u37f-\u1fff\u200c-\u200d\u203f\u2040\u2070-\u218f]/g, '-');
-                };
-
-
-                // set polfyfill api
-                localStorage = window[attrKey] = {
-
-                    length: 0,
-
-                    setItem: function (key, value) {
-                        div.load(attrKey);
-                        key = cleanKey(key);
-
-                        if (!div.getAttribute(key)) {
-                            this.length = this.length + 1;
-                        }
-                        div.setAttribute(key, value);
-
-                        div.save(attrKey);
-                    },
-
-                    getItem: function (key) {
-                        div.load(attrKey);
-                        key = cleanKey(key);
-                        return div.getAttribute(key);
-
-                    },
-
-                    removeItem: function (key) {
-                        div.load(attrKey);
-                        key = cleanKey(key);
-                        div.removeAttribute(key);
-
-                        div.save(attrKey);
-                        this.length = this.length - 1;
-                        if (this.length < 0) {
-                            this.length = 0;
-                        }
-                    },
-
-                    clear: function () {
-                        div.load(attrKey);
-                        var i = 0;
-                        while (attr = div.XMLDocument.documentElement.attributes[i++]) {
-                            div.removeAttribute(attr.name);
-                        }
-                        div.save(attrKey);
-                        this.length = 0;
-                    },
-
-                    key: function (key) {
-                        div.load(attrKey);
-                        return div.XMLDocument.documentElement.attributes[key];
-                    }
-
-                };
-
-
-                div.load(attrKey);
-                localStorage.length = div.XMLDocument.documentElement.attributes.length;
+                // try/catch for file protocol in Firefox
+                try {
+                    window.localStorage = window.globalStorage;
+                } catch (e) {
+                    log('[' + storageType + ' Adapter] Try to init globalStorage failed');
+                }
 
             }
+
+
+            /**
+             * ie userData
+             *
+             * non-standard: IE 5+
+             * http://msdn.microsoft.com/en-us/library/ms531424(v=vs.85).aspx
+             */
+            if (!window.localStorage) {
+
+                // create dom element to store the data
+                div = document.createElement('div');
+                attrKey = 'localStorage';
+
+                div.style.display = 'none';
+                document.getElementsByTagName('head')[0].appendChild(div);
+
+                if (div.addBehavior) {
+                    div.addBehavior('#default#userdata');
+                    //div.style.behavior = "url('#default#userData')";
+
+                    /**
+                     * convert invalid characters to dashes
+                     * simplified to assume the starting character is valid
+                     *
+                     * @see http://www.w3.org/TR/REC-xml/#NT-Name
+                     */
+                    cleanKey = function (key) {
+                        return key.replace(/[^\-._0-9A-Za-z\xb7\xc0-\xd6\xd8-\xf6\xf8-\u037d\u37f-\u1fff\u200c-\u200d\u203f\u2040\u2070-\u218f]/g, '-');
+                    };
+
+
+                    // set polfyfill api
+                    localStorage = window[attrKey] = {
+
+                        length: 0,
+
+                        setItem: function (key, value) {
+                            div.load(attrKey);
+                            key = cleanKey(key);
+
+                            if (!div.getAttribute(key)) {
+                                this.length = this.length + 1;
+                            }
+                            div.setAttribute(key, value);
+
+                            div.save(attrKey);
+                        },
+
+                        getItem: function (key) {
+                            div.load(attrKey);
+                            key = cleanKey(key);
+                            return div.getAttribute(key);
+
+                        },
+
+                        removeItem: function (key) {
+                            div.load(attrKey);
+                            key = cleanKey(key);
+                            div.removeAttribute(key);
+
+                            div.save(attrKey);
+                            this.length = this.length - 1;
+                            if (this.length < 0) {
+                                this.length = 0;
+                            }
+                        },
+
+                        clear: function () {
+                            div.load(attrKey);
+                            var i = 0;
+                            while (attr = div.XMLDocument.documentElement.attributes[i++]) {
+                                div.removeAttribute(attr.name);
+                            }
+                            div.save(attrKey);
+                            this.length = 0;
+                        },
+
+                        key: function (key) {
+                            div.load(attrKey);
+                            return div.XMLDocument.documentElement.attributes[key];
+                        }
+
+                    };
+
+
+                    div.load(attrKey);
+                    localStorage.length = div.XMLDocument.documentElement.attributes.length;
+
+                }
+            }
         }
-    }
     } catch (e) {
-        alert(e);
+        log(e);
     }
 
 

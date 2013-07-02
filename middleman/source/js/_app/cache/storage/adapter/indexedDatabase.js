@@ -379,7 +379,18 @@
                  */
 
                 if (setVersion) {
-                    request = windowObject.open(dbName, self.dbVersion);
+
+                    /**
+                     * try catch here if ie tries to access database and the disc space is full
+                     * (tested with ie10)
+                     */
+                    try {
+                        request = windowObject.open(dbName, self.dbVersion);
+                    } catch(e) {
+                        log(e);
+                        request = windowObject.open(dbName);
+                    }
+                    
                 } else {
                     request = windowObject.open(dbName);
                 }

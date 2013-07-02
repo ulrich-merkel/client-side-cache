@@ -9,11 +9,12 @@
  * - provide information about the client and device
  * 
  * @author Ulrich Merkel, 2013
- * @version 0.3.5
+ * @version 0.3.6
  *
  * @namespace app
  * 
  * @changelog
+ * - 0.3.6 hide (mobile) status bar added
  * - 0.3.5 checkNetworkConnection added
  * - 0.3.4 check for mobile browsers modified and browser version check added
  * - 0.3.3 check if is ipad added
@@ -68,6 +69,7 @@
             privatePortraitMode = "portraitMode",                           // privatePortraitMode {string} The portrait mode string
             privateOrientationMode,                                         // privateOrientationMode {boolean} The current view mode (landscape/portrait)
             privateHasCanvas,                                               // privateHasCanvas {boolean} Whether the browser has canvas support or not
+            privateHideStatusbarTimeout,                                    // privateHideStatusbarTimeout {integer} Placeholder for window.setTimeout
             ua = navigator.userAgent || navigator.vendor || window.opera,   // ua {string} The user agent string of the current browser
             utils = app.helpers.utils,                                      // utils {object} Shortcut for utils functions
             bind = utils.bind;                                              // bind {object} Shortcut for bind function
@@ -425,6 +427,23 @@
                     privateHasCanvas = (!!(canvas.getContext && canvas.getContext('2d')));
                 }
                 return privateHasCanvas;
+            },
+
+            // hide mobile status bar
+            hideStatusbar: function (delay) {
+
+                // check params
+                if (!delay) {
+                    delay = 0;
+                }
+
+                // set delay and hide status bar if view is on top
+                window.clearTimeout(privateHideStatusbarTimeout);
+                privateHideStatusbarTimeout = window.setTimeout(function () {
+                    if (parseInt(window.pageYOffset, 10) === 0) {
+                        window.scrollTo(0, 1);
+                    }
+                }, delay);
             }
 
         };
