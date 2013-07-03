@@ -17,24 +17,24 @@ The offline application cache differs from the usage of the other four. Due to i
 ### Demo
 If you just want to see the demo, open the generated index.html */export/index.html* file in your browser. You need to run a webserver for the test page or run the middleman server to make shure the ajax calls are working. The test page is generated with middleman app - if you want to edit the source files you need to install this ruby application or you combine the needed files javascript with any other tool or manually.
 ### Javascript files
-The logic is split into several functions and files under the global app namespace. The files you will need are listed in */middleman/source/js/_app/***cache** and  */middleman/source/js/_app/***helpers**. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (helpers first):
+The logic is split into several functions and files under the global app namespace. The files you will need are listed in */middleman/source/js/_app/cache* and  */middleman/source/js/_app/helpers*. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (helpers first):
 
 ##### Helpers
-- _app/helpers/**namespace.js**
-- _app/helpers/**utils.js**
-- _app/helpers/**client.js**
-- _app/helpers/**append.js**
+- _app/helpers/namespace.js
+- _app/helpers/utils.js
+- _app/helpers/client.js
+- _app/helpers/append.js
 
 The helper files are used to get some utility functions. They provide some useful functions and information that will be needed to manage the caching mechanism and get some browser workarounds.
 
 ##### Caching
-- _app/cache/storage/**controller.js**
-- _app/cache/storage/adapter/**fileSystem.js**
-- _app/cache/storage/adapter/**indexedDatabase.js**
-- _app/cache/storage/adapter/**webSqlDatabase.js**
-- _app/cache/storage/adapter/**webStorage.js**
-- _app/cache/storage/adapter/**applicationCache.js**
-- _app/cache/**controller.js**
+- _app/cache/storage/controller.js
+- _app/cache/storage/adapter/fileSystem.js
+- _app/cache/storage/adapter/indexedDatabase.js
+- _app/cache/storage/adapter/webSqlDatabase.js
+- _app/cache/storage/adapter/webStorage.js
+- _app/cache/storage/adapter/applicationCache.js
+- _app/cache/controller.js
 
 The storage controller _/cache/storage/controller.js_ is responsible for checking the different storage adapters. He also provides an consistent interface to store and retrieve the data from cache.
 The main logic for handling the cache is listed in the cache controller _/cache/controller.js_. This file will take care of checking and loading the data you are requesting. If you don't need one or some of the storage adapters _/cache/storage/adapter/...js_, you can just delete these files to reduce the file size.
@@ -74,8 +74,7 @@ The application cache needs the manifest attribute on the html element and expec
 
 ### Caching initializing
 
-To initialize and use the javascript caching, you need to take care of some steps. Because some storage apis work async, you need to initialize the caching in this way. First of all you need to call the **app.cache.controller.init(callback)** function to open and check the database. After the callback invokes, you are able to call the **app.cache.controller.load(resources, callback)** function where you can specify the resource you want to be cached. You will find a sample initialisation in the bootstrap file (*_app/cache/bootstrap.js*)
-or in the examples below. You can use this given file as a template to edit the resources you want to load.
+To initialize and use the javascript caching, you need to take care of some steps. Because some storage apis work async, you need to initialize the caching in this way. First of all you need to call the **app.cache.controller.init(callback)** function to open and check the database. After the callback invokes, you are able to call the **app.cache.controller.load(resources, callback)** function where you can specify the resource you want to be cached. You will find a sample initialisation in the bootstrap file *_app/cache/bootstrap.js* or in the examples below. You can use this given file as a template to edit the resources you want to load.
 
 The offline application cache differs from the usage of the other storage adapter. Due to it's different javascript api and idea of how to store data locally, you are just able to listen to the events this kind of storage fires. You can use this adapter to e.g. display a loading bar or listen for updates.
 
@@ -92,16 +91,13 @@ The offline application cache differs from the usage of the other storage adapte
             controller = {};                                        // controller {object} Cache controller public functions and vars
     
     
-    
         // get controller
         controller = app.cache.controller;
-    
     
         // load additional resources on window load
         bind(window, 'load', function () {
     
             var baseUrl = window.baseurl || utils.url(window.location.pathname).folder;
-    
     
             controller.init(function (storage) {
     
