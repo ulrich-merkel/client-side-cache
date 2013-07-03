@@ -35,7 +35,7 @@ The helper files are used to get some utility functions. They provide some usefu
 - _app/cache/storage/adapter/**applicationCache.js**
 - _app/cache/**controller.js**
 
-The storage controller (_/cache/storage/controller.js_) is responsible for checking the different storage adapters. He also provides an consistent interface to store and retrieve the data from cache.
+The storage controller _/cache/storage/controller.js_ is responsible for checking the different storage adapters. He also provides an consistent interface to store and retrieve the data from cache.
 The main logic for handling the cache is listed in the cache controller (_/cache/controller.js_). This file will take care of checking and loading the data you are requesting. If you don't need one or some of the storage adapters (_/cache/storage/adapter/...js_), you can just delete these files to reduce the file size.
 
 It is recommended that you combine all the single files into one and minimize the combined file.
