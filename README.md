@@ -1,5 +1,6 @@
 # Client side caching via javascript
 
+
 ## Introduction
 
 This javascript functions are demonstrating the possibility of client side caching via javascript and html5 storage apis. Page resources like images, javascript files, stylesheets and html content could be saved locally in the users browser. On subsequent page views these resources will be taken from cache and won't be won't loaded via network. 
@@ -14,9 +15,9 @@ The offline application cache differs from the usage of the other four. Due to i
 
 ## Usage
 ### Demo
-If you just want to see the demo, open the generated index.html (*/export/index.html*) file in your browser. You need to run a webserver for the test page or run the middleman server to make shure the ajax calls are working. The test page is generated with middleman app - if you want to edit the source files you need to install this ruby application or you combine the needed files javascript with any other tool or manually.
+If you just want to see the demo, open the generated index.html */export/index.html* file in your browser. You need to run a webserver for the test page or run the middleman server to make shure the ajax calls are working. The test page is generated with middleman app - if you want to edit the source files you need to install this ruby application or you combine the needed files javascript with any other tool or manually.
 ### Javascript files
-The logic is split into several functions and files under the global app namespace. The files you will need are listed in */middleman/source/js/_app/cache* and  */middleman/source/js/_app/helpers*. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (helpers first):
+The logic is split into several functions and files under the global app namespace. The files you will need are listed in */middleman/source/js/_app/***cache** and  */middleman/source/js/_app/***helpers**. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (helpers first):
 
 ##### Helpers
 - _app/helpers/**namespace.js**
@@ -36,7 +37,7 @@ The helper files are used to get some utility functions. They provide some usefu
 - _app/cache/**controller.js**
 
 The storage controller _/cache/storage/controller.js_ is responsible for checking the different storage adapters. He also provides an consistent interface to store and retrieve the data from cache.
-The main logic for handling the cache is listed in the cache controller (_/cache/controller.js_). This file will take care of checking and loading the data you are requesting. If you don't need one or some of the storage adapters (_/cache/storage/adapter/...js_), you can just delete these files to reduce the file size.
+The main logic for handling the cache is listed in the cache controller _/cache/controller.js_. This file will take care of checking and loading the data you are requesting. If you don't need one or some of the storage adapters _/cache/storage/adapter/...js_, you can just delete these files to reduce the file size.
 
 It is recommended that you combine all the single files into one and minimize the combined file.
 
