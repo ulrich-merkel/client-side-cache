@@ -18,38 +18,12 @@ The offline application cache differs from the usage of the other four. Due to i
 ## Usage
 ### Demo
 If you just want to see the demo, open the generated index.html */export/index.html* file in your browser. You need to run a webserver for the test page or run the middleman server to make shure the ajax calls are working. The test page is generated with middleman app - if you want to edit the source files you need to install this ruby application or you combine the needed files javascript with any other tool or manually.
-### Javascript files
-The logic is split into several functions and files under the global app namespace. The files you will need are listed in */middleman/source/js/_app/cache* and  */middleman/source/js/_app/helpers*. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (helpers first):
-
-##### Helpers
-- _app/helpers/namespace.js
-- _app/helpers/utils.js
-- _app/helpers/queue.js
-- _app/helpers/client.js
-- _app/helpers/append.js
-
-The helper files are used to get some utility functions. They provide some useful functions and information that will be needed to manage the caching mechanism and get some browser workarounds.
-
-##### Caching
-- _app/cache/storage/controller.js
-- _app/cache/storage/adapter/fileSystem.js
-- _app/cache/storage/adapter/indexedDatabase.js
-- _app/cache/storage/adapter/webSqlDatabase.js
-- _app/cache/storage/adapter/webStorage.js
-- _app/cache/storage/adapter/applicationCache.js
-- _app/cache/controller.js
-- _app/cache/interface.js
-
-The storage controller _/cache/storage/controller.js_ is responsible for checking the different storage adapters. He also provides an consistent interface to store and retrieve the data from cache.
-The main logic for handling the cache is listed in the cache controller _/cache/controller.js_. This file will take care of checking and loading the data you are requesting. If you don't need one or some of the storage adapters _/cache/storage/adapter/...js_, you can just delete these files to reduce the file size.
-
-It is recommended that you combine all the single files into one and minimize the combined file. There is already a minified and combined version named __cache.min.js__ in the _cache/_ directory included.
 
 ### Sample html code
-Append the _cache.min.js_ file just before the closing body tag. The application cache needs the manifest attribute on the html element and expects a valid path to the manifest file, if you want to use this storage adapter.
+There is a minified and combined version of the functions you need included in the js directory named __cache.min.js__. Append the _cache.min.js_ file just before the closing body tag. The application cache needs the manifest attribute on the html element and expects a valid path to the manifest file, if you want to use this storage adapter.
 
 	<!doctype html>
-	<html class="no-js" lang="de" manifest="cache.manifest">
+	<html manifest="cache.manifest">
     <head>
         <meta charset="utf-8">
         <title>Client side caching</title>
@@ -178,6 +152,40 @@ There are several options you can use to specify a resource. This can be useful 
       			dom: null
       		}
         }
+ 
+### Javascript source files
+The logic is split into several functions and files under the global app namespace. The files you will need are listed in */middleman/source/js/_app/cache* and  */middleman/source/js/_app/helpers*. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (helpers first).
+
+##### Helpers
+- _app/helpers/namespace.js
+- _app/helpers/utils.js
+- _app/helpers/queue.js
+- _app/helpers/client.js
+- _app/helpers/append.js
+
+The helper files are used to get some utility functions. They provide some useful functions and information that will be needed to manage the caching mechanism and get some browser workarounds.
+
+##### Caching
+- _app/cache/storage/controller.js
+- _app/cache/storage/adapter/fileSystem.js
+- _app/cache/storage/adapter/indexedDatabase.js
+- _app/cache/storage/adapter/webSqlDatabase.js
+- _app/cache/storage/adapter/webStorage.js
+- _app/cache/storage/adapter/applicationCache.js
+- _app/cache/controller.js
+- _app/cache/interface.js
+
+The storage controller _/cache/storage/controller.js_ is responsible for checking the different storage adapters. He also provides an consistent interface to store and retrieve the data from cache.
+The main logic for handling the cache is listed in the cache controller _/cache/controller.js_. This file will take care of checking and loading the data you are requesting.
+
+If you don't need one or some of the storage adapters _/cache/storage/adapter/...js_, you can just delete these files to reduce the file size. If you want e.g. just the webStorage to save data locally, the cache files you will need to include are:
+
+- _app/cache/storage/controller.js
+- _app/cache/storage/adapter/webStorage.js
+- _app/cache/controller.js
+- _app/cache/interface.js
+
+It is recommended that you combine all the single files into one and minimize the combined file. There is already a minified and combined version named __cache.min.js__ in the _js/_ directory included.
 ### Tested and supported browsers for the different storage apis:
 
 #### Web Storage:
