@@ -1,9 +1,7 @@
 /*jslint unparam: false, browser: true, devel: true, ass: true, plusplus: true, regexp: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false */
 
-/*global document */
 /*global undefined */
-/*gloabl QUOTA_EXCEEDED_ERR */
 
 
 /**
@@ -12,12 +10,13 @@
  * @description
  * - provide a storage api for web storage
  * 
- * @version 0.1.3
+ * @version 0.1.4
  * @author Ulrich Merkel, 2013
  * 
  * @namespace app
  *
  * @changelog
+ * - 0.1.4 polyfill moved to separate function
  * - 0.1.3 polyfill for globalStorage and ie userdata added
  * - 0.1.2 bug fixes for non-standard browsers, added trying to read item to open function
  * - 0.1.1 refactoring, js lint
@@ -50,143 +49,11 @@
      */
 
     // create the global vars once
-    var storageType = 'webStorage',                             // storageType {string} The storage type string
-        utils = app.helpers.utils,                              // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        boolIsSupported = null,                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
-        div,                                                    // div {object} Placeholder for polyfill
-        attrKey,                                                // attrKey {string} Placeholder for polyfill
-        localStorage,                                           // localStorage {object} Placeholder for polyfill
-        cleanKey,                                               // cleanKey {function} Placeholder for polyfill
-        attr;                                                   // attr {object} Placeholder for polyfill
-
-
-    /**
-     * polyfill for localstorage
-     * 
-     * check to see if we have non-standard support for localStorage and
-     * implement that behaviour
-     *
-     * try catch here if ie tries to access database and the disc space is full
-     * (tested with ie10)
-     *
-     * @see https://github.com/wojodesign/local-storage-js/blob/master/storage.js
-     */
-    try {
-
-        if (!window.localStorage) {
-
-            /**
-             * globalStorage
-             *
-             * non-standard: Firefox 2+
-             * https://developer.mozilla.org/en/dom/storage#globalStorage
-             */
-            if (window.globalStorage) {
-
-                // try/catch for file protocol in Firefox
-                try {
-                    window.localStorage = window.globalStorage;
-                } catch (e) {
-                    log('[' + storageType + ' Adapter] Try to init globalStorage failed');
-                }
-
-            }
-
-
-            /**
-             * ie userData
-             *
-             * non-standard: IE 5+
-             * http://msdn.microsoft.com/en-us/library/ms531424(v=vs.85).aspx
-             */
-            if (!window.localStorage) {
-
-                // create dom element to store the data
-                div = document.createElement('div');
-                attrKey = 'localStorage';
-
-                div.style.display = 'none';
-                document.getElementsByTagName('head')[0].appendChild(div);
-
-                if (div.addBehavior) {
-                    div.addBehavior('#default#userdata');
-                    //div.style.behavior = "url('#default#userData')";
-
-                    /**
-                     * convert invalid characters to dashes
-                     * simplified to assume the starting character is valid
-                     *
-                     * @see http://www.w3.org/TR/REC-xml/#NT-Name
-                     */
-                    cleanKey = function (key) {
-                        return key.replace(/[^\-._0-9A-Za-z\xb7\xc0-\xd6\xd8-\xf6\xf8-\u037d\u37f-\u1fff\u200c-\u200d\u203f\u2040\u2070-\u218f]/g, '-');
-                    };
-
-
-                    // set polfyfill api
-                    localStorage = window[attrKey] = {
-
-                        length: 0,
-
-                        setItem: function (key, value) {
-                            div.load(attrKey);
-                            key = cleanKey(key);
-
-                            if (!div.getAttribute(key)) {
-                                this.length = this.length + 1;
-                            }
-                            div.setAttribute(key, value);
-
-                            div.save(attrKey);
-                        },
-
-                        getItem: function (key) {
-                            div.load(attrKey);
-                            key = cleanKey(key);
-                            return div.getAttribute(key);
-
-                        },
-
-                        removeItem: function (key) {
-                            div.load(attrKey);
-                            key = cleanKey(key);
-                            div.removeAttribute(key);
-
-                            div.save(attrKey);
-                            this.length = this.length - 1;
-                            if (this.length < 0) {
-                                this.length = 0;
-                            }
-                        },
-
-                        clear: function () {
-                            div.load(attrKey);
-                            var i = 0;
-                            while (attr = div.XMLDocument.documentElement.attributes[i++]) {
-                                div.removeAttribute(attr.name);
-                            }
-                            div.save(attrKey);
-                            this.length = 0;
-                        },
-
-                        key: function (key) {
-                            div.load(attrKey);
-                            return div.XMLDocument.documentElement.attributes[key];
-                        }
-
-                    };
-
-
-                    div.load(attrKey);
-                    localStorage.length = div.XMLDocument.documentElement.attributes.length;
-
-                }
-            }
-        }
-    } catch (e) {
-        log(e);
-    }
+    var storageType = 'webStorage',                             // @type {string} The storage type string
+        utils = app.helpers.utils,                              // @type {object} Shortcut for utils functions
+        on = utils.on,                                          // @type {function} Shortcut for utils.on function
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
 
 
     /**
@@ -224,8 +91,8 @@
      */
     function getStorageType(type) {
 
-        // init local vars
-        var result = false;
+        // init default
+        var result = 'localStorage';
 
         // get type string
         switch (type) {
@@ -236,7 +103,6 @@
             result = 'sessionStorage';
             break;
         default:
-            result = 'localStorage';
             break;
         }
 
@@ -248,7 +114,8 @@
     /**
      * the actual instance constructor
      * directly called after new Adapter()
-     * 
+     *
+     * @constructor
      * @param {object} parameters The instance parameters
      */
     function Adapter(parameters) {
@@ -273,6 +140,8 @@
      * public instance methods
      *
      * Adapter.fn is just a shortcut for Adapter.prototype
+     *
+     * @interface
      */
     Adapter.prototype = Adapter.fn = {
 
@@ -305,8 +174,8 @@
         /**
          * create a new resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         create: function (key, content, callback) {
@@ -329,7 +198,7 @@
         /**
          * read storage item
          *
-         * @param {object} resource The resource object
+         * @param {object} key The resource object
          * @param {function} callback Function called on success
          */
         read: function (key, callback) {
@@ -363,8 +232,8 @@
         /**
          * update a resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         update: function (key, content, callback) {
@@ -378,7 +247,7 @@
         /**
          * delete a resource from storage
          * 
-         * @param {object} resource The resource object
+         * @param {object} key The resource object
          * @param {function} callback Function called on success
          */
         remove: function (key, callback) {
@@ -414,11 +283,11 @@
             if (null === adapter) {
                 try {
 
-                    /* init global object */
+                    // init global object
                     adapter = self.adapter = window[type];
-                    utils.bind(window, 'storage', handleStorageEvents);
+                    on(window, 'storage', handleStorageEvents);
 
-                    /* create test item */
+                    // create test item
                     log('[' + storageType + ' Adapter] Try to create test resource');
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
@@ -483,10 +352,12 @@
 
     /**
      * make the storage constructor available for
-     * app.cache.webStorage() calls under the
+     * app.cache.storage.adapter.webStorage() calls under the
      * app.cache namespace
+     *
+     * @export
      */
-    app.cache.storage.adapter[storageType] = Adapter;
+    app.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
 }(window, window.app || {})); // immediatly invoke function

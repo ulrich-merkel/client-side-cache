@@ -51,13 +51,13 @@
      */
 
     // module vars
-    var controllerType = 'cache',                               // controllerType {string} The controller type string
-        helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
-        append = helpers.append,                                // append {function} Shortcut for append helper
-        utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // checkCallback {function} Shortcut for utils.callback function
-        controller = {};                                        // controller {object} Cache controller public functions and vars
+    var controllerType = 'cache',                               // @type {string} The controller type string
+        helpers = app.helpers,                                  // @type {object} Shortcut for helper functions
+        append = helpers.append,                                // @type {function} Shortcut for append helper
+        utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                         // @type {function} Shortcut for utils.callback function
+        controller = {};                                        // @type {object} Cache controller public functions and vars
 
 
     /**
@@ -69,7 +69,7 @@
     controller = {
 
         /**
-         * {object} The storage controller instance
+         * @type {object} The storage controller instance
          */
         storage: null,
 
@@ -226,13 +226,16 @@
                         /**
                          * check for outdated data
                          *
-                         * if item.lifetime is set to '-1' the resource will always be loaded from network
+                         * if item.lifetime is set to '-1' the resource will never expiring
                          * also the item.lastmod and cached resource.lastmod (and item.version/resource.version) needs to be the same
                          * finally there is a check if the item is expired using the current timestamp
                          */
                         if (parseInt(item.lifetime, 10) !== -1 && lastmodCheck && resource.version === item.version && item.expires > now) {
                             log('[' + controllerType + ' controller] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
                             data = item.data;
+                        } else if (parseInt(item.lifetime, 10) === -1 && lastmodCheck && resource.version === item.version) {
+                            log('[' + controllerType + ' controller] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
+                            data = item.data; 
                         } else {
                             log('[' + controllerType + ' controller] Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
                             self.storage.update(resource, callback);
@@ -405,8 +408,10 @@
 
     /**
      * make cache controller globally available under app namespace
+     *
+     * @export
      */
-    app.cache.controller = controller;
+    app.namespace('cache.controller', controller);
 
 
 }(window, document, window.app || {})); // immediatly invoke function

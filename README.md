@@ -5,6 +5,8 @@
 
 This javascript functions are demonstrating the possibility of client side caching via javascript and html5 storage apis. Page resources like images, javascript files, stylesheets and html content could be saved locally in the users browser. On subsequent page views these resources will be taken from cache and won't be won't loaded via network. 
 
+The given resources will be appended to the dom automatically in case of javascript and stylesheet files. Your are also able to append data to a specific element on the page, to load e.g. images from cache.
+
 ### In detail
 
 The logic will check your browser capabilities for storing data locally and look for an according storage type to use. If one of these adapters is available in your browser the given resources will be cached locally in your browser. On each revisite of the html page, these resources will be loaded from cache to reduce the network bandwidth. If there is no support for storing the data locally in your browser, the resources will be loaded via xhr and in case of css, js, img and html files appended to the dom. The idea for this work is based on the javascript caching component from the toolkit wink and some articles about javascript caching practices from google and other major companies.
@@ -22,6 +24,7 @@ The logic is split into several functions and files under the global app namespa
 ##### Helpers
 - _app/helpers/namespace.js
 - _app/helpers/utils.js
+- _app/helpers/queue.js
 - _app/helpers/client.js
 - _app/helpers/append.js
 
@@ -35,11 +38,12 @@ The helper files are used to get some utility functions. They provide some usefu
 - _app/cache/storage/adapter/webStorage.js
 - _app/cache/storage/adapter/applicationCache.js
 - _app/cache/controller.js
+- _app/cache/interface.js
 
 The storage controller _/cache/storage/controller.js_ is responsible for checking the different storage adapters. He also provides an consistent interface to store and retrieve the data from cache.
 The main logic for handling the cache is listed in the cache controller _/cache/controller.js_. This file will take care of checking and loading the data you are requesting. If you don't need one or some of the storage adapters _/cache/storage/adapter/...js_, you can just delete these files to reduce the file size.
 
-It is recommended that you combine all the single files into one and minimize the combined file.
+It is recommended that you combine all the single files into one and minimize the combined file. There is already a minified and combined version named __cache.min.js__ in the _cache/_ directory included.
 
 ### Sample html code
 
@@ -54,114 +58,126 @@ It is recommended that you combine all the single files into one and minimize th
 
 		...
 
-		<script src="js/_app/helpers/namespace.js" type="text/javascript"></script>
-		<script src="js/_app/helpers/utils.js" type="text/javascript"></script>
-		<script src="js/_app/helpers/client.js" type="text/javascript"></script>
-		<script src="js/_app/helpers/append.js" type="text/javascript"></script>
-
-		<script src="js/_app/cache/storage/controller.js" type="text/javascript"></script>
-		<script src="js/_app/cache/storage/adapter/fileSystem.js" type="text/javascript"></script>
-		<script src="js/_app/cache/storage/adapter/indexedDatabase.js" type="text/javascript"></script>
-		<script src="js/_app/cache/storage/adapter/webSqlDatabase.js" type="text/javascript"></script>
-		<script src="js/_app/cache/storage/adapter/webStorage.js" type="text/javascript"></script>
-		<script src="js/_app/cache/storage/adapter/applicationCache.js" type="text/javascript"></script>
-		<script src="js/_app/cache/controller.js" type="text/javascript"></script>
 		
+		<script src="js/_app/cache.min.js" type="text/javascript"></script>
+		<script>
+			// initialize resources to be cached
+		</script>
     </body>
 	</html>
 
 The application cache needs the manifest attribute on the html element and expects a valid path to the manifest file.
 
-### Caching initializing
+### Cache initializing
 
-To initialize and use the javascript caching, you need to take care of some steps. Because some storage apis work async, you need to initialize the caching in this way. First of all you need to call the **app.cache.controller.init(callback)** function to open and check the database. After the callback invokes, you are able to call the **app.cache.controller.load(resources, callback)** function where you can specify the resource you want to be cached. You will find a sample initialisation in the bootstrap file *_app/cache/bootstrap.js* or in the examples below. You can use this given file as a template to edit the resources you want to load.
+An interface to load resources is given via the __app.cacheLoad(resources, callback)__ function. It expects as the first parameter the resources array and the second parameter is the optional callback function after they've been loaded.
 
-The offline application cache differs from the usage of the other storage adapter. Due to it's different javascript api and idea of how to store data locally, you are just able to listen to the events this kind of storage fires. You can use this adapter to e.g. display a loading bar or listen for updates.
-
-
-#### Cache initializing:
+#### Basic example:
+Be sure that you initialize the cache after the window and it's objects are loaded. When the window is ready you can make calls for the _app.cacheLoad()_ function to get data.
 
     (function (window, app, undefined) {
         'use strict';
-
-        // module vars
-        var helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
-            utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-            bind = utils.bind,                                      // bind {function} Shortcut for bind helper
-            controller = {};                                        // controller {object} Cache controller public functions and vars
-    
-    
-        // get controller
-        controller = app.cache.controller;
-    
+   
         // load additional resources on window load
-        bind(window, 'load', function () {
+        window.addEventListener('load', function () {
     
-            var baseUrl = window.baseurl || utils.url(window.location.pathname).folder;
-    
-            controller.init(function (storage) {
-    
-                /**
-                 * here we define the resources to be loaded and cached
-                 *
-                 * there are muliple async calls for resources via controller.load possible
-                 * possible options are:
-                 *
-                 * {string} url The required url of the resource
-                 * {string} type The required content type of the resource (css, js, img, html)
-                 * {string|integer} group The optional loading group of the resource, this is used for handling dependencies, a following group begins to start loading when the previous has finished
-                 * {string|float} version The optional version number of the resource, used to mark a resource to be updated
-                 * {string|integer} lastmod The optional lastmod timestamp of the resource, used to mark a resource to be updated
-                 * {string|integer} lifetime The optional lifetime time in milliseconds of the resource, used to mark a resource to be updated after a given period if time, if set to -1 the resource will always be loaded from network
-                 * {object} node Container for additional dom node informations
-                 * {string} node.id The id from the dom element to append the data to
-                 * {object} node.dom The current dom element to append the data to
-                 *
-                 */
-    
-                // load page css and js files
-                controller.load([
-                    {url: baseUrl + "css/app.css", type: "css"},
-                    {url: baseUrl + "js/lib.js", type: "js"},
-                    {url: baseUrl + "js/app.js", type: "js", group: 1}
-                ], function () {
-                    // do something when css and js files are loaded
-                });
-    
-                // load page images
-                controller.load([
-                    {url: baseUrl + "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
-                    {url: baseUrl + "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
-                    {url: baseUrl + "img/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
-                ], function () {
-                    // do something when images are loaded
-                });
-    
-    
-            });
+            app.cacheLoad([
+            	{url: "css/app.css", type: "css"},
+            	{url: "js/plugin.js", type: "js"}
+        	], function () {
+            	// resources loaded
+        	});
     
         });
     
     }(window, window.app || {}));
 
 #### Offline application cache initializing:
+The offline application cache differs from the usage of the other storage adapter. Due to it's different javascript api and idea of how to store data locally, you are just able to listen to the events this kind of storage fires. You can use this adapter to e.g. display a loading bar or listen for updates.
+
         ...
-        controller.init(function (storage) {
-
-			...
-			
-            // initialize application cache and wait for loaded
-            if (storage && storage.appCacheAdapter) {
-            	storage.appCacheAdapter.open(function () {
-            	    // do something when offline cache is loaded
-            	});
-            }
-
-			...
-
+        app.cacheLoad('applicationCache', function () {
+            // do something when application cache is loaded
         });
         ...
+   
+#### Append resource data to dom:
+You can append to resource data to dom element. This can be used for e.g. to load images and html files and append the result to a given element on the page.
 
+			// load page images
+            controller.load([
+                {url: "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
+                {url: "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
+                {url: "img/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
+            ], function () {
+                // images loaded
+            });
+
+            // load html
+            controller.load([
+                {url: "ajax.html", type: "html", node: {id: "ajax"}}
+            ], function () {
+                // html loaded
+            });
+     
+#### Resource options:
+        {
+        	/**
+        	 * @type {string} url The required url of the resource
+        	 */
+        	url: 'resource.css',
+       
+        	/**
+        	 * @type {string} type The required content type 
+        	 * of the resource (css, js, img, html)
+        	 */
+        	type: 'css',
+        	
+        	/**
+        	 * @type {string|integer} group The optional loading 
+        	 * group of the resource, this is used for handling dependencies,
+        	 * a following group begins to start loading when the previous has finished,
+        	 * default value is 0
+        	 */
+        	group: 0,
+        
+        	/**
+        	 * @type {string|integer} version The optional version 
+        	 * number of the resource, used to mark a resource to be updated
+        	 */
+        	version: 1.0,
+        	
+        	/**
+        	 * @type {string|integer} lastmod The optional lastmod 
+        	 * timestamp of the resource, used to mark a resource to be updated
+        	 */
+        	lastmod: new Date().getTime(),
+        	
+        	/**
+        	 * @type {string|integer} lifetime The optional lifetime 
+        	 * time in milliseconds of the resource, used to mark a resource 
+        	 * to be updated after a given period if time, if set to -1 the 
+        	 * resource will not expires via lastmod
+        	 */
+        	lifetime: 10000,
+      
+      		/**
+      		 * @type {object} node Container for additional dom node informations
+      		 */
+      		node: {
+      			/**
+      			 * @type {string} node.id The id from the dom element to append 
+      			 * the data to
+      			 */
+      			id: '',
+      			
+      			/**
+      			 * @type {string} node.dom The current dom element to append the 
+      			 * data to
+      			 */
+      			dom: null
+      		}
+        }
 ### Tested and supported browsers for the different storage apis:
 
 #### Web Storage:

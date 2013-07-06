@@ -50,29 +50,28 @@
          */
 
         // init global vars
-        var privateIsiOS,                                                   // privateIsiOS {boolean} Whether this browser is ios or not
-            privateIsWebkit,                                                // privateIsWebkit {boolean} Whether this browser is webkit or not
-            privateIsAndroid,                                               // privateIsAndroid {boolean} Whether this browser is android or not
-            privateIsBlackberry,                                            // privateIsBlackberry {boolean} Whether this browser blackberry ios or not
-            privateIsOpera,                                                 // privateIsOpera {boolean} Whether this browser is opera or not
-            privateIsChrome,                                                // privateIsChrome {boolean} Whether this browser is chrome or not
-            privateIsSafari,                                                // privateIsSafari {boolean} Whether this browser is safari or not
-            privateIsFirefox,                                               // privateIsFirefox {boolean} Whether this browser is firefox or not
-            privateIsSeamonkey,                                             // privateIsSeamonkey {boolean} Whether this browser is seamonkey or not
-            privateIsCamino,                                                // privateIsCamino {boolean} Whether this browser is camino or not
-            privateIsMsie,                                                  // privateIsMsie {boolean} Whether this browser is msie or not
-            privateIsiPad,                                                  // privateIsiPad {boolean} Whether this device is an ipad tablet or not
-            privateIsMobileBrowser,                                         // privateIsMobileBrowser {boolean} Whether this device is mobile or not
-            privateBrowserVersion,                                          // privateBrowserVersion {string} The version of this browser
-            privateNetworkConnection,                                       // privateNetworkConnection {object} The navigator.connection object if available
-            privateLandscapeMode = "landscapeMode",                         // privateLandscapeMode {string} The landscape mode string
-            privatePortraitMode = "portraitMode",                           // privatePortraitMode {string} The portrait mode string
-            privateOrientationMode,                                         // privateOrientationMode {boolean} The current view mode (landscape/portrait)
-            privateHasCanvas,                                               // privateHasCanvas {boolean} Whether the browser has canvas support or not
-            privateHideStatusbarTimeout,                                    // privateHideStatusbarTimeout {integer} Placeholder for window.setTimeout
-            ua = navigator.userAgent || navigator.vendor || window.opera,   // ua {string} The user agent string of the current browser
-            utils = app.helpers.utils,                                      // utils {object} Shortcut for utils functions
-            bind = utils.bind;                                              // bind {object} Shortcut for bind function
+        var privateIsiOS,                                                   // @type {boolean} Whether this browser is ios or not
+            privateIsWebkit,                                                // @type {boolean} Whether this browser is webkit or not
+            privateIsAndroid,                                               // @type {boolean} Whether this browser is android or not
+            privateIsBlackberry,                                            // @type {boolean} Whether this browser blackberry ios or not
+            privateIsOpera,                                                 // @type {boolean} Whether this browser is opera or not
+            privateIsChrome,                                                // @type {boolean} Whether this browser is chrome or not
+            privateIsSafari,                                                // @type {boolean} Whether this browser is safari or not
+            privateIsFirefox,                                               // @type {boolean} Whether this browser is firefox or not
+            privateIsSeamonkey,                                             // @type {boolean} Whether this browser is seamonkey or not
+            privateIsCamino,                                                // @type {boolean} Whether this browser is camino or not
+            privateIsMsie,                                                  // @type {boolean} Whether this browser is msie or not
+            privateIsiPad,                                                  // @type {boolean} Whether this device is an ipad tablet or not
+            privateIsMobileBrowser,                                         // @type {boolean} Whether this device is mobile or not
+            privateBrowserVersion,                                          // @type {string} The version of this browser
+            privateNetworkConnection,                                       // @type {object} The navigator.connection object if available
+            privateLandscapeMode = "landscapeMode",                         // @type {string} The landscape mode string
+            privatePortraitMode = "portraitMode",                           // @type {string} The portrait mode string
+            privateOrientationMode,                                         // @type {boolean} The current view mode (landscape/portrait)
+            privateHasCanvas,                                               // @type {boolean} Whether the browser has canvas support or not
+            privateHideStatusbarTimeout,                                    // @type {integer} Placeholder for window.setTimeout
+            ua = navigator.userAgent || navigator.vendor || window.opera,   // @type {string} The user agent string of the current browser
+            on = app.helpers.utils.on;                                      // @type {object} Shortcut for on function
 
 
         /**
@@ -105,7 +104,7 @@
         function checkIfIsiOS() {
             privateIsiOS = ua.toLowerCase().match(/(iphone|ipod|ipad)/) !== null;
             if (privateIsiOS) {
-                bind(window, "orientationchange", detectOrientation);
+                on(window, "orientationchange", detectOrientation);
             }
         }
 
@@ -124,7 +123,7 @@
         function checkIfIsAndroid() {
             privateIsAndroid = ua.toLowerCase().match(/(android)/) !== null;
             if (privateIsAndroid) {
-                bind(window, "orientationchange", detectOrientation);
+                on(window, "orientationchange", detectOrientation);
             }
         }
 
@@ -135,7 +134,7 @@
         function checkIfIsBlackberry() {
             privateIsBlackberry = ua.toLowerCase().match(/(blackberry)/) !== null;
             if (privateIsBlackberry) {
-                bind(window, "orientationchange", detectOrientation);
+                on(window, "orientationchange", detectOrientation);
             }
         }
 
@@ -202,7 +201,7 @@
         function checkIfIsiPad() {
             privateIsiPad = ua.toLowerCase().match(/(ipad)/) !== null;
             if (privateIsiPad) {
-                bind(window, "orientationchange", detectOrientation);
+                on(window, "orientationchange", detectOrientation);
             }
         }
 
@@ -218,7 +217,7 @@
                 privateIsMobileBrowser = true;
             }
             if (privateIsMobileBrowser) {
-                bind(window, "orientationchange", detectOrientation);
+                on(window, "orientationchange", detectOrientation);
             }
         }
 
@@ -391,7 +390,7 @@
 
             // is standalone mode (apple web-app)
             isStandalone: function () {
-                return (navigator.standalone !== undefined && window.navigator.standalone);
+                return (navigator.standalone !== undefined && navigator.standalone);
             },
 
             // is online or offline
@@ -452,9 +451,11 @@
 
 
     /**
-     * make helper available via app.client namespace
+     * make helper available via app.helpers.client namespace
+     *
+     * @export
      */
-    app.helpers.client = client;
+    app.namespace('helpers.client', client);
 
 
 }(window, navigator, window.app || {}));

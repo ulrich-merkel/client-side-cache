@@ -44,31 +44,46 @@
      * @see http://de.slideshare.net/s.barysiuk/javascript-and-ui-architecture-best-practices-presentation
      *
      * @param {string} name The namespace string separated with dots (name.name.name)
+     * @param {string|integer|object|function} value The optional values to set for the given namespace
      *
-     * @return {boolean} The success of this function
+     * @return {object|boolean} The last referenced namespace object or false if there is no name param
      */
-    function namespace(name) {
+    function namespace(name, value) {
+
         if (name) {
+
+            // convert name param to string
+            name = name + '';
 
             // init loop vars
             var names = name.split('.'),
+                length = names.length,
                 current = app,
                 i;
 
             // toggle through names array
-            for (i in names) {
+            for (i = 0; i < length; i = i + 1) {
 
                 // if this namespace doesn't exist, create it
                 if (!current[names[i]]) {
+
+                    // set empty object
                     current[names[i]] = {};
+
+                    // set value if set and last namespace item reached
+                    if (i === length - 1 && !!value) {
+                        current[names[i]] = value;
+                    }
+
                 }
 
-                // set current to checked namespace for the next loop
+                // set current to this checked namespace for the next loop
                 current = current[names[i]];
 
             }
 
-            return true;
+            // return last namespace item
+            return current;
 
         }
 
@@ -78,14 +93,14 @@
 
 
     // init app namespaces
-    namespace('cache.storage.adapter');
-    namespace('helpers');
-    namespace('controllers');
-    namespace('models');
-    namespace('views');
+    namespace("namespace", namespace);
 
 
-    // export app to globals
+    /**
+     * export app to globals
+     *
+     * @export
+     */
     exports.app = app;
 
 
@@ -94,7 +109,112 @@
 
 
 
+/*global window*/
+/*global document*/
+/*global navigator*/
 
+/**
+ * app.helpers.queue
+ * 
+ * @description
+ * - 
+ * 
+ * @author Ulrich Merkel, 2013
+ * @version 0.1
+ *
+ * @namespace app
+ *
+ * @see
+ * - http://www.dustindiaz.com/async-method-queues/
+ 
+ * @changelog
+ * - 0.1 basic functions and plugin structur
+ * 
+ */
+
+(function (window, navigator, app, undefined) {
+    'use strict';
+
+    /**
+     * undefined is used here as the undefined global
+     * variable in ECMAScript 3 and is mutable (i.e. it can
+     * be changed by someone else). undefined isn't really
+     * being passed in so we can ensure that its value is
+     * truly undefined. In ES5, undefined can no longer be
+     * modified.
+     * 
+     * window, navigator and app are passed through as local
+     * variables rather than as globals, because this (slightly)
+     * quickens the resolution process and can be more
+     * efficiently minified (especially when both are
+     * regularly referenced in this module).
+     */
+
+
+    function Queue() {
+
+        // store your callbacks
+        this._methods = [];
+
+        // keep a reference to your response
+        this.response = null;
+
+        // all queues start off unflushed
+        this._flushed = false;
+
+    }
+
+
+    Queue.prototype = {
+
+        // adds callbacks to your queue
+
+        add: function (fn) {
+
+            // if the queue had been flushed, return immediately
+            if (this._flushed) {
+                fn(this.response);
+
+            // otherwise push it on the queue
+            } else {
+                this._methods.push(fn);
+            }
+
+        },
+
+
+
+        flush: function(response) {
+
+            // note: flush only ever happens once
+            if (this._flushed) {
+                return;
+            }
+
+            // store your response for subsequent calls after flush()
+            this.response = response;
+
+            // mark that it's been flushed
+            this._flushed = true;
+
+            // shift 'em out and call 'em back
+            while (this._methods[0]) {
+                this._methods.shift()(response);
+            }
+
+        }
+
+    };
+
+    /**
+     * make helper available via app.helpers.client namespace
+     *
+     * @export
+     */
+    app.namespace('helpers.queue', Queue);
+
+
+}(window, navigator, window.app || {}));
 /*jslint browser: true, devel: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
 /*global window*/
@@ -227,74 +347,74 @@
             /**
              * add event handler
              *
-             * following the lazy loading design pattern, the bind function will be
+             * following the lazy loading design pattern, the on function will be
              * overridden with the correct implemation the first the it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
              * 
              * @param {string} target The dom object
-             * @param {string} target The event type to bind
+             * @param {string} eventType The event type to bind
              * @param {function} handler The function to bind
              */
-            bind: function (target, eventType, handler) {
+            on: function (target, eventType, handler) {
 
                 // override existing function
                 if (typeof window.addEventListener === 'function') {
                     // dom2 event
-                    utils.bind = function (target, eventType, handler) {
+                    utils.on = function (target, eventType, handler) {
                         target.addEventListener(eventType, handler, false);
                     };
                 } else if (typeof document.attachEvent === 'function') {
                     // ie event
-                    utils.bind = function (target, eventType, handler) {
+                    utils.on = function (target, eventType, handler) {
                         target.attachEvent('on' + eventType, handler);
                     };
                 } else {
                     // older browers
-                    utils.bind = function (target, eventType, handler) {
+                    utils.on = function (target, eventType, handler) {
                         target['on' + eventType] = handler;
                     };
                 }
 
                 // call the new function
-                utils.bind(target, eventType, handler);
+                utils.on(target, eventType, handler);
             },
 
 
             /**
              * remove event handler
              *
-             * following the lazy loading design pattern, the unbind function will be
+             * following the lazy loading design pattern, the off function will be
              * overridden with the correct implemation the first the it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
              * 
              * @param {string} target The dom object
-             * @param {string} target The event type to unbind
+             * @param {string} eventType The event type to unbind
              * @param {function} handler The function to unbind
              */
-            unbind: function (target, eventType, handler) {
+            off: function (target, eventType, handler) {
 
                 // override existing function
                 if (typeof window.removeEventListener === 'function') {
                     // dom2 event
-                    utils.unbind = function (target, eventType, handler) {
+                    utils.off = function (target, eventType, handler) {
                         target.removeEventListener(eventType, handler, false);
                     };
                 } else if (typeof document.detachEvent === 'function') {
                     // ie event
-                    utils.unbind = function (target, eventType, handler) {
+                    utils.off = function (target, eventType, handler) {
                         target.detachEvent('on' + eventType, handler);
                     };
                 } else {
                     // older browsers
-                    utils.unbind = function (target, eventType) {
+                    utils.off = function (target, eventType) {
                         target['on' + eventType] = null;
                     };
                 }
 
                 // call the new function
-                utils.unbind(target, eventType, handler);
+                utils.off(target, eventType, handler);
 
             },
 
@@ -379,8 +499,6 @@
              * @param {string} url The url to load
              * @param {function} callback The callback after success
              * @param {string} postData The optional post request data to send
-             *
-             * @returns {string} Returns recieved data as callback parameter
              */
             xhr: function(url, callback, postData) {
 
@@ -600,7 +718,7 @@
              * 
              * @param {array} value The value to check
              *
-             * @param {boolean} Whether the given value is an array or not
+             * @return {boolean} Whether the given value is an array or not
              */
             isArray: function (value) {
                 return value instanceof Array;
@@ -611,8 +729,8 @@
              * check if value is in array
              * 
              * @param {string} elem The value to check
-             * @param {array} arr The array to check
-             * @param {string} i The index in array
+             * @param {array} array The array to check
+             * @param {number|undefined} i The index in array
              *
              * @returns {integer} Whether the value is in (return index) or not (return -1)
              */
@@ -646,8 +764,10 @@
 
     /**
      * global export
+     *
+     * @export
      */
-    app.helpers.utils = utils;
+    app.namespace('helpers.utils', utils);
 
 
 }(window, document, window.app || {})); // immediatly invoke function
@@ -705,29 +825,28 @@
          */
 
         // init global vars
-        var privateIsiOS,                                                   // privateIsiOS {boolean} Whether this browser is ios or not
-            privateIsWebkit,                                                // privateIsWebkit {boolean} Whether this browser is webkit or not
-            privateIsAndroid,                                               // privateIsAndroid {boolean} Whether this browser is android or not
-            privateIsBlackberry,                                            // privateIsBlackberry {boolean} Whether this browser blackberry ios or not
-            privateIsOpera,                                                 // privateIsOpera {boolean} Whether this browser is opera or not
-            privateIsChrome,                                                // privateIsChrome {boolean} Whether this browser is chrome or not
-            privateIsSafari,                                                // privateIsSafari {boolean} Whether this browser is safari or not
-            privateIsFirefox,                                               // privateIsFirefox {boolean} Whether this browser is firefox or not
-            privateIsSeamonkey,                                             // privateIsSeamonkey {boolean} Whether this browser is seamonkey or not
-            privateIsCamino,                                                // privateIsCamino {boolean} Whether this browser is camino or not
-            privateIsMsie,                                                  // privateIsMsie {boolean} Whether this browser is msie or not
-            privateIsiPad,                                                  // privateIsiPad {boolean} Whether this device is an ipad tablet or not
-            privateIsMobileBrowser,                                         // privateIsMobileBrowser {boolean} Whether this device is mobile or not
-            privateBrowserVersion,                                          // privateBrowserVersion {string} The version of this browser
-            privateNetworkConnection,                                       // privateNetworkConnection {object} The navigator.connection object if available
-            privateLandscapeMode = "landscapeMode",                         // privateLandscapeMode {string} The landscape mode string
-            privatePortraitMode = "portraitMode",                           // privatePortraitMode {string} The portrait mode string
-            privateOrientationMode,                                         // privateOrientationMode {boolean} The current view mode (landscape/portrait)
-            privateHasCanvas,                                               // privateHasCanvas {boolean} Whether the browser has canvas support or not
-            privateHideStatusbarTimeout,                                    // privateHideStatusbarTimeout {integer} Placeholder for window.setTimeout
-            ua = navigator.userAgent || navigator.vendor || window.opera,   // ua {string} The user agent string of the current browser
-            utils = app.helpers.utils,                                      // utils {object} Shortcut for utils functions
-            bind = utils.bind;                                              // bind {object} Shortcut for bind function
+        var privateIsiOS,                                                   // @type {boolean} Whether this browser is ios or not
+            privateIsWebkit,                                                // @type {boolean} Whether this browser is webkit or not
+            privateIsAndroid,                                               // @type {boolean} Whether this browser is android or not
+            privateIsBlackberry,                                            // @type {boolean} Whether this browser blackberry ios or not
+            privateIsOpera,                                                 // @type {boolean} Whether this browser is opera or not
+            privateIsChrome,                                                // @type {boolean} Whether this browser is chrome or not
+            privateIsSafari,                                                // @type {boolean} Whether this browser is safari or not
+            privateIsFirefox,                                               // @type {boolean} Whether this browser is firefox or not
+            privateIsSeamonkey,                                             // @type {boolean} Whether this browser is seamonkey or not
+            privateIsCamino,                                                // @type {boolean} Whether this browser is camino or not
+            privateIsMsie,                                                  // @type {boolean} Whether this browser is msie or not
+            privateIsiPad,                                                  // @type {boolean} Whether this device is an ipad tablet or not
+            privateIsMobileBrowser,                                         // @type {boolean} Whether this device is mobile or not
+            privateBrowserVersion,                                          // @type {string} The version of this browser
+            privateNetworkConnection,                                       // @type {object} The navigator.connection object if available
+            privateLandscapeMode = "landscapeMode",                         // @type {string} The landscape mode string
+            privatePortraitMode = "portraitMode",                           // @type {string} The portrait mode string
+            privateOrientationMode,                                         // @type {boolean} The current view mode (landscape/portrait)
+            privateHasCanvas,                                               // @type {boolean} Whether the browser has canvas support or not
+            privateHideStatusbarTimeout,                                    // @type {integer} Placeholder for window.setTimeout
+            ua = navigator.userAgent || navigator.vendor || window.opera,   // @type {string} The user agent string of the current browser
+            on = app.helpers.utils.on;                                      // @type {object} Shortcut for on function
 
 
         /**
@@ -760,7 +879,7 @@
         function checkIfIsiOS() {
             privateIsiOS = ua.toLowerCase().match(/(iphone|ipod|ipad)/) !== null;
             if (privateIsiOS) {
-                bind(window, "orientationchange", detectOrientation);
+                on(window, "orientationchange", detectOrientation);
             }
         }
 
@@ -779,7 +898,7 @@
         function checkIfIsAndroid() {
             privateIsAndroid = ua.toLowerCase().match(/(android)/) !== null;
             if (privateIsAndroid) {
-                bind(window, "orientationchange", detectOrientation);
+                on(window, "orientationchange", detectOrientation);
             }
         }
 
@@ -790,7 +909,7 @@
         function checkIfIsBlackberry() {
             privateIsBlackberry = ua.toLowerCase().match(/(blackberry)/) !== null;
             if (privateIsBlackberry) {
-                bind(window, "orientationchange", detectOrientation);
+                on(window, "orientationchange", detectOrientation);
             }
         }
 
@@ -857,7 +976,7 @@
         function checkIfIsiPad() {
             privateIsiPad = ua.toLowerCase().match(/(ipad)/) !== null;
             if (privateIsiPad) {
-                bind(window, "orientationchange", detectOrientation);
+                on(window, "orientationchange", detectOrientation);
             }
         }
 
@@ -873,7 +992,7 @@
                 privateIsMobileBrowser = true;
             }
             if (privateIsMobileBrowser) {
-                bind(window, "orientationchange", detectOrientation);
+                on(window, "orientationchange", detectOrientation);
             }
         }
 
@@ -1046,7 +1165,7 @@
 
             // is standalone mode (apple web-app)
             isStandalone: function () {
-                return (navigator.standalone !== undefined && window.navigator.standalone);
+                return (navigator.standalone !== undefined && navigator.standalone);
             },
 
             // is online or offline
@@ -1107,9 +1226,11 @@
 
 
     /**
-     * make helper available via app.client namespace
+     * make helper available via app.helpers.client namespace
+     *
+     * @export
      */
-    app.helpers.client = client;
+    app.namespace('helpers.client', client);
 
 
 }(window, navigator, window.app || {}));
@@ -1197,15 +1318,15 @@
     var append = (function () {
 
         // init global vars
-        var helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
-            utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-            createDomNode = utils.createDomNode,                    // createDomNode {function} Shortcut for createDomNode function
-            client = helpers.client,                                // client {object} Shortcut for client functions
-            privateAppendedCss = [],                                // privateAppendedCss {array} Storage for appended css files
-            privateAppendedJs = [],                                 // privateAppendedJs {array} Storage for appended js files
-            privateAppendedImg = [],                                // privateAppendedImg {array} Storage for appended img files
-            privateAppendedHtml = [],                               // privateAppendedHtml {array} Storage for appended html files
-            headNode = document.getElementsByTagName('head')[0];    // headNode {object} The html dom head object
+        var helpers = app.helpers,                                  // @type {object} Shortcut for helper functions
+            utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
+            createDomNode = utils.createDomNode,                    // @type {function} Shortcut for createDomNode function
+            client = helpers.client,                                // @type {object} Shortcut for client functions
+            privateAppendedCss = [],                                // @type {array} Storage for appended css files
+            privateAppendedJs = [],                                 // @type {array} Storage for appended js files
+            privateAppendedImg = [],                                // @type {array} Storage for appended img files
+            privateAppendedHtml = [],                               // @type {array} Storage for appended html files
+            headNode = document.getElementsByTagName('head')[0];    // @type {object} The html dom head object
 
 
         return {
@@ -1491,8 +1612,10 @@
 
     /**
      * global export
+     *
+     * @export
      */
-    app.helpers.append = append;
+    app.namespace('helpers.append', append);
 
 
 }(document, window.app || {})); // immediatly invoke function
@@ -1549,11 +1672,11 @@
      */
 
     // create the global vars once
-    var storageType = 'fileSystem',                             // storageType {string} The storage type string
-        utils = app.helpers.utils,                              // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // shortcut for utils.callback function
-        boolIsSupported = null;                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
+    var storageType = 'fileSystem',                             // @type {string} The storage type string
+        utils = app.helpers.utils,                              // @type {object} Shortcut for utils functions
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                         // @type {function} Shortcut for utils.callback function
+        boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
 
 
     /**
@@ -1596,8 +1719,9 @@
     /**
      * create directory recursiv
      *
-     * @param {object} storageRoot The storage root
+     * @param {object} root The storage root
      * @param {array} folders The value string from database
+     * @param {function} callback The callback after success
      */
     function createDirectory(root, folders, callback) {
 
@@ -1630,8 +1754,9 @@
     /**
      * check directory path
      *
-     * @param {object} storage The storage object
+     * @param {object} fileSystem The fileSystem to check
      * @param {srting} url The url string to check
+     * @param {function} callback The callback after success
      */
     function checkDirectory(fileSystem, url, callback) {
 
@@ -1664,7 +1789,8 @@
     /**
      * the actual instance constructor
      * directly called after new Adapter()
-     * 
+     *
+     * @constructor
      * @param {object} parameters The instance parameters
      */
     function Adapter(parameters) {
@@ -1689,6 +1815,8 @@
      * public instance methods
      *
      * Adapter.fn is just a shortcut for Adapter.prototype
+     *
+     * @interface
      */
     Adapter.prototype = Adapter.fn = {
 
@@ -1765,8 +1893,8 @@
         /**
          * create a new resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         create: function (key, content, callback) {
@@ -1825,7 +1953,7 @@
         /**
          * read storage item
          *
-         * @param {object} resource The resource object
+         * @param {object} key The resource object
          * @param {function} callback Function called on success
          */
         read: function (key, callback) {
@@ -1870,8 +1998,8 @@
         /**
          * update a resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         update: function (key, content, callback) {
@@ -1884,7 +2012,7 @@
         /**
          * delete a resource from storage
          * 
-         * @param {object} resource The resource object
+         * @param {object} key The resource object
          * @param {function} callback Function called on success
          */
         remove: function (key, callback) {
@@ -1909,7 +2037,7 @@
 
                 }, errorHandler);
 
-            }, errorHandler);
+            });
 
         },
 
@@ -1949,10 +2077,12 @@
 
     /**
      * make the storage constructor available for
-     * app.cache.webStorage() calls under the
+     * app.cache.storage.adapter.fileSystem() calls under the
      * app.cache namespace
+     *
+     * @export
      */
-    app.cache.storage.adapter[storageType] = Adapter;
+    app.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
 }(window, window.app || {})); // immediatly invoke function
@@ -2008,16 +2138,17 @@
      */
 
     // create the global vars once
-    var storageType = 'indexedDatabase',                        // storageType {string} The storage type string
-        utils = app.helpers.utils,                              // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        boolIsSupported = null;                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
+    var storageType = 'indexedDatabase',                        // @type {string} The storage type string
+        utils = app.helpers.utils,                              // @type {object} Shortcut for utils functions
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
 
 
     /**
      * the actual instance constructor
      * directly called after new Adapter()
-     * 
+     *
+     * @constructor
      * @param {object} parameters The instance parameters
      */
     function Adapter(parameters) {
@@ -2045,6 +2176,8 @@
      * public instance methods
      *
      * Adapter.fn is just a shortcut for Adapter.prototype
+     *
+     * @interface
      */
     Adapter.prototype = Adapter.fn = {
 
@@ -2072,8 +2205,8 @@
         /**
          * create a new resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         create: function (key, content, callback) {
@@ -2111,7 +2244,7 @@
         /**
          * read storage item
          *
-         * @param {string} url The url from the resource to get
+         * @param {string} key The url from the resource to get
          * @param {function} callback Function called on success
          */
         read: function (key, callback) {
@@ -2157,8 +2290,8 @@
         /**
          * update a resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         update: function (key, content, callback) {
@@ -2172,7 +2305,7 @@
         /**
         * delete a resource from storage
         * 
-        * @param {string} url Url of the resource to delete
+        * @param {string} key Url of the resource to delete
         * @param {function} callback Function called on success
         */
         remove: function (key, callback) {
@@ -2419,8 +2552,10 @@
      * make the storage constructor available for
      * app.cache.storage.adapter.indexedDatabase() calls under the
      * app.cache namespace
+     *
+     * @export
      */
-    app.cache.storage.adapter[storageType] = Adapter;
+    app.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
 }(window, window.app || {})); // immediatly invoke function
@@ -2474,10 +2609,10 @@
 
 
     // create the global vars once
-    var storageType = 'webSqlDatabase',                         // storageType {string} The storage type string
-        utils = app.helpers.utils,                              // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        boolIsSupported = null;                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
+    var storageType = 'webSqlDatabase',                         // @type {string} The storage type string
+        utils = app.helpers.utils,                              // @type {object} Shortcut for utils functions
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
 
 
     /**
@@ -2541,7 +2676,8 @@
     /**
      * the actual instance constructor
      * directly called after new Adapter()
-     * 
+     *
+     * @constructor
      * @param {object} parameters The instance parameters
      */
     function Adapter(parameters) {
@@ -2578,6 +2714,8 @@
      * public instance methods
      *
      * Adapter.fn is just a shortcut for Adapter.prototype
+     *
+     * @interface
      */
     Adapter.prototype = Adapter.fn = {
 
@@ -2605,8 +2743,8 @@
         /**
          * create a new resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         create: function (key, content, callback) {
@@ -2639,7 +2777,7 @@
         /**
          * read storage item
          *
-         * @param {object} resource The resource object
+         * @param {object} key The resource object
          * @param {function} callback Function called on success
          */
         read: function (key, callback) {
@@ -2676,8 +2814,8 @@
         /**
          * update a resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         update: function (key, content, callback) {
@@ -2708,7 +2846,7 @@
         /**
          * delete a resource from storage
          * 
-         * @param {object} resource The resource object
+         * @param {object} key The resource object
          * @param {function} callback Function called on success
          */
         remove: function (key, callback) {
@@ -2898,10 +3036,12 @@
 
     /**
      * make the storage constructor available for
-     * app.cache.webSqlDatabase() calls under the
+     * app.cache.storage.adapter.webSqlDatabase() calls under the
      * app.cache namespace
+     *
+     * @export
      */
-    app.cache.storage.adapter[storageType] = Adapter;
+    app.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
 }(window, window.app || {})); // immediatly invoke function
@@ -2909,9 +3049,7 @@
 /*jslint unparam: false, browser: true, devel: true, ass: true, plusplus: true, regexp: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false */
 
-/*global document */
 /*global undefined */
-/*gloabl QUOTA_EXCEEDED_ERR */
 
 
 /**
@@ -2920,12 +3058,13 @@
  * @description
  * - provide a storage api for web storage
  * 
- * @version 0.1.3
+ * @version 0.1.4
  * @author Ulrich Merkel, 2013
  * 
  * @namespace app
  *
  * @changelog
+ * - 0.1.4 polyfill moved to separate function
  * - 0.1.3 polyfill for globalStorage and ie userdata added
  * - 0.1.2 bug fixes for non-standard browsers, added trying to read item to open function
  * - 0.1.1 refactoring, js lint
@@ -2959,143 +3098,11 @@
      */
 
     // create the global vars once
-    var storageType = 'webStorage',                             // storageType {string} The storage type string
-        utils = app.helpers.utils,                              // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        boolIsSupported = null,                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
-        div,                                                    // div {object} Placeholder for polyfill
-        attrKey,                                                // attrKey {string} Placeholder for polyfill
-        localStorage,                                           // localStorage {object} Placeholder for polyfill
-        cleanKey,                                               // cleanKey {function} Placeholder for polyfill
-        attr;                                                   // attr {object} Placeholder for polyfill
-
-
-    /**
-     * polyfill for localstorage
-     * 
-     * check to see if we have non-standard support for localStorage and
-     * implement that behaviour
-     *
-     * try catch here if ie tries to access database and the disc space is full
-     * (tested with ie10)
-     *
-     * @see https://github.com/wojodesign/local-storage-js/blob/master/storage.js
-     */
-    try {
-
-        if (!window.localStorage) {
-
-            /**
-             * globalStorage
-             *
-             * non-standard: Firefox 2+
-             * https://developer.mozilla.org/en/dom/storage#globalStorage
-             */
-            if (window.globalStorage) {
-
-                // try/catch for file protocol in Firefox
-                try {
-                    window.localStorage = window.globalStorage;
-                } catch (e) {
-                    log('[' + storageType + ' Adapter] Try to init globalStorage failed');
-                }
-
-            }
-
-
-            /**
-             * ie userData
-             *
-             * non-standard: IE 5+
-             * http://msdn.microsoft.com/en-us/library/ms531424(v=vs.85).aspx
-             */
-            if (!window.localStorage) {
-
-                // create dom element to store the data
-                div = document.createElement('div');
-                attrKey = 'localStorage';
-
-                div.style.display = 'none';
-                document.getElementsByTagName('head')[0].appendChild(div);
-
-                if (div.addBehavior) {
-                    div.addBehavior('#default#userdata');
-                    //div.style.behavior = "url('#default#userData')";
-
-                    /**
-                     * convert invalid characters to dashes
-                     * simplified to assume the starting character is valid
-                     *
-                     * @see http://www.w3.org/TR/REC-xml/#NT-Name
-                     */
-                    cleanKey = function (key) {
-                        return key.replace(/[^\-._0-9A-Za-z\xb7\xc0-\xd6\xd8-\xf6\xf8-\u037d\u37f-\u1fff\u200c-\u200d\u203f\u2040\u2070-\u218f]/g, '-');
-                    };
-
-
-                    // set polfyfill api
-                    localStorage = window[attrKey] = {
-
-                        length: 0,
-
-                        setItem: function (key, value) {
-                            div.load(attrKey);
-                            key = cleanKey(key);
-
-                            if (!div.getAttribute(key)) {
-                                this.length = this.length + 1;
-                            }
-                            div.setAttribute(key, value);
-
-                            div.save(attrKey);
-                        },
-
-                        getItem: function (key) {
-                            div.load(attrKey);
-                            key = cleanKey(key);
-                            return div.getAttribute(key);
-
-                        },
-
-                        removeItem: function (key) {
-                            div.load(attrKey);
-                            key = cleanKey(key);
-                            div.removeAttribute(key);
-
-                            div.save(attrKey);
-                            this.length = this.length - 1;
-                            if (this.length < 0) {
-                                this.length = 0;
-                            }
-                        },
-
-                        clear: function () {
-                            div.load(attrKey);
-                            var i = 0;
-                            while (attr = div.XMLDocument.documentElement.attributes[i++]) {
-                                div.removeAttribute(attr.name);
-                            }
-                            div.save(attrKey);
-                            this.length = 0;
-                        },
-
-                        key: function (key) {
-                            div.load(attrKey);
-                            return div.XMLDocument.documentElement.attributes[key];
-                        }
-
-                    };
-
-
-                    div.load(attrKey);
-                    localStorage.length = div.XMLDocument.documentElement.attributes.length;
-
-                }
-            }
-        }
-    } catch (e) {
-        log(e);
-    }
+    var storageType = 'webStorage',                             // @type {string} The storage type string
+        utils = app.helpers.utils,                              // @type {object} Shortcut for utils functions
+        on = utils.on,                                          // @type {function} Shortcut for utils.on function
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
 
 
     /**
@@ -3133,8 +3140,8 @@
      */
     function getStorageType(type) {
 
-        // init local vars
-        var result = false;
+        // init default
+        var result = 'localStorage';
 
         // get type string
         switch (type) {
@@ -3145,7 +3152,6 @@
             result = 'sessionStorage';
             break;
         default:
-            result = 'localStorage';
             break;
         }
 
@@ -3157,7 +3163,8 @@
     /**
      * the actual instance constructor
      * directly called after new Adapter()
-     * 
+     *
+     * @constructor
      * @param {object} parameters The instance parameters
      */
     function Adapter(parameters) {
@@ -3182,6 +3189,8 @@
      * public instance methods
      *
      * Adapter.fn is just a shortcut for Adapter.prototype
+     *
+     * @interface
      */
     Adapter.prototype = Adapter.fn = {
 
@@ -3214,8 +3223,8 @@
         /**
          * create a new resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         create: function (key, content, callback) {
@@ -3238,7 +3247,7 @@
         /**
          * read storage item
          *
-         * @param {object} resource The resource object
+         * @param {object} key The resource object
          * @param {function} callback Function called on success
          */
         read: function (key, callback) {
@@ -3272,8 +3281,8 @@
         /**
          * update a resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         update: function (key, content, callback) {
@@ -3287,7 +3296,7 @@
         /**
          * delete a resource from storage
          * 
-         * @param {object} resource The resource object
+         * @param {object} key The resource object
          * @param {function} callback Function called on success
          */
         remove: function (key, callback) {
@@ -3323,11 +3332,11 @@
             if (null === adapter) {
                 try {
 
-                    /* init global object */
+                    // init global object
                     adapter = self.adapter = window[type];
-                    utils.bind(window, 'storage', handleStorageEvents);
+                    on(window, 'storage', handleStorageEvents);
 
-                    /* create test item */
+                    // create test item
                     log('[' + storageType + ' Adapter] Try to create test resource');
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
@@ -3392,10 +3401,12 @@
 
     /**
      * make the storage constructor available for
-     * app.cache.webStorage() calls under the
+     * app.cache.storage.adapter.webStorage() calls under the
      * app.cache namespace
+     *
+     * @export
      */
-    app.cache.storage.adapter[storageType] = Adapter;
+    app.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
 }(window, window.app || {})); // immediatly invoke function
@@ -3462,19 +3473,21 @@
 
 
     // create the global vars once
-    var storageType = 'applicationCache',                       // storageType {string} The storage type string
-        helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
-        utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // shortcut for utils.callback function
-        boolIsSupported = null,                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
-        htmlNode = document.getElementsByTagName('html')[0];    // htmlNode {object} The dom html element
+    var storageType = 'applicationCache',                       // @type {string} The storage type string
+        helpers = app.helpers,                                  // @type {object} Shortcut for helper functions
+        utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
+        on = utils.on,                                          // @type {object} Shortcut for on function
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                         // @type {function} Shortcur for utils.callback function
+        boolIsSupported = null,                                 // @type {boolean} Bool if this type of storage is supported or not
+        htmlNode = document.getElementsByTagName('html')[0];    // @type {object} The dom html element
 
 
     /**
      * the actual instance constructor
      * directly called after new Adapter()
-     * 
+     *
+     * @constructor
      */
     function Adapter() {
 
@@ -3495,8 +3508,12 @@
 
      /**
      * instance methods
+     *
+     * Adapter.fn is just a shortcut for Adapter.prototype
+     * 
+     * @interface
      */
-    Adapter.prototype = {
+    Adapter.prototype = Adapter.fn = {
 
         /**
          * test if the browser supports this type of caching
@@ -3549,14 +3566,13 @@
             // init local function vars
             var self = this,
                 adapter = self.adapter,
-                adapterEvent = adapter.addEventListener,
                 manifestProgressCount = 0,
                 onUpdateReady;
 
             // check parameters
             callback = checkCallback(callback);
 
-            // check for database
+            // check for application cache support
             if (self.isSupported() && null !== adapter) {
 
                 /**
@@ -3589,7 +3605,8 @@
                  * If the manifest file has not changed, and the app is already cached,
                  * the noupdate event is fired and the process ends.
                  */
-                adapterEvent('checking', function () {
+                on(adapter, 'checking', function () {
+                //adapter.addEventListener('checking', function () {
                     log('[' + storageType + ' Adapter] Event checking');
 
                     return false;
@@ -3602,7 +3619,8 @@
                  * If the manifest file has not changed, and the app is already cached,
                  * the noupdate event is fired and the process ends.
                  */
-                adapterEvent('noupdate', function () {
+                on(adapter, 'noupdate', function () {
+                //adapter.addEventListener('noupdate', function () {
                     log('[' + storageType + ' Adapter] Event noupdate');
                     self.loaded(callback);
 
@@ -3617,7 +3635,8 @@
                  * the browser downloads and caches everything listed in the manifest.
                  * The downloading event signals the start of this download process.
                  */
-                adapterEvent('downloading', function () {
+                on(adapter, 'downloading', function () {
+                //adapter.addEventListener('downloading', function () {
                     log('[' + storageType + ' Adapter] Event downloading');
                     manifestProgressCount = 0;
 
@@ -3633,7 +3652,8 @@
                  *
                  * @param {object} e The progress event object holding additionally information
                  */
-                adapterEvent('progress', function (e) {
+                on(adapter, 'progress', function (e) {
+                //adapter.addEventListener('progress', function (e) {
                     log('[' + storageType + ' Adapter] Event progress');
 
                     var progress = "",
@@ -3665,7 +3685,8 @@
                  * The first time an application is downloaded into the cache, the browser
                  * fires the cached event when the download is complete.
                  */
-                adapterEvent('cached', function () {
+                on(adapter, 'cached', function () {
+                //adapter.addEventListener('cached', function () {
                     log('[' + storageType + ' Adapter] Event cached');
                     self.loaded(callback);
 
@@ -3680,7 +3701,8 @@
                  * the browser fires "updateready". Note that the user will still be seeing
                  * the old version of the application when this event arrives.
                  */
-                adapterEvent('updateready', function () {
+                on(adapter, 'updateready', function () {
+               // adapter.addEventListener('updateready', function () {
                     onUpdateReady();
                 });
 
@@ -3692,7 +3714,8 @@
                  * an obsolete event is fired and the application is removed from the cache.
                  * Subsequent loads are done from the network rather than from the cache.
                  */
-                adapterEvent('obsolete', function () {
+                //adapter.addEventListener('obsolete', function () {
+                on(adapter, 'obsolete', function () {
                     log('[' + storageType + ' Adapter] Event obsolete');
                     window.location.reload(true);
 
@@ -3706,7 +3729,8 @@
                  * If there is an error with the cache file or
                  * ressources can't be loaded
                  */
-                adapterEvent('error', function () {
+                //adapter.addEventListener('error', function () {
+                on(adapter, 'error', function () {
                     log('[' + storageType + ' Adapter] Event error');
                     self.loaded(callback);
 
@@ -3746,7 +3770,7 @@
                  * check for manifest updates if a online network is available
                  *
                  */
-                utils.bind(window, 'online', function () {
+                on(window, 'online', function () {
                     try {
                         adapter.update();
                     } catch (e) {
@@ -3808,8 +3832,10 @@
     /**
      * make the storage adapter available under the
      * app.cache namespace
+     *
+     * @export
      */
-    app.cache.storage.adapter[storageType] = Adapter;
+    app.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
 }(window, document, window.app || {}));
@@ -3864,19 +3890,19 @@
      */
 
     // module vars
-    var controllerType = 'storage',                             // controllerType {string} The controller type string
-        helpers = app.helpers,                                  // helper {object} Shortcut for helper functions
-        client = helpers.client,                                // client {object} Shortcut for client functions
-        utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // checkCallback {function} Shortcut for utils.callback function
-        json = utils.getJson(),                                 // json {function} Global window.Json object if available
-        xhr = utils.xhr,                                        // xhr {function} Shortcut for utils.xhr function
-        appCacheStorageAdapter = app.cache.storage.adapter,     // appCacheStorageAdapter {object} Shortcut for app.cache.storage.adapter namespace
+    var controllerType = 'storage',                             // @type {string} The controller type string
+        helpers = app.helpers,                                  // @type {object} Shortcut for helper functions
+        client = helpers.client,                                // @type {object} Shortcut for client functions
+        utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                         // @type {function} Shortcut for utils.callback function
+        json = utils.getJson(),                                 // @type {function} Global window.Json object if available
+        xhr = utils.xhr,                                        // @type {function} Shortcut for utils.xhr function
+        appCacheStorageAdapter = app.cache.storage.adapter,     // @type {object} Shortcut for app.cache.storage.adapter namespace
 
 
         /**
-         * adapters {array} Config array with objects for different storage types
+         * @type {array} Config array with objects for different storage types
          * 
          * this is the place to configure which types of adapters will be checked
          * and which resource types are stored in which adapter type
@@ -3890,35 +3916,35 @@
 
 
         /**
-         * adapterDefaults {object} The default option to initialize the adapter
+         * @type {object} The default option to initialize the adapter
          *
          * this config could be overridden by the passed in parameters
          */
         adapterDefaults = {
-            name: 'merkel',                                     // adapterDefaults.name {string} Default db name
-            table: 'cache',                                     // adapterDefaults.table {string} Default db table name
-            description: 'resource cache',                      // adapterDefaults.description {string} Default db description
-            size: 4 * 1024 * 1024,                              // adapterDefaults.size {integer} Default db size 4 MB
-            version: '1.0',                                     // adapterDefaults.version {string} Default db version, needs to be string for web sql database and should be 1.0
-            key: 'key',                                         // adapterDefaults.key {string} Default db primary key
-            lifetime: 'local',                                  // adapterDefaults.lifetime {string} Default lifetime for webstorage
-            offline: true                                       // adapterDefaults.offline {boolean||string} Default switch for using application cache
+            name: 'localcache',                                 // @type {string} [adapterDefaults.name=localcache] Default db name
+            table: 'cache',                                     // @type {string} [adapterDefaults.table=cache] Default db table name
+            description: 'local resource cache',                // @type {string} [adapterDefaults.description] Default db description
+            size: 4 * 1024 * 1024,                              // @type {integer} [adapterDefaults.size=4194304] Default db size 4 MB
+            version: '1.0',                                     // @type {string} [adapterDefaults.version=1.0] Default db version, needs to be string for web sql database and should be 1.0
+            key: 'key',                                         // @type {string} [adapterDefaults.key=key] Default db primary key
+            lifetime: 'local',                                  // @type {string} [adapterDefaults.lifetime=local] Default lifetime for webstorage
+            offline: true                                       // @type {boolean} [adapterDefaults.offline=true] Default switch for using application cache
         },
 
-        adapterAvailable = null,                                // adapterAvailable {string} The name of the best available adapter
-        adapterAvailableConfig = null,                          // adapterAvailableConfig {object} The adapter config for the available type (see adapters)
+        adapterAvailable = null,                                // @type {string} The name of the best available adapter
+        adapterAvailableConfig = null,                          // @type {object} The adapter config for the available type (see adapters)
 
 
         /**
-         * resourceDefaults {object} The defaults for a single resource
+         * @type {object} The defaults for a single resource
          *
          */
         resourceDefaults = {
-            lifetime: 10000,                                    // resourceDefaults.lifetime {integer} Default lifetime time in milliseconds (10000 ca 10sec)
-            group: 0,                                           // resourceDefaults.group {integer} Default resource group
-            lastmod: new Date().getTime(),                      // resourceDefaults.lastmod {integer} Default last modification timestamp
-            type: 'css',                                        // resourceDefaults.type {string} Default resource type
-            version: 1.0                                        // resourceDefaults.version {float} Default resource version
+            lifetime: 10000,                                    // @type {integer} [resourceDefaults.lifetime=10000] Default lifetime time in milliseconds (10000 ca 10sec)
+            group: 0,                                           // @type {integer} [resourceDefaults.group=0] Default resource group
+            lastmod: new Date().getTime(),                      // @type {integer} [resourceDefaults.lastmod] Default last modification timestamp
+            type: 'css',                                        // @type {string} [resourceDefaults.type=css] Default resource type
+            version: 1.0                                        // @type {float} [resourceDefaults.version=1.0] Default resource version
         };
 
 
@@ -3946,11 +3972,17 @@
         // init local vars
         var result = null;
 
-        // avoid console errors if the resource loading parameters changed
+        /**
+         * avoid console errors if the resource loading parameters changed
+         * 
+         * there is a strange behaviour if the resource parameters changed while
+         * calling load and the resource is stored in cache, so we have to use
+         * try/catch here
+         */
         try {
             result = utils.jsonToObject(string);
         } catch (e) {
-            log('[' + controllerType + ' controller] Couldn\'t convert json string to object.');
+            log('[' + controllerType + ' controller] Couldn\'t convert json string to object.' + e);
         }
 
         // return result
@@ -4185,31 +4217,35 @@
                             adapterAvailable = storageType;
                             length = adapters.length;
 
+                            // get adapter config from supported type
                             for (i = 0; i < length; i = i + 1) {
                                 if (adapters[i].type === storageType) {
                                     adapterAvailableConfig = adapters[i];
                                 }
                             }
-
                             if (adapterAvailableConfig) {
                                 log('[' + controllerType + ' controller] Used storage type: ' + adapterAvailable);
                                 callback(adapter);
                                 return;
                             }
 
+                            // if there is no config, test the next adapter type
                             log('[' + controllerType + ' controller] Storage config not found: ' + adapterAvailable);
                             getStorageAdapter(callback);
 
                         } else {
 
+                            // recursiv call
                             getStorageAdapter(callback);
 
                         }
                     });
                 } else {
+                    // javascript api is not supported, recursiv call
                     getStorageAdapter(callback);
                 }
             } catch (e) {
+                // javascript api is not (or mayby in a different standard way implemented and) supported, recursiv call
                 log('[' + controllerType + ' controller] Storage adapter could not be initialized: type ' + storageType);
                 getStorageAdapter(callback);
             }
@@ -4224,13 +4260,14 @@
     /**
      * storage constructor
      *
+     * @constructor
      * @param {function} callback The callback function
      * @param {object} parameters The optional parameters for the init function
      */
     function Storage(callback, parameters) {
 
         /**
-         * this.isEnabled = true {boolean} Enable or disable client side storage
+         * @type {boolean} [this.isEnabled=true] Enable or disable client side storage
          *
          * enable or disable client side cache or load resources just
          * via xhr if this option/parameter is set to false
@@ -4239,19 +4276,19 @@
 
 
         /**
-         * this.adapter {object} The instance of the best available storage adapter
+         * @type {object} [this.adapter=null] The instance of the best or given available storage adapter
          */
         this.adapter = null;
 
 
         /**
-         * this.appCacheAdapter {object} The instance of the application cache storage adapter
+         * @type {object} [this.appCacheAdapter=null] The instance of the application cache storage adapter
          */
         this.appCacheAdapter = null;
 
 
         /**
-         * this.resourceDefaults {object} Make the resource defaults available to instance calls
+         * @type {object} Make the resource defaults available to instance calls
          */
         this.resourceDefaults = resourceDefaults;
 
@@ -4264,8 +4301,9 @@
     /**
      * storage methods
      *
+     * @interface
      */
-    Storage.prototype = {
+    Storage.prototype = Storage.fn = {
 
         /**
          * create resource in storage
@@ -4364,9 +4402,8 @@
 
                             /**
                              * check if the convertStringToObject function succeeded
-                             * could fail if resource is saved properly or resource parameters changed,
-                             * so we remove the old resource from storage instead to create
-                             * a new one
+                             * could fail if resource isn't saved properly or resource parameters changed,
+                             * so we remove the old resource from storage instead to create a new one
                              */
                             if (!resource) {
                                 self.adapter.remove(convertObjectToString(url), function () {
@@ -4558,7 +4595,8 @@
                  * instance via callbacks, after the adapter get's
                  * successfully initialized
                  *
-                 * the returned adapter will already be opened
+                 * the returned adapter will already be opened and checked
+                 * for support
                  */
 
                 getStorageAdapter(function (adapter) {
@@ -4590,8 +4628,10 @@
 
     /**
      * make storage controller available under app namespace
+     *
+     * @export
      */
-    app.cache.storage.controller = Storage;
+    app.namespace('cache.storage.controller', Storage);
 
 
 }(document, window.app || {})); // immediatly invoke function
@@ -4650,13 +4690,13 @@
      */
 
     // module vars
-    var controllerType = 'cache',                               // controllerType {string} The controller type string
-        helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
-        append = helpers.append,                                // append {function} Shortcut for append helper
-        utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // checkCallback {function} Shortcut for utils.callback function
-        controller = {};                                        // controller {object} Cache controller public functions and vars
+    var controllerType = 'cache',                               // @type {string} The controller type string
+        helpers = app.helpers,                                  // @type {object} Shortcut for helper functions
+        append = helpers.append,                                // @type {function} Shortcut for append helper
+        utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                         // @type {function} Shortcut for utils.callback function
+        controller = {};                                        // @type {object} Cache controller public functions and vars
 
 
     /**
@@ -4668,7 +4708,7 @@
     controller = {
 
         /**
-         * {object} The storage controller instance
+         * @type {object} The storage controller instance
          */
         storage: null,
 
@@ -4825,13 +4865,16 @@
                         /**
                          * check for outdated data
                          *
-                         * if item.lifetime is set to '-1' the resource will always be loaded from network
+                         * if item.lifetime is set to '-1' the resource will never expiring
                          * also the item.lastmod and cached resource.lastmod (and item.version/resource.version) needs to be the same
                          * finally there is a check if the item is expired using the current timestamp
                          */
                         if (parseInt(item.lifetime, 10) !== -1 && lastmodCheck && resource.version === item.version && item.expires > now) {
                             log('[' + controllerType + ' controller] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
                             data = item.data;
+                        } else if (parseInt(item.lifetime, 10) === -1 && lastmodCheck && resource.version === item.version) {
+                            log('[' + controllerType + ' controller] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
+                            data = item.data; 
                         } else {
                             log('[' + controllerType + ' controller] Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
                             self.storage.update(resource, callback);
@@ -5004,8 +5047,10 @@
 
     /**
      * make cache controller globally available under app namespace
+     *
+     * @export
      */
-    app.cache.controller = controller;
+    app.namespace('cache.controller', controller);
 
 
 }(window, document, window.app || {})); // immediatly invoke function
@@ -5013,10 +5058,140 @@
 /*jslint unparam: true */
 
 /*global window*/
-/*global document*/
 
 /**
  * app.cache.init
+ * 
+ * @description
+ * - initialize cache functions and resources
+ * 
+ * @author Ulrich Merkel (hello@ulrichmerkel.com)
+ * @version 0.1
+ *
+ * @namespace app
+ *
+ * @changelog
+ * - 0.1 basic functions and plugin structur
+ *
+ * @see
+ * -
+ * 
+ * @bugs
+ * - 
+ *
+ **/
+
+(function (window, app, undefined) {
+    'use strict';
+
+    /**
+     * undefined is used here as the undefined global
+     * variable in ECMAScript 3 and is mutable (i.e. it can
+     * be changed by someone else). undefined isn't really
+     * being passed in so we can ensure that its value is
+     * truly undefined. In ES5, undefined can no longer be
+     * modified.
+     * 
+     * app is passed through as local
+     * variables rather than as globals, because this (slightly)
+     * quickens the resolution process and can be more
+     * efficiently minified (especially when both are
+     * regularly referenced in this module).
+     */
+
+    // module vars
+    var controller = app.cache.controller,                              // @type {object} Shortcut for cache controller public functions and vars
+        helpers = app.helpers,                                          // @type {object} Shortcut for app.helpers
+        isArray = app.helpers.utils.isArray,                            // @type {function} Shortcut for isArray function
+        queue = new app.helpers.queue,                                  // @type {function} Shortcut for queuing functions
+        calls = 0,                                                      // @type {integer} Counter for cacheLoad calls
+        controllerInterface,                                            // @type {function} Interface function
+        storage = null;                                                 // @type {object} Storage instance
+
+
+    /**
+     * cache controller interface
+     *
+     */
+    controllerInterface = function (resources, callback, parameters) {
+
+        var self = this,
+
+            /**
+             * call the according load function if the storage
+             * is initialized
+             */
+            loadResources = function (queueResources, queueCallback, queueParameters) {
+
+                if (isArray(queueResources)) {
+
+                    // handle resource loading from cache
+                    controller.load(queueResources, queueCallback);
+
+                } else if (queueResources === 'applicationCache') {
+
+                    // handle application cache loading
+                    if (storage.appCacheAdapter) {
+                        storage.appCacheAdapter.open(queueCallback);
+                    } else {
+                        queueCallback();
+                    }
+
+                }
+
+            };
+
+
+        // check for storage
+        if (!storage) {
+
+            // add load function to queue
+            queue.add(function () {
+                loadResources(resources, callback, parameters);
+            });
+
+            // just init storage once
+            calls = calls + 1;
+            if (calls === 1) {
+                controller.init(function (storageResult) {
+
+                    // if controller storage is loaded, start queue
+                    storage = storageResult;
+                    queue.flush(this);
+
+                }, parameters); 
+            }
+
+        } else {
+
+            // storage already initialized
+            loadResources(resources, callback, parameters);
+
+        }
+
+
+        // return this for chaining
+        return this;
+
+    };
+
+
+    /**
+     * make cache controller interface globally available under app namespace
+     *
+     * @export
+     */
+    app.namespace('cacheLoad', controllerInterface);
+
+
+}(window, window.app || {}));
+/*jslint unparam: true */
+
+/*global window*/
+/*global document*/
+
+/**
+ * app.cache.bootstrap
  * 
  * @description
  * - initialize cache functions and resources
@@ -5056,29 +5231,25 @@
      */
 
     // module vars
-    var helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
-        utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-        bind = utils.bind,                                      // bind {function} Shortcut for bind helper
-        controller = {};                                        // controller {object} Cache controller public functions and vars
-
-
-
-    /**
-     * get controller
-     */
-    controller = app.cache.controller;
+    var utils = app.helpers.utils,                                  // @type {object} Shortcut for utils functions
+        logTimerStart = utils.logTimerStart,                        // @type {function} Shortcut for utils.logTimerStart functions
+        logTimerEnd = utils.logTimerEnd,                            // @type {function} Shortcut for utils.logTimerEnd functions
+        on = utils.on;                                              // @type {function} Shortcut for utilsl.on helper
 
 
     /**
      * load additional resources on window load
      *
      */
-    bind(window, 'load', function () {
-        utils.logTimerStart('Page css and js files loaded');
-        utils.logTimerStart('Page images loaded');
-        utils.logTimerStart('Html loaded');
+    on(window, 'load', function () {
 
+        // start timers to profile loading time
+        logTimerStart('Page css and js files loaded');
+        logTimerStart('Page images loaded');
+        logTimerStart('Html loaded');
+        logTimerStart('Application Cache loaded');
 
+        // init base vars and loaded callback
         var baseUrl = window.baseurl || utils.url(window.location.pathname).folder,
             loaded = 0,
             loadedCallback = function () {
@@ -5088,69 +5259,48 @@
                 }
             };
 
-        controller.init(function (storage) {
 
-            /**
-             * here we define the resources to be loaded and cached
-             *
-             * there are muliple async calls for resources via controller.load possible
-             * the callback function is just used to hide the loading layer
-             *
-             * possible options are:
-             *
-             * {string} url The required url of the resource
-             * {string} type The required content type of the resource (css, js, img, html)
-             * {string|integer} group The optional loading group of the resource, this is used for handling dependencies, a following group begins to start loading when the previous has finished
-             * {string|integer} version The optional version number of the resource, used to mark a resource to be updated
-             * {string|integer} lastmod The optional lastmod timestamp of the resource, used to mark a resource to be updated
-             * {string|integer} lifetime The optional lifetime time in milliseconds of the resource, used to mark a resource to be updated after a given period if time, if set to -1 the resource will always be loaded from network
-             * {object} node Container for additional dom node informations
-             * {string} node.id The id from the dom element to append the data to
-             * {string} node.dom The current dom element to append the data to
-             *
-             */
-
-            // load page css and js files
-            controller.load([
-                {url: baseUrl + "css/app.css", type: "css"},
-                {url: baseUrl + "js/lib.js", type: "js"},
-                {url: baseUrl + "js/app.js", type: "js", group: 1}
-            ], function () {
-                utils.logTimerEnd('Page css and js files loaded');
-                loadedCallback();
-            });
-
-            // load page images
-            controller.load([
-                {url: baseUrl + "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
-                {url: baseUrl + "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
-                {url: baseUrl + "img/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
-            ], function () {
-                utils.logTimerEnd('Page images loaded');
-            });
-
-            // load html
-            controller.load([
-                {url: baseUrl + "ajax.html", type: "html", node: {id: "ajax"}}
-            ], function () {
-                utils.logTimerEnd('Html loaded');
-            });
-
-            // initialize application cache and wait for loaded
-            if (storage && storage.appCacheAdapter) {
-                storage.appCacheAdapter.open(function () {
-                    loadedCallback();
-                });
-            } else {
-                loadedCallback();
-            }
-
-
+        // load css and js
+        app.cacheLoad([
+            {url: baseUrl + "css/app.css", type: "css"},
+            {url: baseUrl + "js/lib.js", type: "js"},
+            {url: baseUrl + "js/app.js", type: "js", group: 1, lifetime: -1}
+        ], function () {
+            logTimerEnd('Page css and js files loaded');
+            loadedCallback();
         });
+
+
+        // load images
+        app.cacheLoad([
+            {url: baseUrl + "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
+            {url: baseUrl + "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
+            {url: baseUrl + "img/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
+        ], function () {
+            logTimerEnd('Page images loaded');
+        });
+
+
+        // load html
+        app.cacheLoad([
+            {url: baseUrl + "ajax.html", type: "html", node: {id: "ajax"}}
+        ], function () {
+            logTimerEnd('Html loaded');
+        });
+
+
+        // load application cache
+        app.cacheLoad('applicationCache', function () {
+            logTimerEnd('Application Cache loaded');
+            loadedCallback();
+        });
+
 
     });
 
 }(window, document, window.app || {}));
+
+
 
 
 

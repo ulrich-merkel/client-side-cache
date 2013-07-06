@@ -43,31 +43,46 @@
      * @see http://de.slideshare.net/s.barysiuk/javascript-and-ui-architecture-best-practices-presentation
      *
      * @param {string} name The namespace string separated with dots (name.name.name)
+     * @param {string|integer|object|function} value The optional values to set for the given namespace
      *
-     * @return {boolean} The success of this function
+     * @return {object|boolean} The last referenced namespace object or false if there is no name param
      */
-    function namespace(name) {
+    function namespace(name, value) {
+
         if (name) {
+
+            // convert name param to string
+            name = name + '';
 
             // init loop vars
             var names = name.split('.'),
+                length = names.length,
                 current = app,
                 i;
 
             // toggle through names array
-            for (i in names) {
+            for (i = 0; i < length; i = i + 1) {
 
                 // if this namespace doesn't exist, create it
                 if (!current[names[i]]) {
+
+                    // set empty object
                     current[names[i]] = {};
+
+                    // set value if set and last namespace item reached
+                    if (i === length - 1 && !!value) {
+                        current[names[i]] = value;
+                    }
+
                 }
 
-                // set current to checked namespace for the next loop
+                // set current to this checked namespace for the next loop
                 current = current[names[i]];
 
             }
 
-            return true;
+            // return last namespace item
+            return current;
 
         }
 
@@ -77,19 +92,18 @@
 
 
     // init app namespaces
-    namespace('cache.storage.adapter');
-    namespace('helpers');
-    namespace('controllers');
-    namespace('models');
-    namespace('views');
+    namespace("namespace", namespace);
 
 
-    // export app to globals
+    /**
+     * export app to globals
+     *
+     * @export
+     */
     exports.app = app;
 
 
 }(window, window.app || {}));
-
 
 
 

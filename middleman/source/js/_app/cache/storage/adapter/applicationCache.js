@@ -59,19 +59,21 @@
 
 
     // create the global vars once
-    var storageType = 'applicationCache',                       // storageType {string} The storage type string
-        helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
-        utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // shortcut for utils.callback function
-        boolIsSupported = null,                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
-        htmlNode = document.getElementsByTagName('html')[0];    // htmlNode {object} The dom html element
+    var storageType = 'applicationCache',                       // @type {string} The storage type string
+        helpers = app.helpers,                                  // @type {object} Shortcut for helper functions
+        utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
+        on = utils.on,                                          // @type {object} Shortcut for on function
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                         // @type {function} Shortcur for utils.callback function
+        boolIsSupported = null,                                 // @type {boolean} Bool if this type of storage is supported or not
+        htmlNode = document.getElementsByTagName('html')[0];    // @type {object} The dom html element
 
 
     /**
      * the actual instance constructor
      * directly called after new Adapter()
-     * 
+     *
+     * @constructor
      */
     function Adapter() {
 
@@ -92,8 +94,12 @@
 
      /**
      * instance methods
+     *
+     * Adapter.fn is just a shortcut for Adapter.prototype
+     * 
+     * @interface
      */
-    Adapter.prototype = {
+    Adapter.prototype = Adapter.fn = {
 
         /**
          * test if the browser supports this type of caching
@@ -146,14 +152,13 @@
             // init local function vars
             var self = this,
                 adapter = self.adapter,
-                adapterEvent = adapter.addEventListener,
                 manifestProgressCount = 0,
                 onUpdateReady;
 
             // check parameters
             callback = checkCallback(callback);
 
-            // check for database
+            // check for application cache support
             if (self.isSupported() && null !== adapter) {
 
                 /**
@@ -186,7 +191,8 @@
                  * If the manifest file has not changed, and the app is already cached,
                  * the noupdate event is fired and the process ends.
                  */
-                adapterEvent('checking', function () {
+                on(adapter, 'checking', function () {
+                //adapter.addEventListener('checking', function () {
                     log('[' + storageType + ' Adapter] Event checking');
 
                     return false;
@@ -199,7 +205,8 @@
                  * If the manifest file has not changed, and the app is already cached,
                  * the noupdate event is fired and the process ends.
                  */
-                adapterEvent('noupdate', function () {
+                on(adapter, 'noupdate', function () {
+                //adapter.addEventListener('noupdate', function () {
                     log('[' + storageType + ' Adapter] Event noupdate');
                     self.loaded(callback);
 
@@ -214,7 +221,8 @@
                  * the browser downloads and caches everything listed in the manifest.
                  * The downloading event signals the start of this download process.
                  */
-                adapterEvent('downloading', function () {
+                on(adapter, 'downloading', function () {
+                //adapter.addEventListener('downloading', function () {
                     log('[' + storageType + ' Adapter] Event downloading');
                     manifestProgressCount = 0;
 
@@ -230,7 +238,8 @@
                  *
                  * @param {object} e The progress event object holding additionally information
                  */
-                adapterEvent('progress', function (e) {
+                on(adapter, 'progress', function (e) {
+                //adapter.addEventListener('progress', function (e) {
                     log('[' + storageType + ' Adapter] Event progress');
 
                     var progress = "",
@@ -262,7 +271,8 @@
                  * The first time an application is downloaded into the cache, the browser
                  * fires the cached event when the download is complete.
                  */
-                adapterEvent('cached', function () {
+                on(adapter, 'cached', function () {
+                //adapter.addEventListener('cached', function () {
                     log('[' + storageType + ' Adapter] Event cached');
                     self.loaded(callback);
 
@@ -277,7 +287,8 @@
                  * the browser fires "updateready". Note that the user will still be seeing
                  * the old version of the application when this event arrives.
                  */
-                adapterEvent('updateready', function () {
+                on(adapter, 'updateready', function () {
+               // adapter.addEventListener('updateready', function () {
                     onUpdateReady();
                 });
 
@@ -289,7 +300,8 @@
                  * an obsolete event is fired and the application is removed from the cache.
                  * Subsequent loads are done from the network rather than from the cache.
                  */
-                adapterEvent('obsolete', function () {
+                //adapter.addEventListener('obsolete', function () {
+                on(adapter, 'obsolete', function () {
                     log('[' + storageType + ' Adapter] Event obsolete');
                     window.location.reload(true);
 
@@ -303,7 +315,8 @@
                  * If there is an error with the cache file or
                  * ressources can't be loaded
                  */
-                adapterEvent('error', function () {
+                //adapter.addEventListener('error', function () {
+                on(adapter, 'error', function () {
                     log('[' + storageType + ' Adapter] Event error');
                     self.loaded(callback);
 
@@ -343,7 +356,7 @@
                  * check for manifest updates if a online network is available
                  *
                  */
-                utils.bind(window, 'online', function () {
+                on(window, 'online', function () {
                     try {
                         adapter.update();
                     } catch (e) {
@@ -405,8 +418,10 @@
     /**
      * make the storage adapter available under the
      * app.cache namespace
+     *
+     * @export
      */
-    app.cache.storage.adapter[storageType] = Adapter;
+    app.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
 }(window, document, window.app || {}));

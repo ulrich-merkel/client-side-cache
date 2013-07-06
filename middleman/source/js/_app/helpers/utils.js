@@ -129,74 +129,74 @@
             /**
              * add event handler
              *
-             * following the lazy loading design pattern, the bind function will be
+             * following the lazy loading design pattern, the on function will be
              * overridden with the correct implemation the first the it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
              * 
              * @param {string} target The dom object
-             * @param {string} target The event type to bind
+             * @param {string} eventType The event type to bind
              * @param {function} handler The function to bind
              */
-            bind: function (target, eventType, handler) {
+            on: function (target, eventType, handler) {
 
                 // override existing function
                 if (typeof window.addEventListener === 'function') {
                     // dom2 event
-                    utils.bind = function (target, eventType, handler) {
+                    utils.on = function (target, eventType, handler) {
                         target.addEventListener(eventType, handler, false);
                     };
                 } else if (typeof document.attachEvent === 'function') {
                     // ie event
-                    utils.bind = function (target, eventType, handler) {
+                    utils.on = function (target, eventType, handler) {
                         target.attachEvent('on' + eventType, handler);
                     };
                 } else {
                     // older browers
-                    utils.bind = function (target, eventType, handler) {
+                    utils.on = function (target, eventType, handler) {
                         target['on' + eventType] = handler;
                     };
                 }
 
                 // call the new function
-                utils.bind(target, eventType, handler);
+                utils.on(target, eventType, handler);
             },
 
 
             /**
              * remove event handler
              *
-             * following the lazy loading design pattern, the unbind function will be
+             * following the lazy loading design pattern, the off function will be
              * overridden with the correct implemation the first the it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
              * 
              * @param {string} target The dom object
-             * @param {string} target The event type to unbind
+             * @param {string} eventType The event type to unbind
              * @param {function} handler The function to unbind
              */
-            unbind: function (target, eventType, handler) {
+            off: function (target, eventType, handler) {
 
                 // override existing function
                 if (typeof window.removeEventListener === 'function') {
                     // dom2 event
-                    utils.unbind = function (target, eventType, handler) {
+                    utils.off = function (target, eventType, handler) {
                         target.removeEventListener(eventType, handler, false);
                     };
                 } else if (typeof document.detachEvent === 'function') {
                     // ie event
-                    utils.unbind = function (target, eventType, handler) {
+                    utils.off = function (target, eventType, handler) {
                         target.detachEvent('on' + eventType, handler);
                     };
                 } else {
                     // older browsers
-                    utils.unbind = function (target, eventType) {
+                    utils.off = function (target, eventType) {
                         target['on' + eventType] = null;
                     };
                 }
 
                 // call the new function
-                utils.unbind(target, eventType, handler);
+                utils.off(target, eventType, handler);
 
             },
 
@@ -281,8 +281,6 @@
              * @param {string} url The url to load
              * @param {function} callback The callback after success
              * @param {string} postData The optional post request data to send
-             *
-             * @returns {string} Returns recieved data as callback parameter
              */
             xhr: function(url, callback, postData) {
 
@@ -502,7 +500,7 @@
              * 
              * @param {array} value The value to check
              *
-             * @param {boolean} Whether the given value is an array or not
+             * @return {boolean} Whether the given value is an array or not
              */
             isArray: function (value) {
                 return value instanceof Array;
@@ -513,8 +511,8 @@
              * check if value is in array
              * 
              * @param {string} elem The value to check
-             * @param {array} arr The array to check
-             * @param {string} i The index in array
+             * @param {array} array The array to check
+             * @param {number|undefined} i The index in array
              *
              * @returns {integer} Whether the value is in (return index) or not (return -1)
              */
@@ -548,8 +546,10 @@
 
     /**
      * global export
+     *
+     * @export
      */
-    app.helpers.utils = utils;
+    app.namespace('helpers.utils', utils);
 
 
 }(window, document, window.app || {})); // immediatly invoke function

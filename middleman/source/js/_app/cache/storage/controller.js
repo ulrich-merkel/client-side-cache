@@ -48,19 +48,19 @@
      */
 
     // module vars
-    var controllerType = 'storage',                             // controllerType {string} The controller type string
-        helpers = app.helpers,                                  // helper {object} Shortcut for helper functions
-        client = helpers.client,                                // client {object} Shortcut for client functions
-        utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // checkCallback {function} Shortcut for utils.callback function
-        json = utils.getJson(),                                 // json {function} Global window.Json object if available
-        xhr = utils.xhr,                                        // xhr {function} Shortcut for utils.xhr function
-        appCacheStorageAdapter = app.cache.storage.adapter,     // appCacheStorageAdapter {object} Shortcut for app.cache.storage.adapter namespace
+    var controllerType = 'storage',                             // @type {string} The controller type string
+        helpers = app.helpers,                                  // @type {object} Shortcut for helper functions
+        client = helpers.client,                                // @type {object} Shortcut for client functions
+        utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                         // @type {function} Shortcut for utils.callback function
+        json = utils.getJson(),                                 // @type {function} Global window.Json object if available
+        xhr = utils.xhr,                                        // @type {function} Shortcut for utils.xhr function
+        appCacheStorageAdapter = app.cache.storage.adapter,     // @type {object} Shortcut for app.cache.storage.adapter namespace
 
 
         /**
-         * adapters {array} Config array with objects for different storage types
+         * @type {array} Config array with objects for different storage types
          * 
          * this is the place to configure which types of adapters will be checked
          * and which resource types are stored in which adapter type
@@ -74,35 +74,35 @@
 
 
         /**
-         * adapterDefaults {object} The default option to initialize the adapter
+         * @type {object} The default option to initialize the adapter
          *
          * this config could be overridden by the passed in parameters
          */
         adapterDefaults = {
-            name: 'merkel',                                     // adapterDefaults.name {string} Default db name
-            table: 'cache',                                     // adapterDefaults.table {string} Default db table name
-            description: 'resource cache',                      // adapterDefaults.description {string} Default db description
-            size: 4 * 1024 * 1024,                              // adapterDefaults.size {integer} Default db size 4 MB
-            version: '1.0',                                     // adapterDefaults.version {string} Default db version, needs to be string for web sql database and should be 1.0
-            key: 'key',                                         // adapterDefaults.key {string} Default db primary key
-            lifetime: 'local',                                  // adapterDefaults.lifetime {string} Default lifetime for webstorage
-            offline: true                                       // adapterDefaults.offline {boolean||string} Default switch for using application cache
+            name: 'localcache',                                 // @type {string} [adapterDefaults.name=localcache] Default db name
+            table: 'cache',                                     // @type {string} [adapterDefaults.table=cache] Default db table name
+            description: 'local resource cache',                // @type {string} [adapterDefaults.description] Default db description
+            size: 4 * 1024 * 1024,                              // @type {integer} [adapterDefaults.size=4194304] Default db size 4 MB
+            version: '1.0',                                     // @type {string} [adapterDefaults.version=1.0] Default db version, needs to be string for web sql database and should be 1.0
+            key: 'key',                                         // @type {string} [adapterDefaults.key=key] Default db primary key
+            lifetime: 'local',                                  // @type {string} [adapterDefaults.lifetime=local] Default lifetime for webstorage
+            offline: true                                       // @type {boolean} [adapterDefaults.offline=true] Default switch for using application cache
         },
 
-        adapterAvailable = null,                                // adapterAvailable {string} The name of the best available adapter
-        adapterAvailableConfig = null,                          // adapterAvailableConfig {object} The adapter config for the available type (see adapters)
+        adapterAvailable = null,                                // @type {string} The name of the best available adapter
+        adapterAvailableConfig = null,                          // @type {object} The adapter config for the available type (see adapters)
 
 
         /**
-         * resourceDefaults {object} The defaults for a single resource
+         * @type {object} The defaults for a single resource
          *
          */
         resourceDefaults = {
-            lifetime: 10000,                                    // resourceDefaults.lifetime {integer} Default lifetime time in milliseconds (10000 ca 10sec)
-            group: 0,                                           // resourceDefaults.group {integer} Default resource group
-            lastmod: new Date().getTime(),                      // resourceDefaults.lastmod {integer} Default last modification timestamp
-            type: 'css',                                        // resourceDefaults.type {string} Default resource type
-            version: 1.0                                        // resourceDefaults.version {float} Default resource version
+            lifetime: 10000,                                    // @type {integer} [resourceDefaults.lifetime=10000] Default lifetime time in milliseconds (10000 ca 10sec)
+            group: 0,                                           // @type {integer} [resourceDefaults.group=0] Default resource group
+            lastmod: new Date().getTime(),                      // @type {integer} [resourceDefaults.lastmod] Default last modification timestamp
+            type: 'css',                                        // @type {string} [resourceDefaults.type=css] Default resource type
+            version: 1.0                                        // @type {float} [resourceDefaults.version=1.0] Default resource version
         };
 
 
@@ -130,11 +130,17 @@
         // init local vars
         var result = null;
 
-        // avoid console errors if the resource loading parameters changed
+        /**
+         * avoid console errors if the resource loading parameters changed
+         * 
+         * there is a strange behaviour if the resource parameters changed while
+         * calling load and the resource is stored in cache, so we have to use
+         * try/catch here
+         */
         try {
             result = utils.jsonToObject(string);
         } catch (e) {
-            log('[' + controllerType + ' controller] Couldn\'t convert json string to object.');
+            log('[' + controllerType + ' controller] Couldn\'t convert json string to object.' + e);
         }
 
         // return result
@@ -369,31 +375,35 @@
                             adapterAvailable = storageType;
                             length = adapters.length;
 
+                            // get adapter config from supported type
                             for (i = 0; i < length; i = i + 1) {
                                 if (adapters[i].type === storageType) {
                                     adapterAvailableConfig = adapters[i];
                                 }
                             }
-
                             if (adapterAvailableConfig) {
                                 log('[' + controllerType + ' controller] Used storage type: ' + adapterAvailable);
                                 callback(adapter);
                                 return;
                             }
 
+                            // if there is no config, test the next adapter type
                             log('[' + controllerType + ' controller] Storage config not found: ' + adapterAvailable);
                             getStorageAdapter(callback);
 
                         } else {
 
+                            // recursiv call
                             getStorageAdapter(callback);
 
                         }
                     });
                 } else {
+                    // javascript api is not supported, recursiv call
                     getStorageAdapter(callback);
                 }
             } catch (e) {
+                // javascript api is not (or mayby in a different standard way implemented and) supported, recursiv call
                 log('[' + controllerType + ' controller] Storage adapter could not be initialized: type ' + storageType);
                 getStorageAdapter(callback);
             }
@@ -408,13 +418,14 @@
     /**
      * storage constructor
      *
+     * @constructor
      * @param {function} callback The callback function
      * @param {object} parameters The optional parameters for the init function
      */
     function Storage(callback, parameters) {
 
         /**
-         * this.isEnabled = true {boolean} Enable or disable client side storage
+         * @type {boolean} [this.isEnabled=true] Enable or disable client side storage
          *
          * enable or disable client side cache or load resources just
          * via xhr if this option/parameter is set to false
@@ -423,19 +434,19 @@
 
 
         /**
-         * this.adapter {object} The instance of the best available storage adapter
+         * @type {object} [this.adapter=null] The instance of the best or given available storage adapter
          */
         this.adapter = null;
 
 
         /**
-         * this.appCacheAdapter {object} The instance of the application cache storage adapter
+         * @type {object} [this.appCacheAdapter=null] The instance of the application cache storage adapter
          */
         this.appCacheAdapter = null;
 
 
         /**
-         * this.resourceDefaults {object} Make the resource defaults available to instance calls
+         * @type {object} Make the resource defaults available to instance calls
          */
         this.resourceDefaults = resourceDefaults;
 
@@ -448,8 +459,9 @@
     /**
      * storage methods
      *
+     * @interface
      */
-    Storage.prototype = {
+    Storage.prototype = Storage.fn = {
 
         /**
          * create resource in storage
@@ -548,9 +560,8 @@
 
                             /**
                              * check if the convertStringToObject function succeeded
-                             * could fail if resource is saved properly or resource parameters changed,
-                             * so we remove the old resource from storage instead to create
-                             * a new one
+                             * could fail if resource isn't saved properly or resource parameters changed,
+                             * so we remove the old resource from storage instead to create a new one
                              */
                             if (!resource) {
                                 self.adapter.remove(convertObjectToString(url), function () {
@@ -742,7 +753,8 @@
                  * instance via callbacks, after the adapter get's
                  * successfully initialized
                  *
-                 * the returned adapter will already be opened
+                 * the returned adapter will already be opened and checked
+                 * for support
                  */
 
                 getStorageAdapter(function (adapter) {
@@ -774,8 +786,10 @@
 
     /**
      * make storage controller available under app namespace
+     *
+     * @export
      */
-    app.cache.storage.controller = Storage;
+    app.namespace('cache.storage.controller', Storage);
 
 
 }(document, window.app || {})); // immediatly invoke function

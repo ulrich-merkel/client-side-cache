@@ -26,11 +26,11 @@
 		// mobile fast clicks
 		new FastClick(document.body);
 
-		//app.controllers.controller.init(function () {
-            //alert("page controller loaded");
-        //});
+		$('.tooltip').tooltip();
+		$('.btn-fullscreen').fullscreen();
 
-		//alert("document ready");
+		alert("document ready");
+
 	});
 
 }(window.jQuery, window, document, window.app));

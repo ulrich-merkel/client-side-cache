@@ -49,11 +49,11 @@
      */
 
     // create the global vars once
-    var storageType = 'fileSystem',                             // storageType {string} The storage type string
-        utils = app.helpers.utils,                              // utils {object} Shortcut for utils functions
-        log = utils.log,                                        // log {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // shortcut for utils.callback function
-        boolIsSupported = null;                                 // boolIsSupported {boolean} Bool if this type of storage is supported or not
+    var storageType = 'fileSystem',                             // @type {string} The storage type string
+        utils = app.helpers.utils,                              // @type {object} Shortcut for utils functions
+        log = utils.log,                                        // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                         // @type {function} Shortcut for utils.callback function
+        boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
 
 
     /**
@@ -96,8 +96,9 @@
     /**
      * create directory recursiv
      *
-     * @param {object} storageRoot The storage root
+     * @param {object} root The storage root
      * @param {array} folders The value string from database
+     * @param {function} callback The callback after success
      */
     function createDirectory(root, folders, callback) {
 
@@ -130,8 +131,9 @@
     /**
      * check directory path
      *
-     * @param {object} storage The storage object
+     * @param {object} fileSystem The fileSystem to check
      * @param {srting} url The url string to check
+     * @param {function} callback The callback after success
      */
     function checkDirectory(fileSystem, url, callback) {
 
@@ -164,7 +166,8 @@
     /**
      * the actual instance constructor
      * directly called after new Adapter()
-     * 
+     *
+     * @constructor
      * @param {object} parameters The instance parameters
      */
     function Adapter(parameters) {
@@ -189,6 +192,8 @@
      * public instance methods
      *
      * Adapter.fn is just a shortcut for Adapter.prototype
+     *
+     * @interface
      */
     Adapter.prototype = Adapter.fn = {
 
@@ -265,8 +270,8 @@
         /**
          * create a new resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         create: function (key, content, callback) {
@@ -325,7 +330,7 @@
         /**
          * read storage item
          *
-         * @param {object} resource The resource object
+         * @param {object} key The resource object
          * @param {function} callback Function called on success
          */
         read: function (key, callback) {
@@ -370,8 +375,8 @@
         /**
          * update a resource in storage
          * 
-         * @param {object} resource The resource object
-         * @param {string} data The content string
+         * @param {object} key The resource object
+         * @param {string} content The content string
          * @param {function} callback Function called on success
          */
         update: function (key, content, callback) {
@@ -384,7 +389,7 @@
         /**
          * delete a resource from storage
          * 
-         * @param {object} resource The resource object
+         * @param {object} key The resource object
          * @param {function} callback Function called on success
          */
         remove: function (key, callback) {
@@ -409,7 +414,7 @@
 
                 }, errorHandler);
 
-            }, errorHandler);
+            });
 
         },
 
@@ -449,10 +454,12 @@
 
     /**
      * make the storage constructor available for
-     * app.cache.webStorage() calls under the
+     * app.cache.storage.adapter.fileSystem() calls under the
      * app.cache namespace
+     *
+     * @export
      */
-    app.cache.storage.adapter[storageType] = Adapter;
+    app.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
 }(window, window.app || {})); // immediatly invoke function

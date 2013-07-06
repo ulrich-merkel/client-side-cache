@@ -81,15 +81,15 @@
     var append = (function () {
 
         // init global vars
-        var helpers = app.helpers,                                  // helpers {object} Shortcut for helper functions
-            utils = helpers.utils,                                  // utils {object} Shortcut for utils functions
-            createDomNode = utils.createDomNode,                    // createDomNode {function} Shortcut for createDomNode function
-            client = helpers.client,                                // client {object} Shortcut for client functions
-            privateAppendedCss = [],                                // privateAppendedCss {array} Storage for appended css files
-            privateAppendedJs = [],                                 // privateAppendedJs {array} Storage for appended js files
-            privateAppendedImg = [],                                // privateAppendedImg {array} Storage for appended img files
-            privateAppendedHtml = [],                               // privateAppendedHtml {array} Storage for appended html files
-            headNode = document.getElementsByTagName('head')[0];    // headNode {object} The html dom head object
+        var helpers = app.helpers,                                  // @type {object} Shortcut for helper functions
+            utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
+            createDomNode = utils.createDomNode,                    // @type {function} Shortcut for createDomNode function
+            client = helpers.client,                                // @type {object} Shortcut for client functions
+            privateAppendedCss = [],                                // @type {array} Storage for appended css files
+            privateAppendedJs = [],                                 // @type {array} Storage for appended js files
+            privateAppendedImg = [],                                // @type {array} Storage for appended img files
+            privateAppendedHtml = [],                               // @type {array} Storage for appended html files
+            headNode = document.getElementsByTagName('head')[0];    // @type {object} The html dom head object
 
 
         return {
@@ -375,8 +375,10 @@
 
     /**
      * global export
+     *
+     * @export
      */
-    app.helpers.append = append;
+    app.namespace('helpers.append', append);
 
 
 }(document, window.app || {})); // immediatly invoke function
