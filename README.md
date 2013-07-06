@@ -5,7 +5,7 @@
 
 This javascript functions are demonstrating the possibility of client side caching via javascript and html5 storage apis. Page resources like images, javascript files, stylesheets and html content could be saved locally in the users browser. On subsequent page views these resources will be taken from cache and won't be won't loaded via network. 
 
-The given resources will be appended to the dom automatically in case of javascript and stylesheet files. Your are also able to append data to a specific element on the page, to load e.g. images from cache.
+The given resources will be appended to the dom automatically in case of javascript and stylesheet files. You are also able to append data to a specific element on the page, to load e.g. images from cache.
 
 ### In detail
 
@@ -83,7 +83,8 @@ Be sure that you initialize the cache after the window and it's objects are load
     
             app.cacheLoad([
             	{url: "css/app.css", type: "css"},
-            	{url: "js/plugin.js", type: "js"}
+            	{url: "js/lib.js", type: "js"},
+            	{url: "js/plugin.js", type: "js", group: 1}
         	], function () {
             	// resources loaded
         	});
@@ -105,20 +106,16 @@ The offline application cache differs from the usage of the other storage adapte
 You can append to resource data to dom element. This can be used for e.g. to load images and html files and append the result to a given element on the page.
 
 			// load page images
-            controller.load([
+            app.cacheLoad([
                 {url: "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
                 {url: "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
                 {url: "img/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
-            ], function () {
-                // images loaded
-            });
+            ]);
 
             // load html
-            controller.load([
+            app.cacheLoad([
                 {url: "ajax.html", type: "html", node: {id: "ajax"}}
-            ], function () {
-                // html loaded
-            });
+            ]);
      
 #### Resource options:
         {
