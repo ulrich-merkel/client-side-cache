@@ -46,6 +46,7 @@ The main logic for handling the cache is listed in the cache controller _/cache/
 It is recommended that you combine all the single files into one and minimize the combined file. There is already a minified and combined version named __cache.min.js__ in the _cache/_ directory included.
 
 ### Sample html code
+Append the _cache.min.js_ file just before the closing body tag. The application cache needs the manifest attribute on the html element and expects a valid path to the manifest file, if you want to use this storage adapter.
 
 	<!doctype html>
 	<html class="no-js" lang="de" manifest="cache.manifest">
@@ -55,18 +56,16 @@ It is recommended that you combine all the single files into one and minimize th
     </head>
   
     <body>
-
 		...
-
 		
-		<script src="js/_app/cache.min.js" type="text/javascript"></script>
+		<script src="js/cache.min.js" type="text/javascript"></script>
 		<script>
 			// initialize resources to be cached
 		</script>
     </body>
 	</html>
 
-The application cache needs the manifest attribute on the html element and expects a valid path to the manifest file.
+
 
 ### Cache initializing
 
@@ -118,6 +117,8 @@ You can append to resource data to dom element. This can be used for e.g. to loa
             ]);
      
 #### Resource options:
+There are several options you can use to specify a resource. This can be useful to e.g. handle lifetimes and loading order.
+
         {
         	/**
         	 * @type {string} url The required url of the resource
@@ -146,9 +147,11 @@ You can append to resource data to dom element. This can be used for e.g. to loa
         	
         	/**
         	 * @type {string|integer} lastmod The optional lastmod 
-        	 * timestamp of the resource, used to mark a resource to be updated
+        	 * timestamp of the resource, used to mark a resource to be updated       
+        	 * if not given to current timestamp via new Date().getTime() is used
+        	 * the first time a resource is created
         	 */
-        	lastmod: new Date().getTime(),
+       		lastmod: '',
         	
         	/**
         	 * @type {string|integer} lifetime The optional lifetime 
