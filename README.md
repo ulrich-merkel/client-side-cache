@@ -17,44 +17,40 @@ The offline application cache differs from the usage of the other four. Due to i
 
 ## Usage
 ### Demo
-If you just want to see the demo, open the generated index.html */export/index.html* file in your browser. You need to run a webserver for the test page or run the middleman server to make shure the ajax calls are working. The test page is generated with middleman app - if you want to edit the source files you need to install this ruby application or you combine the needed files javascript with any other tool or manually.
+If you just want to see the demo, open the generated index.html */demo/index.html* file in your browser. You need to run a webserver for the test page or run the middleman server to make shure the ajax calls are working. The test page is generated with middleman app - if you want to edit the source files you need to install this ruby application or you combine the needed files javascript with any other tool or manually.
 
 ### Sample html code
 There is a minified and combined version of the functions you need included in the js directory named __cache.min.js__. Append the _cache.min.js_ file just before the closing body tag. The application cache needs the manifest attribute on the html element and expects a valid path to the manifest file, if you want to use this storage adapter.
 
-	<!doctype html>
-	<html manifest="cache.manifest">
-    <head>
-        <meta charset="utf-8">
-        <title>Client side caching</title>
-    </head>
-  
-    <body>
-		...
-		
-		<script src="js/cache.min.js" type="text/javascript"></script>
-		<script>
-			// initialize resources to be cached
-		</script>
-    </body>
-	</html>
+		<!doctype html>
+		<html manifest="cache.manifest">
+    	<head>
+        	<meta charset="utf-8">
+        	<title>Client side caching</title>
+    	</head>
+    	<body>
+			...
+			<script src="js/cache.min.js" type="text/javascript"></script>
+			<script>
+				// initialize resources to be cached
+			</script>
+    	</body>
+		</html>
 
 
 
 ### Cache initializing
 
-An interface to load resources is given via the __app.cacheLoad(resources, callback)__ function. It expects as the first parameter the resources array and the second parameter is the optional callback function after they've been loaded.
+An interface to load resources is given via the __app.cache.load(resources, callback)__ function. It expects as the first parameter the resources array and the second parameter is the optional callback function after they've been loaded.
 
 #### Basic example:
-Be sure that you initialize the cache after the window and it's objects are loaded. When the window is ready you can make calls for the _app.cacheLoad(resources, callback)_ function to get data.
+Be sure that you initialize the cache after the window and it's objects are loaded. When the window is ready you can make calls for the _app.cache.load(resources, callback)_ function to get data.
 
-    (function (window, app, undefined) {
-        'use strict';
    
         // load additional resources on window load
         window.addEventListener('load', function () {
     
-            app.cacheLoad([
+            app.cache.load([
             	{url: "css/app.css", type: "css"},
             	{url: "js/lib.js", type: "js"},
             	{url: "js/plugin.js", type: "js", group: 1}
@@ -64,7 +60,7 @@ Be sure that you initialize the cache after the window and it's objects are load
     
         });
     
-    }(window, window.app || {}));
+ 
 
 #### Basic html example code with cache initializing:
 This is a combined example how you can initialize local caching in your html file:
@@ -75,15 +71,13 @@ This is a combined example how you can initialize local caching in your html fil
        		<meta charset="utf-8">
         	<title>Client side caching</title>
     	</head>
-  
    	 	<body>
 			...
-		
 			<script src="js/cache.min.js" type="text/javascript"></script>
 			<script>
 				// load additional resources on window load
         		window.addEventListener('load', function () {
-            		app.cacheLoad([
+            		app.cache.load([
             			{url: "css/app.css", type: "css"},
             			{url: "js/lib.js", type: "js"},
             			{url: "js/plugin.js", type: "js", group: 1}
@@ -92,14 +86,16 @@ This is a combined example how you can initialize local caching in your html fil
 			</script>
     	</body>
 		</html>
+	
+
 #### Offline application cache initializing:
 The offline application cache differs from the usage of the other storage adapter. Due to it's different javascript api and idea of how to store data locally, you are just able to listen to the events this kind of storage fires. You can use this adapter to e.g. display a loading bar or listen for updates.
 
-        ...
-        app.cacheLoad('applicationCache', function () {
+
+        app.cache.load('applicationCache', function () {
             // do something when application cache is loaded
         });
-        ...
+ 
    
 You will need to define the resources you want to be offline cached in a separate manifest file. Make sure you reference the manifest attribute on the html dom node to a valid __cache.manifest__ file. The callback function will be fired on _cached_, _updateready_, _obsolete_ and _idle_ events. So you know when the application cache is ready.
 
@@ -135,85 +131,77 @@ Below you will find a sample cache manifest file:
 You can append to resource data to a dom element on the page. This can be used for example to load images and html files and append the result to a given element to display the data.
 
 		// load images
-        app.cacheLoad([
+        app.cache.load([
         	{url: "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
        	    {url: "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
             {url: "img/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
         ]);
 
         // load html
-        app.cacheLoad([
+        app.cache.load([
             {url: "ajax.html", type: "html", node: {id: "ajax"}}
         ]);
-      
+     
+#### Storing custom data:
+Normally the resource data get's loaded via xhr if the resource is created or needs an update. But you can also define custom data strings to be stored. Make sure the ajax option is set to false and use a unique name for the url option, because this value will be used as the key for storing and retrieving data.
+
+         // load custom data
+         app.cache.load([
+            {url: "css/test.css", type: "css", data: "p{color:#f00;}", ajax: false}
+        ]);
+
 #### Chaining:
 Due to the cache interface api you are allowed to call the app cache initializing functions via chaining: 
 
 		// load resources via chaining
-   	    app.cacheLoad([
+   	    app.cache.load([
             {url: "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
             {url: "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
             {url: "img/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
-        ], function () {
-           	// images 1 loaded
-        }).cacheLoad([
+        ]).load([
             {url: "img/954x600/test-1.jpg", type: "img", node: {id: "image-4"}},
             {url: "img/954x600/test-2.jpg", type: "img", node: {id: "image-5"}},
        	    {url: "img/954x600/test-3.jpg", type: "img", node: {id: "image-6"}}
-        ]).cacheLoad([
+        ]).load([
             {url: "img/1280x220/test-1.jpg", type: "img", node: {id: "image-7"}},
             {url: "img/1280x220/test-2.jpg", type: "img", node: {id: "image-8"}},
             {url: "img/1280x220/test-3.jpg", type: "img", node: {id: "image-9"}}
-        ], function () {
-       		// images 3 loaded
-        });
+        ]);
      
 #### Resource options:
 There are several options you can use to specify a resource. This can be useful to handle lifetimes, appending data to dom or the loading order.
 
         {
         	/**
-        	 * @type {string} url The required url of the resource
+        	 * @type {boolean} ajax Load resources via xhr or not
         	 */
-        	url: 'resource.css',
-       
-        	/**
-        	 * @type {string} type The required content type 
-        	 * of the resource (css, js, img, html)
-        	 */
-        	type: 'css',
-        	
-        	/**
-        	 * @type {string|integer} group The optional loading 
+        	ajax: true,
+     
+     		/**
+        	 * @type {integer} group The optional loading 
         	 * group of the resource, this is used for handling dependencies,
         	 * a following group begins to start loading when the previous has finished,
         	 * default value is 0
         	 */
         	group: 0,
-        
-        	/**
-        	 * @type {string|integer} version The optional version 
-        	 * number of the resource, used to mark a resource to be updated
-        	 */
-        	version: 1.0,
         	
         	/**
-        	 * @type {string|integer} lastmod The optional lastmod 
+        	 * @type {timestamp} lastmod The optional lastmod 
         	 * timestamp of the resource, used to mark a resource to be updated       
         	 * if not given the current timestamp via new Date().getTime() is used
         	 * the first time a resource is created
         	 */
-       		lastmod: '',
+       		lastmod: new Date().getTime(),
         	
         	/**
-        	 * @type {string|integer} lifetime The optional lifetime 
+        	 * @type {integer} lifetime The optional lifetime 
         	 * time in milliseconds of the resource, used to mark a resource 
         	 * to be updated after a given period if time, if set to -1 the 
         	 * resource will not expires via lastmod
         	 */
         	lifetime: 10000,
-      
-      		/**
+       
+       		/**
       		 * @type {object} node Container for additional dom node informations
       		 */
       		node: {
@@ -224,15 +212,34 @@ There are several options you can use to specify a resource. This can be useful 
       			id: '',
       			
       			/**
-      			 * @type {string} node.dom The current dom element to append the 
+      			 * @type {object} node.dom The current dom element to append the 
       			 * data to
       			 */
       			dom: null
       		}
+      	
+        	/**
+        	 * @type {string} type The required content type 
+        	 * of the resource (css, js, img, html)
+        	 */
+        	type: 'css',
+        	
+        	/**
+        	 * @type {string} url The required url of the resource, will be used as 
+        	 * the key for storing and retrieving data
+        	 */
+        	url: 'resource.css',
+        
+        	/**
+        	 * @type {float} version The optional version 
+        	 * number of the resource, used to mark a resource to be updated
+        	 */
+        	version: 1.0,
+ 
         }
  
 ### Javascript source files
-There is no external library neccessary for the code to work. The logic is split into several functions and files under the global namespace _app_. If you want to modify the source code, the files you will need are listed in */middleman/source/js/_app/cache* and  */middleman/source/js/_app/helpers*. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (make sure you include the helpers first).
+There is no external library neccessary for the code to work. The logic is split into several functions and files under the global namespace _app_. If you want to modify the source code, the files you will need are listed in */source/source/js/_app/cache* and  */source/source/js/_app/helpers*. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (make sure you include the helpers first). The correspondig javascript namespace is handled by helper functions.
 
 ##### Helpers
 - _app/helpers/namespace.js
@@ -265,7 +272,7 @@ If you don't need one or some of the storage adapters _/cache/storage/adapter/..
 It is recommended that you combine all the single files into one and minimize the combined file. I've included lot's of comments in the source files to make the code better readable which will be removed while minification. There is already a minified and combined version named __cache.min.js__ in the _js/_ directory included. This file includes all storage adapters and cache files (excluding the cache initializing) you will need to use the caching functions.
 
 ##### Polyfills
-I'm providing some polyfills for different storage adapters. If you want to support older or non-standard browsers, include the given polyfill files listed in _/cache/storage/adapter_. Be sure you include the polyfill before you try to access the wanted storage adapter. Because webStorage is the mostly supported storage adapter, nearly all advanced polyfills fall back to this storage type. So if you want to support a wide range if browsers, make suke you included the webStoragePolyfill.js.
+I'm providing a polyfill for the webStorage adapter. If you want to support older or non-standard browsers, include the given polyfill file listed in _/cache/storage/adapter_. Be sure you include the polyfill before you try to access the standard storage adapter. Because webStorage is the mostly supported storage adapter and if you want to support a wide range of older browsers, make suke you included the webStoragePolyfill.js.
 
 - _app/cache/storage/adapter/webStoragePolyfill.js
 - _app/cache/storage/adapter/webStorage.js
