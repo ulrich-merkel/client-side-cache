@@ -384,13 +384,13 @@
                      * also, changeVersion, the method to change the database version, is not fully supported in Webkit.
                      * it works in Chrome and Opera, but not in Safari or Webkit. 
                      */
-                    self.adapter = window.openDatabase(self.dbName, '', self.dbDescription, self.dbSize);
+                    self.adapter = adapter = window.openDatabase(self.dbName, '', self.dbDescription, self.dbSize);
 
                     // check for new version
-                    if (String(self.adapter.version) !== String(self.dbVersion) && !!self.adapter.changeVersion && typeof self.adapter.changeVersion === 'function') {
+                    if (String(adapter.version) !== String(self.dbVersion) && !!adapter.changeVersion && typeof adapter.changeVersion === 'function') {
                         try {
-                            self.adapter.changeVersion(
-                                self.adapter.version,
+                            adapter.changeVersion(
+                                adapter.version,
                                 self.dbVersion,
                                 changeVersionTransaction,
                                 changeVersionError
@@ -402,8 +402,8 @@
                     } else {
 
                         // reopen database with the correct version number to avoid errors
-                        self.adapter = window.openDatabase(self.dbName, self.dbVersion, self.dbDescription, self.dbSize);
-                        createTableIfNotExists(self.adapter);
+                        adapter = window.openDatabase(self.dbName, self.dbVersion, self.dbDescription, self.dbSize);
+                        createTableIfNotExists(adapter);
 
                     }
 

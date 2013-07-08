@@ -1,6 +1,4 @@
 /*global window*/
-/*global document*/
-/*global navigator*/
 
 /**
  * app.helpers.queue
@@ -20,7 +18,7 @@
  * - 0.1 basic functions and plugin structur
  * 
  */
-(function (window, navigator, app, undefined) {
+(function (app, undefined) {
     'use strict';
 
     /**
@@ -31,7 +29,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window, navigator and app are passed through as local
+     * app is passed through as local
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -39,43 +37,65 @@
      */
 
 
+     /**
+     * queue constructor
+     *
+     * @constructor
+     */
     function Queue() {
 
-        // store your callbacks
-        this._methods = [];
+        /**
+         * @type {array} [this.methods=[]] Store your callbacks
+         */
+        this.methods = [];
 
-        // keep a reference to your response
+        /**
+         * @type {object} [this.response=null] Keep a reference to your response
+         */
         this.response = null;
 
-        // all queues start off unflushed
-        this._flushed = false;
+        /**
+         * @type {boolean} [this.flushed=false] All queues start off unflushed
+         */
+        this.flushed = false;
 
     }
 
-
+   /**
+     * queue methods
+     *
+     * @interface
+     */
     Queue.prototype = {
 
-        // adds callbacks to your queue
-
+        /**
+         * add queue function
+         *
+         * @param {function} fn
+         */
         add: function (fn) {
 
             // if the queue had been flushed, return immediately
-            if (this._flushed) {
+            if (this.flushed) {
                 fn(this.response);
 
             // otherwise push it on the queue
             } else {
-                this._methods.push(fn);
+                this.methods.push(fn);
             }
 
         },
 
 
-
-        flush: function(response) {
+        /**
+         * call all queued functions
+         *
+         * @param {} response
+         */
+        flush: function (response) {
 
             // note: flush only ever happens once
-            if (this._flushed) {
+            if (this.flushed) {
                 return;
             }
 
@@ -83,23 +103,24 @@
             this.response = response;
 
             // mark that it's been flushed
-            this._flushed = true;
+            this.flushed = true;
 
             // shift 'em out and call 'em back
-            while (this._methods[0]) {
-                this._methods.shift()(response);
+            while (this.methods[0]) {
+                this.methods.shift()(response);
             }
 
         }
 
     };
 
+
     /**
-     * make helper available via app.helpers.client namespace
+     * make helper available via app.helpers.queue namespace
      *
      * @export
      */
     app.namespace('helpers.queue', Queue);
 
 
-}(window, navigator, window.app || {}));
+}(window.app || {}));

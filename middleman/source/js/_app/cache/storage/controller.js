@@ -96,6 +96,7 @@
         /**
          * @type {object} The defaults for a single resource
          *
+         * this config could be overridden by the passed in resource parameters
          */
         resourceDefaults = {
             lifetime: 10000,                                    // @type {integer} [resourceDefaults.lifetime=10000] Default lifetime time in milliseconds (10000 ca 10sec)
@@ -104,6 +105,13 @@
             type: 'css',                                        // @type {string} [resourceDefaults.type=css] Default resource type
             version: 1.0                                        // @type {float} [resourceDefaults.version=1.0] Default resource version
         };
+
+
+    /**
+     * -------------------------------------------
+     * helper functions for converting data
+     * -------------------------------------------
+     */
 
 
     /**
@@ -133,9 +141,9 @@
         /**
          * avoid console errors if the resource loading parameters changed
          * 
-         * there is a strange behaviour if the resource parameters changed while
-         * calling load and the resource is stored in cache, so we have to use
-         * try/catch here
+         * there is a strange behaviour in some browsers if the resource parameters 
+         * changed while calling load and the resource is stored in cache, so we 
+         * have to use try/catch here
          */
         try {
             result = utils.jsonToObject(string);
@@ -262,6 +270,13 @@
 
 
     /**
+     * -------------------------------------------
+     * helper functions for storage adapters
+     * -------------------------------------------
+     */
+
+
+    /**
      * check if resource is cachable due to adapter config
      *
      * @param {string} resourceType The resource type (css, js, html, ...)
@@ -304,7 +319,7 @@
         storageType = storageAdapters[0].type;
         log('[' + controllerType + ' controller] Testing for storage adapter type: ' + storageType);
 
-        if (appCacheStorageAdapter[storageType]) {
+        if (!!appCacheStorageAdapter[storageType]) {
             adapter = new appCacheStorageAdapter[storageType](adapterDefaults);
         } else {
             // recursiv call
@@ -416,7 +431,14 @@
 
 
     /**
-     * storage constructor
+     * -------------------------------------------
+     * storage controller
+     * -------------------------------------------
+     */
+
+
+    /**
+     * storage controller constructor
      *
      * @constructor
      * @param {function} callback The callback function
@@ -457,7 +479,7 @@
 
 
     /**
-     * storage methods
+     * storage controller methods
      *
      * @interface
      */
@@ -624,7 +646,7 @@
                         try {
                             // create storage entry
                             self.adapter.update(key, content, function (success) {
-                                if (success) {
+                                if (!!success) {
                                     log('[' + controllerType + ' controller] Update existing resource in storage adapter: type ' + type + ', url ' + url);
                                     callback(resource);
                                 } else {
@@ -734,11 +756,11 @@
                     if (parameters.type) {
                         adapterDefaults.type = storageType = String(parameters.type);
                     }
-                    if (parameters.version) {
-                        adapterDefaults.version = parameters.version;
-                    }
                     if (parameters.offline) {
-                        adapterDefaults.offline = parameters.offline;
+                        adapterDefaults.offline = Boolean(parameters.offline);
+                    }
+                    if (parameters.version) {
+                        adapterDefaults.version = String(parameters.version);
                     }
                 }
 

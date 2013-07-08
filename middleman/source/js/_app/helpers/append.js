@@ -92,6 +92,7 @@
             headNode = document.getElementsByTagName('head')[0];    // @type {object} The html dom head object
 
 
+        // @interface
         return {
 
             /**

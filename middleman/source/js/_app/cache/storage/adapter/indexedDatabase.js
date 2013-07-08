@@ -389,11 +389,11 @@
                      */
                     try {
                         request = windowObject.open(dbName, self.dbVersion);
-                    } catch(e) {
+                    } catch (e) {
                         log(e);
                         request = windowObject.open(dbName);
                     }
-                    
+
                 } else {
                     request = windowObject.open(dbName);
                 }

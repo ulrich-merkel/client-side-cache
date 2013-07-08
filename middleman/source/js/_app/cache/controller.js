@@ -12,11 +12,12 @@
  * - handle logic to check for outdated data
  * 
  * @author Ulrich Merkel (hello@ulrichmerkel.com)
- * @version 0.1.3
+ * @version 0.1.4
  *
  * @namespace app
  *
  * @changelog
+ * - 0.1.4
  * - 0.1.3 bug fix check for outdated data
  * - 0.1.2 resource attrib check on loadResource function added
  * - 0.1.1 bug fix load resource (item.lifetime is set check added)
@@ -61,18 +62,32 @@
 
 
     /**
-     * cache controller
+     * cache controller constructor
      *
-     * implements the singleton design pattern
-     *
+     * @constructor
+     * @param {function} callback The callback function
+     * @param {object} parameters The optional parameters for the init function
      */
-    controller = {
+    function Controller(callback, parameters) {
 
         /**
          * @type {object} The storage controller instance
          */
-        storage: null,
+        this.storage = null;
 
+
+        // run init function
+        this.init(callback, parameters);
+
+    }
+
+
+    /**
+     * cache controller methods
+     *
+     * @interface
+     */
+    Controller.prototype = Controller.fn = {
 
         /**
          * load multiple resources
@@ -88,8 +103,8 @@
 
 
                 /**
-                 * functions are also saved in local vars rather than
-                 * saving them as instance functions (via this) for
+                 * load functions are also saved in local vars rather than
+                 * saving them as controller instance functions (via this) for
                  * faster access and better compression results
                  */
 
@@ -188,7 +203,10 @@
                             }
                         },
                         resourceDefaults = self.storage.resourceDefaults,
-                        lastmodCheck = true;
+                        lastmodCheck = true,
+                        itemLifetime,
+                        itemVersion,
+                        resourceVersion;
 
 
                     // check optional resource attributes and set defaults
@@ -226,16 +244,19 @@
                         /**
                          * check for outdated data
                          *
-                         * if item.lifetime is set to '-1' the resource will never expiring
-                         * also the item.lastmod and cached resource.lastmod (and item.version/resource.version) needs to be the same
-                         * finally there is a check if the item is expired using the current timestamp
+                         * if item.lifetime is set to '-1' the resource will never expires (if lastmod and version stay the same)
+                         * 
+                         * if item.lifetime isn't set to '-1' the item.lastmod and cached resource.lastmod (and item.version/resource.version)
+                         * needs to be the same and finally there is a check if the item is expired using the current timestamp
                          */
-                        if (parseInt(item.lifetime, 10) !== -1 && lastmodCheck && resource.version === item.version && item.expires > now) {
+                        itemLifetime = parseInt(item.lifetime, 10);
+                        itemVersion = item.version;
+                        resourceVersion = resource.version;
+
+                        if ((itemLifetime !== -1 && lastmodCheck && resourceVersion === itemVersion && item.expires > now) ||
+                            (itemLifetime === -1 && lastmodCheck && resourceVersion === itemVersion)) {
                             log('[' + controllerType + ' controller] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
                             data = item.data;
-                        } else if (parseInt(item.lifetime, 10) === -1 && lastmodCheck && resource.version === item.version) {
-                            log('[' + controllerType + ' controller] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
-                            data = item.data; 
                         } else {
                             log('[' + controllerType + ' controller] Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
                             self.storage.update(resource, callback);
@@ -290,7 +311,7 @@
                  *
                  * @returns {array} Sorted array with resource objects
                  */
-                groupResources = function(resources) {
+                groupResources = function (resources) {
 
                     // init local vars
                     var result = [],
@@ -411,7 +432,7 @@
      *
      * @export
      */
-    app.namespace('cache.controller', controller);
+    app.namespace('cache.controller', Controller);
 
 
 }(window, document, window.app || {})); // immediatly invoke function

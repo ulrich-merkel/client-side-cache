@@ -76,7 +76,7 @@
         app.cacheLoad([
             {url: baseUrl + "css/app.css", type: "css"},
             {url: baseUrl + "js/lib.js", type: "js"},
-            {url: baseUrl + "js/app.js", type: "js", group: 1, lifetime: -1}
+            {url: baseUrl + "js/app.js", type: "js", group: 1}
         ], function () {
             logTimerEnd('Page css and js files loaded');
             loadedCallback();

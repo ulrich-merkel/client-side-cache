@@ -158,7 +158,7 @@
             // check for global var
             if (null === boolIsSupported) {
                 try {
-                    boolIsSupported = !!window[type].getItem;
+                    boolIsSupported = !!window[type] && !!window[type].getItem;
                 } catch (e) {
                     log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
                     boolIsSupported = false;

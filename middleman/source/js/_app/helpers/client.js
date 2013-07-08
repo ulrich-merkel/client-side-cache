@@ -209,7 +209,8 @@
         /**
          * detect mobile browsers
          *
-         * @see:http://detectmobilebrowsers.com/
+         * @see
+         * - http://detectmobilebrowsers.com/
          */
         function checkIfIsMobileBrower() {
             privateIsMobileBrowser = false;
@@ -265,6 +266,8 @@
 
         /**
          * public functions
+         *
+         * @interface
          */
         return {
 

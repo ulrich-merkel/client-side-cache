@@ -1,4 +1,4 @@
-/*jslint browser: true, devel: true */
+/*jslint browser: true, devel: true, continue: true, regexp: true  */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
 /*global window*/
 /*global document*/
@@ -58,6 +58,7 @@
             isTime = (window.console !== undefined && console.time !== undefined && console.timeEnd !== undefined),
             emptyArray = [];
 
+        // @interface
         return {
 
             /**
@@ -282,7 +283,7 @@
              * @param {function} callback The callback after success
              * @param {string} postData The optional post request data to send
              */
-            xhr: function(url, callback, postData) {
+            xhr: function (url, callback, postData) {
 
                 // init local function vars
                 var reqObject = utils.getXhr(),
@@ -534,7 +535,7 @@
              *
              * @returns {boolean} Whether the element has the class (return true) or not (return false)
              */
-            hasClass: function(elem, className) {
+            hasClass: function (elem, className) {
                 return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
             }
 

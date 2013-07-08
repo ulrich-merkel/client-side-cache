@@ -92,7 +92,7 @@
     }
 
 
-     /**
+    /**
      * instance methods
      *
      * Adapter.fn is just a shortcut for Adapter.prototype
@@ -112,7 +112,7 @@
             if (null === boolIsSupported) {
                 boolIsSupported = !!window.applicationCache && !!htmlNode.getAttribute('manifest');
                 if (!boolIsSupported) {
-                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
+                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported or there is no manifest html attribute');
                 }
             }
 

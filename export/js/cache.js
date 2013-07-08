@@ -53,7 +53,7 @@
         if (name) {
 
             // convert name param to string
-            name = name + '';
+            name = String(name);
 
             // init loop vars
             var names = name.split('.'),
@@ -89,12 +89,12 @@
 
         return false;
 
-    };  
+    }
 
 
     // init app namespaces
-    namespace("namespace", namespace);
-
+    //namespace("namespace", namespace);
+    app.namespace = namespace;
 
     /**
      * export app to globals
@@ -110,8 +110,6 @@
 
 
 /*global window*/
-/*global document*/
-/*global navigator*/
 
 /**
  * app.helpers.queue
@@ -132,7 +130,7 @@
  * 
  */
 
-(function (window, navigator, app, undefined) {
+(function (app, undefined) {
     'use strict';
 
     /**
@@ -143,7 +141,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window, navigator and app are passed through as local
+     * app is passed through as local
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -151,43 +149,65 @@
      */
 
 
+     /**
+     * queue constructor
+     *
+     * @constructor
+     */
     function Queue() {
 
-        // store your callbacks
-        this._methods = [];
+        /**
+         * @type {array} [this.methods=[]] Store your callbacks
+         */
+        this.methods = [];
 
-        // keep a reference to your response
+        /**
+         * @type {object} [this.response=null] Keep a reference to your response
+         */
         this.response = null;
 
-        // all queues start off unflushed
-        this._flushed = false;
+        /**
+         * @type {boolean} [this.flushed=false] All queues start off unflushed
+         */
+        this.flushed = false;
 
     }
 
-
+   /**
+     * queue methods
+     *
+     * @interface
+     */
     Queue.prototype = {
 
-        // adds callbacks to your queue
-
+        /**
+         * add queue function
+         *
+         * @param {function} fn
+         */
         add: function (fn) {
 
             // if the queue had been flushed, return immediately
-            if (this._flushed) {
+            if (this.flushed) {
                 fn(this.response);
 
             // otherwise push it on the queue
             } else {
-                this._methods.push(fn);
+                this.methods.push(fn);
             }
 
         },
 
 
-
-        flush: function(response) {
+        /**
+         * call all queued functions
+         *
+         * @param {} response
+         */
+        flush: function (response) {
 
             // note: flush only ever happens once
-            if (this._flushed) {
+            if (this.flushed) {
                 return;
             }
 
@@ -195,27 +215,28 @@
             this.response = response;
 
             // mark that it's been flushed
-            this._flushed = true;
+            this.flushed = true;
 
             // shift 'em out and call 'em back
-            while (this._methods[0]) {
-                this._methods.shift()(response);
+            while (this.methods[0]) {
+                this.methods.shift()(response);
             }
 
         }
 
     };
 
+
     /**
-     * make helper available via app.helpers.client namespace
+     * make helper available via app.helpers.queue namespace
      *
      * @export
      */
     app.namespace('helpers.queue', Queue);
 
 
-}(window, navigator, window.app || {}));
-/*jslint browser: true, devel: true */
+}(window.app || {}));
+/*jslint browser: true, devel: true, continue: true, regexp: true  */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
 /*global window*/
 /*global document*/
@@ -500,7 +521,7 @@
              * @param {function} callback The callback after success
              * @param {string} postData The optional post request data to send
              */
-            xhr: function(url, callback, postData) {
+            xhr: function (url, callback, postData) {
 
                 // init local function vars
                 var reqObject = utils.getXhr(),
@@ -752,7 +773,7 @@
              *
              * @returns {boolean} Whether the element has the class (return true) or not (return false)
              */
-            hasClass: function(elem, className) {
+            hasClass: function (elem, className) {
                 return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
             }
 
@@ -1936,10 +1957,6 @@
                         } catch (e) {
                             errorHandler(e);
                         }
-                        
-
-                        
-                        
 
                     }, errorHandler);
 
@@ -2479,11 +2496,11 @@
                      */
                     try {
                         request = windowObject.open(dbName, self.dbVersion);
-                    } catch(e) {
+                    } catch (e) {
                         log(e);
                         request = windowObject.open(dbName);
                     }
-                    
+
                 } else {
                     request = windowObject.open(dbName);
                 }
@@ -4874,7 +4891,7 @@
                             data = item.data;
                         } else if (parseInt(item.lifetime, 10) === -1 && lastmodCheck && resource.version === item.version) {
                             log('[' + controllerType + ' controller] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
-                            data = item.data; 
+                            data = item.data;
                         } else {
                             log('[' + controllerType + ' controller] Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
                             self.storage.update(resource, callback);
@@ -4929,7 +4946,7 @@
                  *
                  * @returns {array} Sorted array with resource objects
                  */
-                groupResources = function(resources) {
+                groupResources = function (resources) {
 
                     // init local vars
                     var result = [],
@@ -5101,9 +5118,8 @@
 
     // module vars
     var controller = app.cache.controller,                              // @type {object} Shortcut for cache controller public functions and vars
-        helpers = app.helpers,                                          // @type {object} Shortcut for app.helpers
         isArray = app.helpers.utils.isArray,                            // @type {function} Shortcut for isArray function
-        queue = new app.helpers.queue,                                  // @type {function} Shortcut for queuing functions
+        queue = new app.helpers.queue(),                                // @type {function} Shortcut for queuing functions
         calls = 0,                                                      // @type {integer} Counter for cacheLoad calls
         controllerInterface,                                            // @type {function} Interface function
         storage = null;                                                 // @type {object} Storage instance
@@ -5115,31 +5131,29 @@
      */
     controllerInterface = function (resources, callback, parameters) {
 
-        var self = this,
+        /**
+         * call the according load function if the storage
+         * is initialized
+         */
+        var loadResources = function (queueResources, queueCallback, queueParameters) {
 
-            /**
-             * call the according load function if the storage
-             * is initialized
-             */
-            loadResources = function (queueResources, queueCallback, queueParameters) {
+            if (isArray(queueResources)) {
 
-                if (isArray(queueResources)) {
+                // handle resource loading from cache
+                controller.load(queueResources, queueCallback);
 
-                    // handle resource loading from cache
-                    controller.load(queueResources, queueCallback);
+            } else if (queueResources === 'applicationCache') {
 
-                } else if (queueResources === 'applicationCache') {
-
-                    // handle application cache loading
-                    if (storage.appCacheAdapter) {
-                        storage.appCacheAdapter.open(queueCallback);
-                    } else {
-                        queueCallback();
-                    }
-
+                // handle application cache loading
+                if (storage.appCacheAdapter) {
+                    storage.appCacheAdapter.open(queueCallback);
+                } else {
+                    queueCallback();
                 }
 
-            };
+            }
+
+        };
 
 
         // check for storage
@@ -5159,7 +5173,7 @@
                     storage = storageResult;
                     queue.flush(this);
 
-                }, parameters); 
+                }, parameters);
             }
 
         } else {

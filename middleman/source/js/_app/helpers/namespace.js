@@ -52,7 +52,7 @@
         if (name) {
 
             // convert name param to string
-            name = name + '';
+            name = String(name);
 
             // init loop vars
             var names = name.split('.'),
@@ -88,12 +88,12 @@
 
         return false;
 
-    };  
+    }
 
 
     // init app namespaces
-    namespace("namespace", namespace);
-
+    //namespace("namespace", namespace);
+    app.namespace = namespace;
 
     /**
      * export app to globals

@@ -161,8 +161,6 @@
     }
 
 
-
-
     /**
      * the actual instance constructor
      * directly called after new Adapter()
@@ -247,7 +245,7 @@
                                 self.remove('test-item', function () {
                                     log('[' + storageType + ' Adapter] Test resource created and successfully deleted');
                                     callback(adapter);
-                                    return;
+                                    //return;
                                 });
                             } else {
                                 callback(false);
@@ -313,10 +311,6 @@
                         } catch (e) {
                             errorHandler(e);
                         }
-                        
-
-                        
-                        
 
                     }, errorHandler);
 
