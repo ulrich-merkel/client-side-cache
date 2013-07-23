@@ -13,11 +13,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2013
- * @version 0.1.3
+ * @version 0.1.4
  * 
  * @namespace app
  * 
  * @changelog
+ * - 0.1.4 refactoring xhr function
  * - 0.1.3 createDomNode added
  * - 0.1.2 refactoring
  * - 0.1.1 bug fix xhr when trying to read binary data on ie
@@ -285,9 +286,10 @@
              * 
              * @param {string} url The url to load
              * @param {function} callback The callback after success
+             * @param {boolean} async The optional async parameter to load xhr async or sync 
              * @param {string} postData The optional post request data to send
              */
-            xhr: function (url, callback, postData) {
+            xhr: function (url, callback, async, postData) {
 
                 // init local function vars
                 var reqObject = utils.getXhr(),
@@ -297,11 +299,16 @@
                 // if ajax is available
                 if (reqObject) {
 
-                    // check request type and post data
+                    // check request type, async and post data
                     if (postData !== undefined) {
                         reqType = 'POST';
                     } else {
                         postData = null;
+                    }
+                    if (async !== undefined) {
+                        async = async;
+                    } else {
+                        async = true;
                     }
 
                     // listen to results
@@ -347,9 +354,9 @@
                     };
 
                     // open ajax request and listen for events
-                    reqObject.open(reqType, url, true);
+                    reqObject.open(reqType, url, async);
 
-                    // listen to results, onload added for non-standard browers (e.g. camino)
+                    // listen to results, onreadystatechange for ie7+ and onload for others
                     if (reqObject.onreadystatechange !== undefined) {
                         reqObject.onreadystatechange = reqCallback;
                     } else if (reqObject.onload !== undefined) {
@@ -541,8 +548,20 @@
              */
             hasClass: function (elem, className) {
                 return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
-            }
+            },
 
+
+             /**
+             * remove attribute from element
+             * 
+             * @param {object} elem The html object
+             * @param {string} attribute The attribute name
+             *
+             * @returns {string}
+             */
+            getAttribute: function (elem, attribute) {
+                return elem.getAttribute(attribute);
+            }
 
         };
 

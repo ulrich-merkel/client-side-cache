@@ -7,6 +7,14 @@
  * 
  * @description
  * - handle html5 offline application cache
+ * - support:
+ *      - Internet Explorer 10.0 +
+ *      - Firefox 20.0 +
+ *      - Safari 5.1 +
+ *      - Google Crome 17.0 +
+ *      - Opera 12.5 +
+ *      - Maxthon 4.0.5 +
+ *      - iOs 3.2 +
  * 
  * @version 0.1.3
  * @author Ulrich Merkel, 2013
@@ -110,7 +118,7 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                boolIsSupported = !!window.applicationCache && !!htmlNode.getAttribute('manifest');
+                boolIsSupported = !!window.applicationCache && !!utils.getAttribute(htmlNode, 'manifest');
                 if (!boolIsSupported) {
                     log('[' + storageType + ' Adapter] ' + storageType + ' is not supported or there is no manifest html attribute');
                 }

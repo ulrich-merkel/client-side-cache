@@ -86,9 +86,7 @@
         // load css and js
         app.cache.load([
             {url: baseUrl + "css/test.css", type: "css", data: "html p{color:#1f357d;}", ajax: false}
-        ], function () {
-            console.log("test loaded");
-        });
+        ]);
 
 
         // load images
@@ -107,7 +105,7 @@
         ], function () {
             logTimerEnd('Html loaded');
         });
-
+console.log(window.performance);
 
         // load application cache
         app.cache.load('applicationCache', function () {

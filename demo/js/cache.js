@@ -111,7 +111,7 @@
  * app.helpers.queue
  * 
  * @description
- * - 
+ * - handle async interfaces
  * 
  * @author Ulrich Merkel, 2013
  * @version 0.1
@@ -247,11 +247,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2013
- * @version 0.1.3
+ * @version 0.1.4
  * 
  * @namespace app
  * 
  * @changelog
+ * - 0.1.4 refactoring xhr function
  * - 0.1.3 createDomNode added
  * - 0.1.2 refactoring
  * - 0.1.1 bug fix xhr when trying to read binary data on ie
@@ -520,9 +521,10 @@
              * 
              * @param {string} url The url to load
              * @param {function} callback The callback after success
+             * @param {boolean} async The optional async parameter to load xhr async or sync 
              * @param {string} postData The optional post request data to send
              */
-            xhr: function (url, callback, postData) {
+            xhr: function (url, callback, async, postData) {
 
                 // init local function vars
                 var reqObject = utils.getXhr(),
@@ -532,11 +534,16 @@
                 // if ajax is available
                 if (reqObject) {
 
-                    // check request type and post data
+                    // check request type, async and post data
                     if (postData !== undefined) {
                         reqType = 'POST';
                     } else {
                         postData = null;
+                    }
+                    if (async !== undefined) {
+                        async = async;
+                    } else {
+                        async = true;
                     }
 
                     // listen to results
@@ -582,9 +589,9 @@
                     };
 
                     // open ajax request and listen for events
-                    reqObject.open(reqType, url, true);
+                    reqObject.open(reqType, url, async);
 
-                    // listen to results, onload added for non-standard browers (e.g. camino)
+                    // listen to results, onreadystatechange for ie7+ and onload for others
                     if (reqObject.onreadystatechange !== undefined) {
                         reqObject.onreadystatechange = reqCallback;
                     } else if (reqObject.onload !== undefined) {
@@ -776,8 +783,20 @@
              */
             hasClass: function (elem, className) {
                 return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
-            }
+            },
 
+
+             /**
+             * remove attribute from element
+             * 
+             * @param {object} elem The html object
+             * @param {string} attribute The attribute name
+             *
+             * @returns {string}
+             */
+            getAttribute: function (elem, attribute) {
+                return elem.getAttribute(attribute);
+            }
 
         };
 
@@ -1471,6 +1490,13 @@
 
                     // set sript attributes
                     script.type = 'text/javascript';
+
+                    /**
+                     * scripts that are dynamically created and added to the document are async by default,
+                     * they don’t block rendering and execute as soon as they download.
+                     * 
+                     * we set this value here just to be sure it's async
+                     */
                     script.async = true;
 
                     // add script event listeners when loaded
@@ -1530,7 +1556,7 @@
                         script.src = url;
                     }
 
-                    // check loaded state if file is already loaded
+                    // check state if file is already loaded
                     if (loaded) {
                         privateAppendedJs.push(url);
                         callback();
@@ -1561,7 +1587,7 @@
                 // check for node parameter
                 image = checkNodeParameters(image, node);
 
-                // create empty image object if there is no node param
+                // create empty image placeholder if there is no node param
                 if (!image) {
                     image = new Image();
                 }
@@ -1648,7 +1674,7 @@
     app.namespace('helpers.append', append);
 
 
-}(document, window.app || {})); // immediatly invoke function
+}(document, window.app || {})); // immediatly invoke function, defining global app via loose augmentation
 ;
 /*jslint unparam: false, browser: true, devel: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false */
@@ -1664,6 +1690,9 @@
  *
  * @description
  * - provide a storage api for file system
+ * - support:
+ *      - Google Crome 26.0 +
+ *      - Maxthon 4.0.5 +
  *
  * @version 0.1.2
  * @author Ulrich Merkel, 2013
@@ -2122,6 +2151,13 @@
  *
  * @description
  * - provide a storage api for indexed database
+ * - support:
+ *      - Internet Explorer 10.0 +
+ *      - Firefox 20.0 +
+ *      - Google Crome 17.0 +
+ *      - Opera 12.5 +
+ *      - Maxthon 4.0.5 +
+ *      - Seamonkey 2.15 +
  * 
  * @version 0.1.2
  * @author Ulrich Merkel, 2013
@@ -2591,6 +2627,13 @@
  *
  * @description
  * - provide a storage api for web sql database
+ * - support:
+ *      - Safari 3.1 +
+ *      - Google Crome 4.0 +
+ *      - Opera 10.5 +
+ *      - Maxthon 4.0.5 +
+ *      - iOs 6.1 + (3.2)
+ *      - Android 2.1 +
  *
  * @version 0.1.3
  * @author Ulrich Merkel, 2013
@@ -3085,6 +3128,21 @@
  *
  * @description
  * - provide a storage api for web storage
+ * - support:
+ *      - Internet Explorer 8.0 +
+ *      - Firefox 3.5 +
+ *      - Safari 4.0 +
+ *      - Google Crome 4.0 +
+ *      - Opera 10.5 +
+ *      - Maxthon 4.0.5 +
+ *      - iOs 2.0 +
+ *      - Android 2.0 +
+ *      - Camino 2.1.2 +
+ *      - Fake 1.8 +
+ *      - Omni Web 5.11 +
+ *      - Stainless 0.8 +
+ *      - Seamonkey 2.15 +
+ *      - Sunrise 2.2 +
  * 
  * @version 0.1.4
  * @author Ulrich Merkel, 2013
@@ -3094,7 +3152,7 @@
  * @changelog
  * - 0.1.4 polyfill moved to separate function
  * - 0.1.3 polyfill for globalStorage and ie userdata added
- * - 0.1.2 bug fixes for non-standard browsers, added trying to read item to open function
+ * - 0.1.2 bug fixes for non-standard browsers, trying to read item added to open function
  * - 0.1.1 refactoring, js lint
  * - 0.1 basic functions and structur
  *
@@ -3449,6 +3507,14 @@
  * 
  * @description
  * - handle html5 offline application cache
+ * - support:
+ *      - Internet Explorer 10.0 +
+ *      - Firefox 20.0 +
+ *      - Safari 5.1 +
+ *      - Google Crome 17.0 +
+ *      - Opera 12.5 +
+ *      - Maxthon 4.0.5 +
+ *      - iOs 3.2 +
  * 
  * @version 0.1.3
  * @author Ulrich Merkel, 2013
@@ -3553,7 +3619,7 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                boolIsSupported = !!window.applicationCache && !!htmlNode.getAttribute('manifest');
+                boolIsSupported = !!window.applicationCache && !!utils.getAttribute(htmlNode, 'manifest');
                 if (!boolIsSupported) {
                     log('[' + storageType + ' Adapter] ' + storageType + ' is not supported or there is no manifest html attribute');
                 }
@@ -3934,9 +4000,9 @@
          * which adapter type.
          */
         adapters = [
-            {type: 'fileSystem', css: true, js: true, html: true, img: true },
-            {type: 'indexedDatabase', css: true, js: true, html: true, img: true },
-            {type: 'webSqlDatabase', css: 1, js: 1, html: 1, img: 0 },
+            //{type: 'fileSystem', css: true, js: true, html: true, img: true },
+            //{type: 'indexedDatabase', css: true, js: true, html: true, img: true },
+            //{type: 'webSqlDatabase', css: 1, js: 1, html: 1, img: 0 },
             {type: 'webStorage', css: true, js: true, html: false, img: false }
         ],
 
@@ -4321,22 +4387,22 @@
     function Storage(callback, parameters) {
 
         /**
-         * @type {boolean} [this.isEnabled=true] Enable or disable client side storage
+         * @type {boolean} Enable or disable client side storage
          *
-         * enable or disable client side cache or load resources just
-         * via xhr if this option/parameter is set to false.
+         * load resources just via xhr if
+         * this option is set to false.
          */
         this.isEnabled = true;
 
 
         /**
-         * @type {object} [this.adapter=null] The instance of the best or given available storage adapter
+         * @type {object} The instance of the best (or given) available storage adapter
          */
         this.adapter = null;
 
 
         /**
-         * @type {object} [this.adapters] Make the adapter types and defaults available to instance calls
+         * @type {object} Make the adapter types and defaults available to instance calls
          */
         this.adapters = {
             types: adapters,
@@ -4345,7 +4411,7 @@
 
 
         /**
-         * @type {object} [this.appCacheAdapter=null] The instance of the application cache storage adapter
+         * @type {object} The instance of the application cache storage adapter
          */
         this.appCacheAdapter = null;
 
@@ -4769,8 +4835,7 @@
         append = helpers.append,                                // @type {function} Shortcut for append helper
         utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
         log = utils.log,                                        // @type {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // @type {function} Shortcut for utils.callback function
-        controller = {};                                        // @type {object} Cache controller public functions and vars
+        checkCallback = utils.callback;                         // @type {function} Shortcut for utils.callback function
 
 
     /**
@@ -5179,7 +5244,12 @@
  * -
  * 
  * @bugs
- * - 
+ * -
+ *
+ * @todo
+ * - api for storage params
+ * - custom data as input parameter
+ * - custom resource types
  *
  **/
 
@@ -5225,11 +5295,6 @@
         this.calls = 0;
     }
 
-    /**
-     * api wie jquery ajax
-     * data als input parameter
-     * custom resuorce types
-     */
 
     /**
      * get cache controller interface
@@ -5462,9 +5527,7 @@
         // load css and js
         app.cache.load([
             {url: baseUrl + "css/test.css", type: "css", data: "html p{color:#1f357d;}", ajax: false}
-        ], function () {
-            console.log("test loaded");
-        });
+        ]);
 
 
         // load images
@@ -5483,7 +5546,7 @@
         ], function () {
             logTimerEnd('Html loaded');
         });
-
+console.log(window.performance);
 
         // load application cache
         app.cache.load('applicationCache', function () {

@@ -9,6 +9,13 @@
  *
  * @description
  * - provide a storage api for indexed database
+ * - support:
+ *      - Internet Explorer 10.0 +
+ *      - Firefox 20.0 +
+ *      - Google Crome 17.0 +
+ *      - Opera 12.5 +
+ *      - Maxthon 4.0.5 +
+ *      - Seamonkey 2.15 +
  * 
  * @version 0.1.2
  * @author Ulrich Merkel, 2013

@@ -12,6 +12,9 @@
  *
  * @description
  * - provide a storage api for file system
+ * - support:
+ *      - Google Crome 26.0 +
+ *      - Maxthon 4.0.5 +
  *
  * @version 0.1.2
  * @author Ulrich Merkel, 2013

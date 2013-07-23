@@ -5,6 +5,13 @@
  *
  * @description
  * - provide a storage api for web sql database
+ * - support:
+ *      - Safari 3.1 +
+ *      - Google Crome 4.0 +
+ *      - Opera 10.5 +
+ *      - Maxthon 4.0.5 +
+ *      - iOs 6.1 + (3.2)
+ *      - Android 2.1 +
  *
  * @version 0.1.3
  * @author Ulrich Merkel, 2013

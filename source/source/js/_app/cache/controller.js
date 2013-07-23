@@ -30,7 +30,8 @@
  * 
  * 
  * @bugs
- * - 
+ * - set timeout for create/update resource, if xhr failed
+ * - read item from storage if there is no network connection (see update)
  *
  **/
 (function (window, document, app, undefined) {
@@ -57,8 +58,7 @@
         append = helpers.append,                                // @type {function} Shortcut for append helper
         utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
         log = utils.log,                                        // @type {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // @type {function} Shortcut for utils.callback function
-        controller = {};                                        // @type {object} Cache controller public functions and vars
+        checkCallback = utils.callback;                         // @type {function} Shortcut for utils.callback function
 
 
     /**
@@ -76,7 +76,7 @@
         this.storage = null;
 
 
-        // run init function
+        // run prototype init function
         this.init(callback, parameters);
 
     }
@@ -213,7 +213,7 @@
 
 
                     // check optional resource attributes and set defaults
-                    resource.version = resource.version ? parseFloat(resource.version) : resourceDefaults.version;
+                    resource.version = resourceVersion = resource.version ? parseFloat(resource.version) : resourceDefaults.version;
                     resource.group = resource.group ? parseFloat(resource.group) : resourceDefaults.group;
                     resource.ajax = resource.ajax !== undefined ? !!resource.ajax : resourceDefaults.ajax;
 
@@ -255,7 +255,7 @@
                          */
                         itemLifetime = parseInt(item.lifetime, 10);
                         itemVersion = item.version;
-                        resourceVersion = resource.version;
+                        //resourceVersion = resource.version;
 
                         if ((itemLifetime !== -1 && lastmodCheck && resourceVersion === itemVersion && item.expires > now) ||
                             (itemLifetime === -1 && lastmodCheck && resourceVersion === itemVersion)) {

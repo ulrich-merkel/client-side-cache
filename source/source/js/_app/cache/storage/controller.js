@@ -26,7 +26,7 @@
  * - 0.1 basic functions and structur
  *
  * @bugs
- * -
+ * - set timeout for xhr
  * 
  */
 (function (document, app, undefined) {
@@ -108,6 +108,24 @@
             type: 'css',                                        // @type {string} [resourceDefaults.type=css] Default resource type
             version: 1.0                                        // @type {float} [resourceDefaults.version=1.0] Default resource version
         };
+
+
+    /**
+     * -------------------------------------------
+     * helper functions for xhr
+     * -------------------------------------------
+     */
+
+     /**
+     * helper function 
+     *
+     * @param {} 
+     *
+     * @return {} 
+     */
+    function handleXhrRequests(url, callback, resource) {
+        xhr(url, callback);
+    }
 
 
     /**
@@ -454,22 +472,22 @@
     function Storage(callback, parameters) {
 
         /**
-         * @type {boolean} [this.isEnabled=true] Enable or disable client side storage
+         * @type {boolean} Enable or disable client side storage
          *
-         * enable or disable client side cache or load resources just
-         * via xhr if this option/parameter is set to false.
+         * load resources just via xhr if
+         * this option is set to false.
          */
         this.isEnabled = true;
 
 
         /**
-         * @type {object} [this.adapter=null] The instance of the best or given available storage adapter
+         * @type {object} The instance of the best (or given) available storage adapter
          */
         this.adapter = null;
 
 
         /**
-         * @type {object} [this.adapters] Make the adapter types and defaults available to instance calls
+         * @type {object} Make the adapter types and defaults available to instance calls
          */
         this.adapters = {
             types: adapters,
@@ -478,7 +496,7 @@
 
 
         /**
-         * @type {object} [this.appCacheAdapter=null] The instance of the application cache storage adapter
+         * @type {object} The instance of the application cache storage adapter
          */
         this.appCacheAdapter = null;
 
@@ -559,10 +577,13 @@
                 if (type === 'img') {
                     convertImageToBase64(url, createCallback);
                 } else {
-                    xhr(url, createCallback);
+                    //xhr(url, createCallback);
+                    handleXhrRequests(url, createCallback, resource);
                 }
             } else if (!!resource.data) {
                 createCallback(resource.data);
+            } else {
+                callback(false);
             }
 
         },
@@ -622,11 +643,11 @@
                         }
                     });
                 } catch (e) {
-                    xhr(url, function (data) {
+                    handleXhrRequests(url, function (data) {
                         resource.data = data;
                         log('[' + controllerType + ' controller] Try to read resource from storage, but storage adapter is not available: type ' + type + ', url ' + url);
                         callback(resource);
-                    });
+                    }, resource);
                 }
 
             } else {
@@ -698,6 +719,8 @@
                 }
             } else if (!!resource.data) {
                 createCallback(resource.data);
+            } else {
+                callback(false);
             }
 
         },

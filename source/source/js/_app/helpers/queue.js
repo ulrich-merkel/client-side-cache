@@ -4,7 +4,7 @@
  * app.helpers.queue
  * 
  * @description
- * - 
+ * - handle async interfaces
  * 
  * @author Ulrich Merkel, 2013
  * @version 0.1

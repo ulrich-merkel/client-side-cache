@@ -9,6 +9,21 @@
  *
  * @description
  * - provide a storage api for web storage
+ * - support:
+ *      - Internet Explorer 8.0 +
+ *      - Firefox 3.5 +
+ *      - Safari 4.0 +
+ *      - Google Crome 4.0 +
+ *      - Opera 10.5 +
+ *      - Maxthon 4.0.5 +
+ *      - iOs 2.0 +
+ *      - Android 2.0 +
+ *      - Camino 2.1.2 +
+ *      - Fake 1.8 +
+ *      - Omni Web 5.11 +
+ *      - Stainless 0.8 +
+ *      - Seamonkey 2.15 +
+ *      - Sunrise 2.2 +
  * 
  * @version 0.1.4
  * @author Ulrich Merkel, 2013
@@ -18,7 +33,7 @@
  * @changelog
  * - 0.1.4 polyfill moved to separate function
  * - 0.1.3 polyfill for globalStorage and ie userdata added
- * - 0.1.2 bug fixes for non-standard browsers, added trying to read item to open function
+ * - 0.1.2 bug fixes for non-standard browsers, trying to read item added to open function
  * - 0.1.1 refactoring, js lint
  * - 0.1 basic functions and structur
  *
@@ -66,7 +81,7 @@
      * @see
      * - http://html5doctor.com/storing-data-the-simple-html5-way-and-a-few-tricks-you-might-not-have-known/
      *
-     * @param {object} e The event object
+     * @param {object} e The storage event object
      */
     function handleStorageEvents(e) {
 
@@ -298,7 +313,6 @@
                                 return;
                             });
                         } else {
-
                             callback(false);
                         }
 
@@ -312,6 +326,7 @@
 
                 // adapter already initialized
                 callback(adapter);
+
             }
 
         },

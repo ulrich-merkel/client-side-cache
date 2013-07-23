@@ -209,6 +209,13 @@
 
                     // set sript attributes
                     script.type = 'text/javascript';
+
+                    /**
+                     * scripts that are dynamically created and added to the document are async by default,
+                     * they don’t block rendering and execute as soon as they download.
+                     * 
+                     * we set this value here just to be sure it's async
+                     */
                     script.async = true;
 
                     // add script event listeners when loaded
@@ -268,7 +275,7 @@
                         script.src = url;
                     }
 
-                    // check loaded state if file is already loaded
+                    // check state if file is already loaded
                     if (loaded) {
                         privateAppendedJs.push(url);
                         callback();
@@ -299,7 +306,7 @@
                 // check for node parameter
                 image = checkNodeParameters(image, node);
 
-                // create empty image object if there is no node param
+                // create empty image placeholder if there is no node param
                 if (!image) {
                     image = new Image();
                 }
@@ -386,4 +393,4 @@
     app.namespace('helpers.append', append);
 
 
-}(document, window.app || {})); // immediatly invoke function
+}(document, window.app || {})); // immediatly invoke function, defining global app via loose augmentation

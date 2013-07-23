@@ -64,6 +64,7 @@
             privateIsiPad,                                                  // @type {boolean} Whether this device is an ipad tablet or not
             privateIsMobileBrowser,                                         // @type {boolean} Whether this device is mobile or not
             privateBrowserVersion,                                          // @type {string} The version of this browser
+            privateIsOnline,                                                // @type {boolean} Whether this device has network connection or not
             privateNetworkConnection,                                       // @type {object} The navigator.connection object if available
             privateLandscapeMode = "landscapeMode",                         // @type {string} The landscape mode string
             privatePortraitMode = "portraitMode",                           // @type {string} The portrait mode string
@@ -240,6 +241,18 @@
 
 
         /**
+         * check for browser online state
+         */
+        function checkIfIsOnline() {
+            if (privateIsOnline === undefined) {
+                on(window, "online", checkIfIsOnline);
+                on(window, "offline", checkIfIsOnline);
+            }
+            privateIsOnline = navigator.onLine !== undefined ? !!navigator.onLine : true;
+        }
+
+
+        /**
          * check for network information
          *
          * navigator.connection object (Android 2.2+, W3C proposal)
@@ -383,6 +396,14 @@
                 return privateBrowserVersion;
             },
 
+            // is online or offline
+            isOnline: function () {
+                if (privateIsOnline === undefined) {
+                    checkIfIsOnline();
+                }
+                return privateIsOnline;
+            },
+
             // get network connection
             getNetworkConnection: function () {
                 if (privateNetworkConnection === undefined) {
@@ -394,11 +415,6 @@
             // is standalone mode (apple web-app)
             isStandalone: function () {
                 return (navigator.standalone !== undefined && navigator.standalone);
-            },
-
-            // is online or offline
-            isOnline: function () {
-                return navigator.onLine;
             },
 
             // get orientation degree
@@ -454,11 +470,22 @@
 
 
     /**
-     * make helper available via app.helpers.client namespace
+     * make helper globally available
      *
      * @export
+     * 
      */
     app.namespace('helpers.client', client);
+    //if (typeof define === 'function' && define.amd) {
+    //    // asynchronous module definition (amd) api 
+    //    define(client);
+    //} else {
+    //    // browser global
+    //    if (app.namespace) {
+    //        app.namespace('helpers.client', client);
+    //    } else {
+    //        throw new Error("The namespace function could not be located!")
+    //    }
+    //}
 
-
-}(window, navigator, window.app || {}));
+}(window, window.navigator, window.app || {}));

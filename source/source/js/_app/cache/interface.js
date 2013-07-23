@@ -22,7 +22,12 @@
  * -
  * 
  * @bugs
- * - 
+ * -
+ *
+ * @todo
+ * - api for storage params
+ * - custom data as input parameter
+ * - custom resource types
  *
  **/
 (function (window, app, undefined) {
@@ -67,11 +72,6 @@
         this.calls = 0;
     }
 
-    /**
-     * api wie jquery ajax
-     * data als input parameter
-     * custom resuorce types
-     */
 
     /**
      * get cache controller interface
