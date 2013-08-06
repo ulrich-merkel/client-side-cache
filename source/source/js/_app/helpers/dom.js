@@ -1,33 +1,28 @@
-/*jslint browser: true, devel: true */
+/*jslint browser: true, devel: true, continue: true, regexp: true  */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
 /*global window*/
 /*global document*/
-/*global console*/
-/*global XMLHttpRequest*/
-/*global ActiveXObject*/
 
 /**
- * app.helpers.append
+ * app.helpers.dom
  *
  * @description
- * - provide interface to append css, js and images to dom
+ * - provide utility functions for dom elements
  *
  * @author Ulrich Merkel, 2013
- * @version 0.1.6
+ * @version 0.1.4
  * 
  * @namespace app
  * 
  * @changelog
- * - 0.1.6 new checkNodeParameters function
- * - 0.1.5 bug fixes for appending images, when there is no data
- * - 0.1.4 bug fixes script loading ie < 8, 
- * - 0.1.3 elemId paramter added
+ * - 0.1.4 refactoring xhr function
+ * - 0.1.3 createDomNode added
  * - 0.1.2 refactoring
- * - 0.1.1 bug fixes css onload, js onload
+ * - 0.1.1 bug fix xhr when trying to read binary data on ie
  * - 0.1 basic functions and structur
  *
- * @see
- * - http://www.jspatterns.com/the-ridiculous-case-of-adding-a-script-element/
+ * @bugs:
+ * - append dynamic updated data when resource is already appended
  *
  */
 (function (document, app, undefined) {
@@ -78,19 +73,17 @@
      * following the singleton design pattern
      *
      */
-    var append = (function () {
+    var dom = (function () {
 
         // init global vars
         var helpers = app.helpers,                                  // @type {object} Shortcut for helper functions
             utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
-            createDomNode = utils.createDomNode,                    // @type {function} Shortcut for createDomNode function
             client = helpers.client,                                // @type {object} Shortcut for client functions
             privateAppendedCss = [],                                // @type {array} Storage for appended css files
             privateAppendedJs = [],                                 // @type {array} Storage for appended js files
             privateAppendedImg = [],                                // @type {array} Storage for appended img files
             privateAppendedHtml = [],                               // @type {array} Storage for appended html files
             headNode = document.getElementsByTagName('head')[0];    // @type {object} The html dom head object
-
 
         /**
          * public functions
@@ -100,14 +93,71 @@
         return {
 
             /**
+             * create dom node element
+             *
+             * @param {string} name The node element name type
+             * @param {object} attributes Name/value mapping of the element attributes
+             *
+             * @return {object} The created html object
+             */
+            createDomNode: function (name, attributes) {
+
+                // init local vars and create node
+                var node = document.createElement(name),
+                    attribute;
+
+                // check for attributes to set
+                if (attributes) {
+                    for (attribute in attributes) {
+
+                        if (attributes.hasOwnProperty(attribute)) {
+                            node.setAttribute(attribute, attributes[attribute]);
+                        }
+
+                    }
+                }
+
+                // return created node
+                return node;
+            },
+
+
+            /**
+             * check if element has given class
+             * 
+             * @param {object} elem The html object to test
+             * @param {string} className The class name to test
+             *
+             * @returns {boolean} Whether the element has the class (return true) or not (return false)
+             */
+            hasClass: function (elem, className) {
+                return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
+            },
+
+
+            /**
+             * remove attribute from element
+             * 
+             * @param {object} elem The html object
+             * @param {string} attribute The attribute name
+             *
+             * @returns {string}
+             */
+            getAttribute: function (elem, attribute) {
+                return elem.getAttribute(attribute);
+            },
+
+
+            /**
              * append cascading stylesheet to dom
              * 
              * @param {string} url The css url path
              * @param {string} data The css data string
              * @param {function} callback The success function
              * @param {object} node The optional dom node element information object to append the data to
+             * @param {boolean} update Indicates if the resource data needs to be updated (if already appended)
              */
-            appendCss: function (url, data, callback, node) {
+            appendCss: function (url, data, callback, node, update) {
 
                 // check if css is already appended
                 if (utils.inArray(url, privateAppendedCss) === -1) {
@@ -124,7 +174,7 @@
 
                         // create style element and set attributes
                         if (!link) {
-                            link = createDomNode('style', {'type': 'text/css'});
+                            link = dom.createDomNode('style', {'type': 'text/css'});
                         }
 
                         /**
@@ -152,7 +202,7 @@
 
                         // create link element and set attributes
                         if (!link) {
-                            link = createDomNode('link', {'rel': 'stylesheet', 'type': 'text/css'});
+                            link = dom.createDomNode('link', {'rel': 'stylesheet', 'type': 'text/css'});
                         }
 
                         if (!node) {
@@ -193,14 +243,15 @@
              * @param {string} data The js data string
              * @param {function} callback The success function
              * @param {object} node The optional dom node element information object to append the data to
+             * @param {boolean} update Indicates if the resource data needs to be updated (if already appended)
              */
-            appendJs: function (url, data, callback, node) {
+            appendJs: function (url, data, callback, node, update) {
 
                 // check if script is already appended
                 if (utils.inArray(url, privateAppendedJs) === -1) {
 
                     // init dom and local vars
-                    var script = createDomNode('script'),
+                    var script = dom.createDomNode('script'),
                         firstScript = document.getElementsByTagName('script')[0],
                         loaded = false;
 
@@ -214,7 +265,7 @@
                      * scripts that are dynamically created and added to the document are async by default,
                      * they don’t block rendering and execute as soon as they download.
                      * 
-                     * we set this value here just to be sure it's async
+                     * we set this value here just to be sure it's async, but it's normally not neccesary
                      */
                     script.async = true;
 
@@ -248,7 +299,7 @@
                             firstScript.parentNode.insertBefore(script, firstScript);
                         } else {
                             headNode.appendChild(script);
-                        }   
+                        }
                     }
 
                     // if there is data 
@@ -294,11 +345,12 @@
              * append image files to dom
              * 
              * @param {string} url The image url path
-             * @param {string} data The image data string
+             * @param {string} data The image data string (base64 encoded)
              * @param {function} callback The success function
              * @param {object} node The optional dom node element information object to append the data to
+             * @param {boolean} update Indicates if the resource data needs to be updated (if already appended)
              */
-            appendImg: function (url, data, callback, node) {
+            appendImg: function (url, data, callback, node, update) {
 
                 // init local vars
                 var image = null;
@@ -334,12 +386,12 @@
              * @param {string} data The html data string
              * @param {function} callback The success function
              * @param {object} node The optional dom node element information object to append the data to
+             * @param {boolean} update Indicates if the resource data needs to be updated (if already appended)
              */
-            appendHtml: function (url, data, callback, node) {
+            appendHtml: function (url, data, callback, node, update) {
 
                 // init local vars
-                var html = null,
-                    textNode;
+                var html = null;
 
                 // check for node parameter
                 html = checkNodeParameters(html, node);
@@ -351,11 +403,12 @@
 
                 // if there is data 
                 if (data) {
+
                     /**
                      * innerHTML is not possible for table elements (table, thead, tbody, tfoot and tr) in internet explorer
                      *
-                     * in IE8, html.innerHTML will do nothing if the HTML coming in isn't perfectly formatted (against the DTD
-                     * being used) - it doesn't tolerate any mistakes unlike when it's parsing normally.
+                     * in IE8, html.innerHTML will do nothing or throw errors if the HTML coming in isn't perfectly formatted (against the DTD
+                     * being used) - it doesn't tolerate any mistakes unlike when it's parsing HTML normally.
                      *
                      * @see
                      * - http://blog.rakeshpai.me/2007/02/ies-unknown-runtime-error-when-using.html
@@ -367,7 +420,7 @@
                         if (node.id) {
                             // force ie 8 to render (or update) the html content
                             document.styleSheets[0].addRule("#" + node.id + ":after", "content: ' ';");
-                        }   
+                        }
                     } catch (e) {
                         html.innerText = data;
                     }
@@ -379,7 +432,6 @@
 
             }
 
-
         };
 
     }());
@@ -390,7 +442,7 @@
      *
      * @export
      */
-    app.namespace('helpers.append', append);
+    app.namespace('helpers.dom', dom);
 
 
-}(document, window.app || {})); // immediatly invoke function, defining global app via loose augmentation
+}(document, window.app || {})); // immediatly invoke function

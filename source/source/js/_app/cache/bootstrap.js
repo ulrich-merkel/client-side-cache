@@ -72,7 +72,7 @@
             };
 
 
-        // load css and js
+        // load dynamic css and js
         app.cache.load([
             {url: baseUrl + "css/app.css", type: "css"},
             {url: baseUrl + "js/lib.js", type: "js"},
@@ -83,13 +83,7 @@
         });
 
 
-        // load css and js
-        app.cache.load([
-            {url: baseUrl + "css/test.css", type: "css", data: "html p{color:#1f357d;}", ajax: false}
-        ]);
-
-
-        // load images
+        // load dynamic images
         app.cache.load([
             {url: baseUrl + "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
             {url: baseUrl + "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
@@ -99,13 +93,13 @@
         });
 
 
-        // load html
+        // load dynamic html
         app.cache.load([
             {url: baseUrl + "ajax.html", type: "html", node: {id: "ajax"}}
         ], function () {
             logTimerEnd('Html loaded');
         });
-console.log(window.performance);
+
 
         // load application cache
         app.cache.load('applicationCache', function () {

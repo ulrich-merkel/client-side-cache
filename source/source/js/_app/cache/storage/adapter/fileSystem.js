@@ -420,7 +420,7 @@
          * init storage
          *
          * @param {object} parameters The instance parameters
-         * @param {string} [parameters.size=1024*1024] Set storage size
+         * @param {integer} [parameters.size] Set storage size
          *
          * @return {this} The instance if supported or false
          */

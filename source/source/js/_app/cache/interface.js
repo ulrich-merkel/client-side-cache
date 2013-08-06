@@ -207,7 +207,7 @@
 
 
     /**
-     * make cache controller interface globally available under app namespace
+     * global export
      *
      * @export
      */

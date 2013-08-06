@@ -15,7 +15,7 @@
  * - 0.1 basic functions and plugin structur
  * 
  */
-(function (exports, app, undefined) {
+(function (window, app, undefined) {
     'use strict';
 
     /**
@@ -46,7 +46,7 @@
      * @param {string} name The namespace string separated with dots (name.name.name)
      * @param {string|integer|object|function} value The optional value to set for the last item in given namespace
      *
-     * @return {object|boolean} The last referenced namespace object or false if there is no name param
+     * @return {object|boolean} The last referenced namespace object or false if there is no correct name param
      */
     function namespace(name, value) {
 
@@ -60,6 +60,11 @@
                 length = names.length,
                 current = app,
                 i;
+
+            // check for names array
+            if (!names) {
+                return false;
+            }
 
             // toggle through names array
             for (i = 0; i < length; i = i + 1) {
@@ -92,15 +97,16 @@
     }
 
 
-    // init app namespaces
+    // init app namespace function
     app.namespace = namespace;
+
 
     /**
      * export app to globals
      *
      * @export
      */
-    exports.app = app;
+    window.app = app;
 
 
 }(window, window.app || {}));

@@ -70,6 +70,7 @@
     var storageType = 'applicationCache',                       // @type {string} The storage type string
         helpers = app.helpers,                                  // @type {object} Shortcut for helper functions
         utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
+        dom = helpers.dom,                                      // @type {object} Shortcut for dom functions
         on = utils.on,                                          // @type {object} Shortcut for on function
         log = utils.log,                                        // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback,                         // @type {function} Shortcur for utils.callback function
@@ -118,7 +119,7 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                boolIsSupported = !!window.applicationCache && !!utils.getAttribute(htmlNode, 'manifest');
+                boolIsSupported = !!window.applicationCache && !!dom.getAttribute(htmlNode, 'manifest');
                 if (!boolIsSupported) {
                     log('[' + storageType + ' Adapter] ' + storageType + ' is not supported or there is no manifest html attribute');
                 }

@@ -141,14 +141,7 @@ You can append to resource data to a dom element on the page. This can be used f
         app.cache.load([
             {url: "ajax.html", type: "html", node: {id: "ajax"}}
         ]);
-     
-#### Storing custom data:
-Normally the resource data get's loaded via xhr if the resource is created or needs an update. But you can also define custom data strings to be stored. Make sure the ajax option is set to false and use a unique name for the url option, because this value will be used as the key for storing and retrieving data.
 
-         // load custom data
-         app.cache.load([
-            {url: "css/test.css", type: "css", data: "p{color:#f00;}", ajax: false}
-        ]);
 
 #### Chaining:
 Due to the cache interface api you are allowed to call the app cache initializing functions via chaining: 
@@ -172,13 +165,10 @@ Due to the cache interface api you are allowed to call the app cache initializin
 There are several options you can use to specify a resource. This can be useful to handle lifetimes, appending data to dom or the loading order.
 
         {
-        	/**
-        	 * @type {boolean} ajax Load resources via xhr or not
-        	 */
-        	ajax: true,
      
      		/**
         	 * @type {integer} group The optional loading 
+        	 *
         	 * group of the resource, this is used for handling dependencies,
         	 * a following group begins to start loading when the previous has finished,
         	 * default value is 0
@@ -187,6 +177,7 @@ There are several options you can use to specify a resource. This can be useful 
         	
         	/**
         	 * @type {timestamp} lastmod The optional lastmod 
+        	 *
         	 * timestamp of the resource, used to mark a resource to be updated       
         	 * if not given the current timestamp via new Date().getTime() is used
         	 * the first time a resource is created
@@ -195,6 +186,7 @@ There are several options you can use to specify a resource. This can be useful 
         	
         	/**
         	 * @type {integer} lifetime The optional lifetime 
+        	 *
         	 * time in milliseconds of the resource, used to mark a resource 
         	 * to be updated after a given period if time, if set to -1 the 
         	 * resource will not expires via lastmod
@@ -220,21 +212,24 @@ There are several options you can use to specify a resource. This can be useful 
       	
         	/**
         	 * @type {string} type The required content type 
-        	 * of the resource (css, js, img, html)
+        	 *
+        	 * type of the resource (css, js, img, html)
         	 */
         	type: 'css',
         	
         	/**
-        	 * @type {string} url The required url of the resource, will be used as 
-        	 * the key for storing and retrieving data
+        	 * @type {string} url The required url of the resource
+        	 * 
+        	 * will be used as the key for storing and retrieving data
         	 */
         	url: 'resource.css',
         
         	/**
         	 * @type {float} version The optional version 
+        	 *
         	 * number of the resource, used to mark a resource to be updated
         	 */
-        	version: 1.0,
+        	version: 1.0
  
         }
  
@@ -246,7 +241,7 @@ There is no external library neccessary for the code to work. The logic is split
 - _app/helpers/utils.js
 - _app/helpers/queue.js
 - _app/helpers/client.js
-- _app/helpers/append.js
+- _app/helpers/dom.js
 
 The helper files are used to get some utility functions. They provide some useful functions and information that will be needed to manage the caching mechanism and get some browser workarounds. The most important helper files are namespace.js and utils.js. The namespace.js will take cake of the correct javascript namespacing for the cache files and the utils.js is a kind if library for different browser functions and workarounds (e.g. event bindings).
 
@@ -262,14 +257,14 @@ The helper files are used to get some utility functions. They provide some usefu
 
 The storage controller _/cache/storage/controller.js_ is responsible for checking the different storage adapters. He also provides an consistent interface to store and retrieve the data from cache. The main logic for handling the cache is listed in the cache controller _/cache/controller.js_. This file will take care of checking for outdated data in cache and loading the data you are requesting.
 
-If you don't need one or some of the storage adapters _/cache/storage/adapter/...js_, you can just delete these files to reduce the overall file size. If you want for example just use the webStorage adapter to save data locally, the javascript cache files you will need to include are:
+If you don't need one or some of the storage adapters _/cache/storage/adapter/...js_, you can just delete these files to reduce the overall file size. If you just want to use the webStorage adapter to save data locally, the javascript caching files you will need to include are:
 
 - _app/cache/storage/controller.js
 - _app/cache/storage/adapter/webStorage.js
 - _app/cache/controller.js
 - _app/cache/interface.js
 
-It is recommended that you combine all the single files into one and minimize the combined file. I've included lot's of comments in the source files to make the code better readable which will be removed while minification. There is already a minified and combined version named __cache.min.js__ in the _js/_ directory included. This file includes all storage adapters and cache files (excluding the cache initializing) you will need to use the caching functions.
+It is recommended that you combine all the single files into one and minimize the combined file. I've included lot's of comments in the source files to make the code better readable which will be removed while minification. There is already a minified and combined version named __cache.min.js__ in the _js/_ directory included. This file includes all storage adapters and cache files (excluding the cache initializing) you will need.
 
 ##### Polyfills
 I'm providing a polyfill for the webStorage adapter. If you want to support older or non-standard browsers, include the given polyfill file listed in _/cache/storage/adapter_. Be sure you include the polyfill before you try to access the standard storage adapter. Because webStorage is the mostly supported storage adapter and if you want to support a wide range of older browsers, make suke you included the webStoragePolyfill.js.
@@ -277,7 +272,7 @@ I'm providing a polyfill for the webStorage adapter. If you want to support olde
 - _app/cache/storage/adapter/webStoragePolyfill.js
 - _app/cache/storage/adapter/webStorage.js
 
-### Tested and supported browsers for the different storage apis:
+### Tested and supported browsers:
 
 #### Web Storage:
  - Internet Explorer 8.0 +
@@ -325,3 +320,7 @@ I'm providing a polyfill for the webStorage adapter. If you want to support olde
  - Maxthon 4.0.5 +
  - iOs 3.2 +
  - Android 2.1 +
+
+#### Fallback (no caching, just dynamic xhr loading):
+- Internet Explorer 7.0
+

@@ -13,11 +13,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2013
- * @version 0.1.4
+ * @version 0.1.5
  * 
  * @namespace app
  * 
  * @changelog
+ * - 0.1.5 moved dom functions to dom helpers, small function improvements
  * - 0.1.4 refactoring xhr function
  * - 0.1.3 createDomNode added
  * - 0.1.2 refactoring
@@ -133,6 +134,24 @@
 
 
             /**
+             * check for callback function
+             * 
+             * @param {function} callback The function to check
+             *
+             * @return {function} The checked callback function
+             */
+            callback: function (callback) {
+                // check if param is function, if not set it to empty function
+                if (!callback || typeof callback !== 'function') {
+                    callback = function () {};
+                }
+
+                // return checked callback function
+                return callback;
+            },
+
+
+            /**
              * add event handler
              *
              * following the lazy loading design pattern, the on function will be
@@ -208,36 +227,6 @@
 
 
             /**
-             * create dom node element
-             *
-             * @param {string} name The node element name type
-             * @param {object} attributes Name/value mapping of the element attributes
-             *
-             * @return {object} The created html object
-             */
-            createDomNode: function (name, attributes) {
-
-                // init local vars and create node
-                var node = document.createElement(name),
-                    attribute;
-
-                // check for attributes to set
-                if (attributes) {
-                    for (attribute in attributes) {
-
-                        if (attributes.hasOwnProperty(attribute)) {
-                            node.setAttribute(attribute, attributes[attribute]);
-                        }
-
-                    }
-                }
-
-                // return created node
-                return node;
-            },
-
-
-            /**
              * get xhr object
              *
              * @return {object} The new xhr request object or null
@@ -284,92 +273,106 @@
             /**
              * make ajax request
              * 
-             * @param {string} url The url to load
-             * @param {function} callback The callback after success
+             * @param {string} url The required url to load
+             * @param {function} callback The required callback after success
              * @param {boolean} async The optional async parameter to load xhr async or sync 
              * @param {string} postData The optional post request data to send
              */
             xhr: function (url, callback, async, postData) {
 
-                // init local function vars
-                var reqObject = utils.getXhr(),
-                    reqCallback,
-                    reqType = 'GET';
+                /**
+                 * setTimeout() "yielding" prevents some weird race/crash conditions in older browsers
+                 *
+                 * @see
+                 * - lab.js async script loader
+                 */
+                window.setTimeout(function () {
 
-                // if ajax is available
-                if (reqObject) {
+                    // init local function vars
+                    var reqObject = utils.getXhr(),
+                        reqCallback,
+                        reqType = 'GET';
 
-                    // check request type, async and post data
-                    if (postData !== undefined) {
-                        reqType = 'POST';
-                    } else {
-                        postData = null;
-                    }
-                    if (async !== undefined) {
-                        async = async;
-                    } else {
-                        async = true;
-                    }
+                    // check callback parameter
+                    callback = utils.callback(callback);
 
-                    // listen to results
-                    reqCallback = function () {
+                    // if ajax is available
+                    if (reqObject) {
 
-                        /**
-                         * ready states
-                         *
-                         * reqObject.readyStates:
-                         * 0: request not initialized
-                         * 1: server connection established
-                         * 2: request received
-                         * 3: processing request
-                         * 4: request finished and response is ready
-                         *
-                         * reqObject.status:
-                         * 200: the request was fulfilled, codes between 200 and < 400 indicate that everything is okay
-                         * 400: the request had bad syntax or was inherently impossible to be satisfied, codes >= 400 indicate errors
-                         * 
-                         */
-
-                        if (reqObject.readyState === 4 && ((reqObject.status >= 200 && reqObject.status < 400) || reqObject.status === 0)) {
-
-                            /**
-                             * checking additionally for response text parsing
-                             * 
-                             * binary data (like images) could not be resolved for ajax
-                             * calls in ie and is throwing an error if we try to do so
-                             */
-                            try {
-                                var data = reqObject.responseText;
-                                if (data) {
-                                    callback(data);
-                                } else {
-                                    callback(false);
-                                }
-                            } catch (e) {
-                                callback(false);
-                            }
-
+                        // check parameters (url, request type, async and post data)
+                        if (!url) {
+                            callback(false);
+                            return;
+                        }
+                        if (postData !== undefined) {
+                            reqType = 'POST';
+                        } else {
+                            postData = null;
+                        }
+                        if (async === undefined) {
+                            async = true;
                         }
 
-                    };
+                        // listen to results
+                        reqCallback = function () {
 
-                    // open ajax request and listen for events
-                    reqObject.open(reqType, url, async);
+                            /**
+                             * ready states
+                             *
+                             * reqObject.readyStates:
+                             * 0: request not initialized
+                             * 1: server connection established
+                             * 2: request received
+                             * 3: processing request
+                             * 4: request finished and response is ready
+                             *
+                             * reqObject.status:
+                             * 200: the request was fulfilled, codes between 200 and < 400 indicate that everything is okay
+                             * 400: the request had bad syntax or was inherently impossible to be satisfied, codes >= 400 indicate errors
+                             * 
+                             */
 
-                    // listen to results, onreadystatechange for ie7+ and onload for others
-                    if (reqObject.onreadystatechange !== undefined) {
-                        reqObject.onreadystatechange = reqCallback;
-                    } else if (reqObject.onload !== undefined) {
-                        reqObject.onload = reqCallback;
+                            if (reqObject.readyState === 4 && ((reqObject.status >= 200 && reqObject.status < 400) || reqObject.status === 0)) {
+
+                                /**
+                                 * checking additionally for response text parsing
+                                 * 
+                                 * binary data (like images) could not be resolved for ajax
+                                 * calls in ie and is throwing an error if we try to do so
+                                 */
+                                try {
+                                    var data = reqObject.responseText;
+                                    if (data) {
+                                        callback(data);
+                                    } else {
+                                        callback(false);
+                                    }
+                                } catch (e) {
+                                    callback(false);
+                                }
+
+                            }
+
+                        };
+
+                        // open ajax request and listen for events
+                        reqObject.open(reqType, url, async);
+
+                        // listen to results, onreadystatechange for ie7+ and onload for others
+                        if (reqObject.onreadystatechange !== undefined) {
+                            reqObject.onreadystatechange = reqCallback;
+                        } else if (reqObject.onload !== undefined) {
+                            reqObject.onload = reqCallback;
+                        }
+
+                        // send request
+                        reqObject.send(postData);
+
+                    } else {
+                        callback(false);
                     }
 
-                    // send request
-                    reqObject.send(postData);
-
-                } else {
-                    callback(false);
-                }
-
+                }, 0);
             },
 
 
@@ -490,24 +493,6 @@
 
 
             /**
-             * check for callback function
-             * 
-             * @param {function} callback The function to check
-             *
-             * @return {function} The checked callback function
-             */
-            callback: function (callback) {
-                // check if param is function, if not set it to empty function
-                if (!callback || typeof callback !== 'function') {
-                    callback = function () {};
-                }
-
-                // return checked callback function
-                return callback;
-            },
-
-
-            /**
              * check if value is array
              * 
              * @param {array} value The value to check
@@ -535,32 +520,6 @@
 
                 // fallback for older browsers, always return not in array
                 return -1;
-            },
-
-
-            /**
-             * check if element has given class
-             * 
-             * @param {object} elem The html object to test
-             * @param {string} className The class name to test
-             *
-             * @returns {boolean} Whether the element has the class (return true) or not (return false)
-             */
-            hasClass: function (elem, className) {
-                return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
-            },
-
-
-             /**
-             * remove attribute from element
-             * 
-             * @param {object} elem The html object
-             * @param {string} attribute The attribute name
-             *
-             * @returns {string}
-             */
-            getAttribute: function (elem, attribute) {
-                return elem.getAttribute(attribute);
             }
 
         };

@@ -17,7 +17,7 @@
  * @namespace app
  *
  * @changelog
- * - 0.1.4
+ * - 0.1.4 refeactoring
  * - 0.1.3 bug fix check for outdated data
  * - 0.1.2 resource attrib check on loadResource function added
  * - 0.1.1 bug fix load resource (item.lifetime is set check added)
@@ -31,7 +31,7 @@
  * 
  * @bugs
  * - set timeout for create/update resource, if xhr failed
- * - read item from storage if there is no network connection (see update)
+ * - read item from storage if there is no network connection (see update function!)
  *
  **/
 (function (window, document, app, undefined) {
@@ -55,7 +55,8 @@
     // module vars
     var controllerType = 'cache',                               // @type {string} The controller type string
         helpers = app.helpers,                                  // @type {object} Shortcut for helper functions
-        append = helpers.append,                                // @type {function} Shortcut for append helper
+        dom = helpers.dom,                                      // @type {object} Shortcut for dom functions
+        append = dom.append,                                    // @type {function} Shortcut for append helper
         utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
         log = utils.log,                                        // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback;                         // @type {function} Shortcut for utils.callback function
@@ -97,7 +98,7 @@
          */
         load: function (resources, mainCallback) {
 
-            // declare vars and functions
+            // declare load vars and functions
             var self = this,
                 now = new Date().getTime(),
 
@@ -107,6 +108,7 @@
                  * saving them as controller instance functions (via this) for
                  * faster access and better compression results.
                  */
+
 
                 /**
                  * managing loading queues
@@ -157,8 +159,9 @@
                  *
                  * @param {object} resource The resource
                  * @param {string} data The resource data string
+                 * @param {boolean} update Indicates if the resource data needs to be updated (if already appended)
                  */
-                appendFile = function (resource, data) {
+                appendFile = function (resource, data, update) {
 
                     // init local vars
                     var url = resource.url,
@@ -167,19 +170,22 @@
                         },
                         node = resource.node || null;
 
+                    // check update parameter
+                    update = !!update;
+
                     // load file according to type
                     switch (resource.type) {
                     case 'js':
-                        append.appendJs(url, data, callback, node);
+                        dom.appendJs(url, data, callback, node, update);
                         break;
                     case 'css':
-                        append.appendCss(url, data, callback, node);
+                        dom.appendCss(url, data, callback, node, update);
                         break;
                     case 'img':
-                        append.appendImg(url, data, callback, node);
+                        dom.appendImg(url, data, callback, node, update);
                         break;
                     case 'html':
-                        append.appendHtml(url, data, callback, node);
+                        dom.appendHtml(url, data, callback, node, update);
                         break;
                     default:
                         break;
@@ -193,19 +199,21 @@
                  * 
                  * this function loads a single resource from cache.
                  *
-                 * @param {object} resource The resource
+                 * @param {object} resource The resource object
                  */
                 loadResource = function (resource) {
 
+                    // init local vars
                     var data = resource.data || null,
-                        callback = function (cbResource) {
+                        callback = function (cbResource, update) {
                             if (cbResource && cbResource.data) {
-                                appendFile(cbResource, cbResource.data);
+                                appendFile(cbResource, cbResource.data, update);
                             } else {
-                                appendFile(cbResource);
+                                appendFile(cbResource, null, update);
                             }
                         },
-                        resourceDefaults = self.storage.resourceDefaults,
+                        storage = self.storage,
+                        resourceDefaults = storage.resourceDefaults,
                         lastmodCheck = true,
                         itemLifetime,
                         itemVersion,
@@ -213,12 +221,12 @@
 
 
                     // check optional resource attributes and set defaults
-                    resource.version = resourceVersion = resource.version ? parseFloat(resource.version) : resourceDefaults.version;
-                    resource.group = resource.group ? parseFloat(resource.group) : resourceDefaults.group;
+                    resource.version = resourceVersion = resource.version !== undefined ? parseFloat(resource.version) : resourceDefaults.version;
+                    resource.group = resource.group !== undefined ? parseFloat(resource.group) : resourceDefaults.group;
                     resource.ajax = resource.ajax !== undefined ? !!resource.ajax : resourceDefaults.ajax;
 
                     // read resource via storage controller
-                    self.storage.read(resource, function (item) {
+                    storage.read(resource, function (item) {
 
                         // check resource lastmod for handling outdated data
                         if (resource.lastmod && item && item.lastmod) {
@@ -240,7 +248,7 @@
                          */
                         if (!item || !item.data) {
                             log('[' + controllerType + ' controller] Resource or resource data is not available in storage adapter: type ' + resource.type + ', url ' + resource.url);
-                            self.storage.create(resource, callback);
+                            storage.create(resource, callback);
                             return;
                         }
 
@@ -255,7 +263,6 @@
                          */
                         itemLifetime = parseInt(item.lifetime, 10);
                         itemVersion = item.version;
-                        //resourceVersion = resource.version;
 
                         if ((itemLifetime !== -1 && lastmodCheck && resourceVersion === itemVersion && item.expires > now) ||
                             (itemLifetime === -1 && lastmodCheck && resourceVersion === itemVersion)) {
@@ -263,7 +270,7 @@
                             data = item.data;
                         } else {
                             log('[' + controllerType + ' controller] Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
-                            self.storage.update(resource, callback);
+                            storage.update(resource, callback);
                             return;
                         }
 
@@ -380,6 +387,11 @@
                         index = 0;
                     }
 
+                    /**
+                     * get current index value in resources array, this is a
+                     * workaround if there are gaps in group indexes (e.g. there
+                     * is 1 and 3, but no 2).
+                     */
                     while (!resources[index] && index < length) {
                         index = index + 1;
                     }

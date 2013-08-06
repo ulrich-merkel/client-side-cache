@@ -2,7 +2,7 @@
 //= require "_app/helpers/queue.js"
 //= require "_app/helpers/utils.js"
 //= require "_app/helpers/client.js"
-//= require "_app/helpers/append.js"
+//= require "_app/helpers/dom.js"
 
 //= require "_app/cache/storage/adapter/fileSystem.js"
 //= require "_app/cache/storage/adapter/indexedDatabase.js"

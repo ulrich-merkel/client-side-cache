@@ -14,12 +14,13 @@
  * - store and read via storage adapter
  * - convert resource data, encode data into storable formats and decode data form storage
  * 
- * @version 0.1.3
+ * @version 0.1.4
  * @author Ulrich Merkel, 2013
  * 
  * @namespace app
  *
  * @changelog
+ * - 0.1.4 timeout for xhr connections added
  * - 0.1.3 bug fix when checking adapter support - additionally checking with adapter.open and not just isSupported, modified getStorageAdapter function
  * - 0.1.2 refactoring, js lint
  * - 0.1.1 bug fix init when cache storage is disabled
@@ -69,7 +70,7 @@
         adapters = [
             {type: 'fileSystem', css: true, js: true, html: true, img: true },
             {type: 'indexedDatabase', css: true, js: true, html: true, img: true },
-            {type: 'webSqlDatabase', css: 1, js: 1, html: 1, img: 0 },
+            {type: 'webSqlDatabase', css: true, js: true, html: true, img: false },
             {type: 'webStorage', css: true, js: true, html: false, img: false }
         ],
 
@@ -116,15 +117,30 @@
      * -------------------------------------------
      */
 
-     /**
+    /**
      * helper function 
      *
-     * @param {} 
-     *
-     * @return {} 
+     * @param {string} url The url from the resource to load
+     * @param {function} callback The callback function to be called after load or failure
+     * @param {object} resource The resource object
      */
     function handleXhrRequests(url, callback, resource) {
-        xhr(url, callback);
+
+        // set timeout if network is lost
+        resource.timeout = window.setTimeout(function () {
+            callback(false);
+        }, 30000);
+
+        // make xhr call and check data
+        xhr(url, function (data) {
+            window.clearTimeout(resource.timeout);
+            delete resource.timeout;
+            if (data) {
+                callback(data);
+            } else {
+                callback(false);
+            }
+        });
     }
 
 
@@ -213,6 +229,9 @@
 
                 // get 2d context
                 context = canvas.getContext("2d");
+                if (!context) {
+                    callback(false);
+                }
 
                 // set background color (for jpeg images out of transparent png files)
                 context.fillStyle = "rgba(50, 50, 50, 0)";
@@ -240,28 +259,6 @@
             callback(false);
 
         }
-    }
-
-
-    /**
-     * replace relative with absolute urls, used whithin resource string data (e.g css background urls)
-     *
-     * @param {string} data The data content string
-     * @param {object} resource The resource object item
-     *
-     * @returns {string} Returns converted or source data
-     */
-    function convertRelativeToAbsoluteUrls(data, resource) {
-
-        // just do it for css files
-        if (resource.type === 'css') {
-
-            var urlParts = utils.urlParts(resource.url);
-
-            return data.replace(/url\("../g, 'url("' + urlParts.folder + '..');
-        }
-
-        return data;
     }
 
 
@@ -533,6 +530,12 @@
                 type = resource.type,
                 createCallback = function (data) {
 
+                    if (!data) {
+                        log('[' + controllerType + ' controller] Couldn\'t get data via network');
+                        callback(false);
+                        return;
+                    }
+
                     // append data to resource object
                     resource.data = data;
 
@@ -567,6 +570,7 @@
                         log('[' + controllerType + ' controller] Trying to create new resource, but resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
                         callback(resource);
                     }
+
                 };
 
             // check callback function
@@ -636,7 +640,7 @@
 
                             resource.url = url;
                             log('[' + controllerType + ' controller] Successfully read resource from storage: type ' + type + ', url ' + url);
-                            callback(resource);
+                            callback(resource, true);
                         } else {
                             log('[' + controllerType + ' controller] There is no data coming back from storage while reading: type ' + type + ', url ' + url);
                             callback(false);
@@ -646,7 +650,7 @@
                     handleXhrRequests(url, function (data) {
                         resource.data = data;
                         log('[' + controllerType + ' controller] Try to read resource from storage, but storage adapter is not available: type ' + type + ', url ' + url);
-                        callback(resource);
+                        callback(resource, true);
                     }, resource);
                 }
 
@@ -669,7 +673,22 @@
             var self = this,
                 url = resource.url,
                 type = resource.type,
-                createCallback = function (data) {
+                updateCallback = function (data) {
+
+                    // try to use stored data if resource couldn't be updated via network
+                    if (!data) {
+                        log('[' + controllerType + ' controller] Couldn\'t get data via network, trying to used stored version');
+                        self.read(resource, function (item) {
+                            if (item && !item.data) {
+                                resource.data = item.data;
+                                callback(resource);
+                            } else {
+                                callback(false);
+                            }
+                        });
+
+                        return;
+                    }
 
                     // append data to resource object
                     resource.data = data;
@@ -713,12 +732,12 @@
             // get resource data based on type
             if (!!resource.ajax) {
                 if (resource.type === 'img') {
-                    convertImageToBase64(url, createCallback);
+                    convertImageToBase64(url, updateCallback);
                 } else {
-                    xhr(url, createCallback);
+                    xhr(url, updateCallback);
                 }
             } else if (!!resource.data) {
-                createCallback(resource.data);
+                updateCallback(resource.data);
             } else {
                 callback(false);
             }
