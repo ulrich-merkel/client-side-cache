@@ -9,11 +9,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2013
- * @version 0.1.9
+ * @version 0.2
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.2 improved console.log wrapper, console.warn added
  * - 0.1.9 improved namespacing
  * - 0.1.8 inArray function improved
  * - 0.1.7 trim string + sprintf functions added, isArray function improved
@@ -57,8 +58,9 @@
         // init global vars
         var jsonObject = null,
             hasConsole = window.console !== undefined,
-            hasConsoleLog = (hasConsole && window.console.log !== undefined),
-            hasConsoleWarn = (hasConsole && window.console.warn !== undefined),
+            console = hasConsole ? window.console : null,
+            hasConsoleLog = (hasConsole && console.log !== undefined),
+            hasConsoleWarn = (hasConsole && console.warn !== undefined),
             hasConsoleTime = (hasConsole && console.time !== undefined && console.timeEnd !== undefined),
             emptyArray = [];
 
@@ -92,30 +94,49 @@
             /**
              * wrapper for console.log due to some browsers lack of this functions
              * 
-             * @param {string} message The message to log
+             * @param {arguments} The messages to log
              */
-            log: function (message) {
+            log: function () {
+
+                var args = arguments,
+                    length = args.length,
+                    message;
+
+                if (!length) {
+                    return;
+                }
 
                 // check for support
                 if (hasConsoleLog) {
-                    window.console.log(message);
+                    console.log.apply(console, args);
                 }
 
                 // log messages to dom element
+                message = args[0];
                 utils.logToScreen(message);
+
             },
 
 
             /**
-             * wrapper for console.log due to some browsers lack of this functions
+             * wrapper for console.warn due to some browsers lack of this functions
              * 
-             * @param {string} message The message to log
+             * @param {arguments} The warnings to log
              */
-            warn: function (message) {
+            warn: function () {
+
+                var args = arguments,
+                    length = args.length,
+                    message;
+
+                if (!length) {
+                    return;
+                }
+                message = args[0];
 
                 // check for support
                 if (hasConsoleWarn) {
-                    window.console.warn(message);
+                    console.warn.apply(console, args);
                 } else {
                     // try to log normal message
                     utils.log(message);
@@ -674,7 +695,7 @@
              * @param {number|undefined} index The optional index in array
              *
              * @returns {integer} Whether the value is in (return index) or not (return -1)
-             */    
+             */
             inArray: function (value, array, index) {
 
                 /**
