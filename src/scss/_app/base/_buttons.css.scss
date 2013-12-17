@@ -1,0 +1,19 @@
+
+/* -------------------------------------------------- 
+	:: Button Base Styles
+---------------------------------------------------*/
+
+    button {
+		display: block;
+		margin: 0;
+		padding: 0;
+		border: none;
+		outline: none;
+		line-height: 1;
+		vertical-align: baseline;
+		background: none;
+		text-decoration: none;
+		text-align: left;
+		-webkit-appearance: none;
+		cursor: pointer;
+	}

@@ -1,0 +1,80 @@
+/*global describe, it, waitsFor, runs, expect, app*/
+/*jslint unparam: true */
+
+describe('Cache Controller', function () {
+
+    'use strict';
+
+    it('Initialize storage controller', function () {
+
+        var cache = new app.cache.controller(),
+            storage = new app.cache.storage.controller();
+
+        waitsFor(function () {
+            return cache.storage !== null && storage.adapter !== null;
+        }, 'cache.storage initialized', 1000);
+
+        runs(function () {
+            expect(cache.storage).toEqual(storage);
+        });
+
+    });
+
+    it('Get storage instance via callback function', function () {
+
+        var storageInstance,
+            cache = new app.cache.controller(function (callbackObject) {
+                storageInstance = callbackObject;
+            }),
+            storage = new app.cache.storage.controller();
+
+        waitsFor(function () {
+            return storageInstance !== undefined && storage.adapter !== undefined;
+        }, 'cache.storage initialized', 1000);
+
+        runs(function () {
+            expect(storage).toEqual(storageInstance);
+        });
+
+    });
+
+    it('Call load without arguments', function () {
+
+        var instance,
+            cache = new app.cache.controller(function (callbackObject) {
+                instance = callbackObject;
+            });
+
+        cache.load();
+
+        waitsFor(function () {
+            return instance !== undefined;
+        }, 'cache.storage initialized', 1000);
+
+        runs(function () {
+            expect(1).toEqual(1);
+        });
+
+    });
+
+    it('Call load with empty resource arguments', function () {
+
+        var instance,
+            cache = new app.cache.controller(function (callbackObject) {
+                instance = callbackObject;
+            });
+
+        cache.load([]);
+
+        waitsFor(function () {
+            return instance !== undefined;
+        }, 'cache.storage initialized', 1000);
+
+        runs(function () {
+            expect(1).toEqual(1);
+        });
+
+    });
+
+});
+

@@ -1,0 +1,43 @@
+
+/* -------------------------------------------------- 
+	:: Custom Typo Component Styles
+---------------------------------------------------*/
+
+	.lead {
+		@include font-size(18);
+		font-weight: 400;
+		color: #929292;
+	}
+
+	.align-left {
+		text-align: left;
+	}
+	.align-center {
+		text-align: center;
+	}
+	.align-right {
+		text-align: right;
+	}
+
+	.multi-column {
+        -moz-column-count: 2;
+        -moz-column-gap: 1.8em;
+        -webkit-column-count: 2;
+        -webkit-column-gap: 1.4em;
+
+        img {
+            float: left;
+            caption-side: right;
+            margin-bottom: 4px;
+        }
+    }
+
+	@media handheld, only screen and (max-width: 847px) {
+		.multi-column {
+            -moz-column-count: 1;
+            -moz-column-gap: 1.8em;
+            -webkit-column-count: 1;
+            -webkit-column-gap: 1.4em;
+        }
+	}
+	

@@ -1,0 +1,58 @@
+/* mixins and other helpers
+====================================================================== */
+
+// a small helper for easier mediaqueries - just define the
+// breakpoint in your main.scss and you are ready to go
+// by default we use the mobile-first idea, no mq == mobile
+@mixin x-mq($media) {
+
+  // default mediaqueries
+  @if $media == small {
+    @media only screen and (min-width: $breakpoint-small) {
+      @content;
+    }
+  } @else if $media == medium {
+    @media screen and (min-width: $breakpoint-medium) {
+      @content;
+    }
+  } @else if $media == normal {
+    @media screen and (min-width: $breakpoint-normal) {
+      @content;
+    }
+  } @else if $media == large {
+    @media screen and (min-width: $breakpoint-large) {
+      @content;
+    }
+
+  // mediaqueries targeting areas (NOT mobile first)
+  } @else if $media == mobileonly {
+    @media only screen and (max-width: $breakpoint-small - 1) {
+      @content;
+    }
+  } @else if $media == smallonly {
+    @media screen and (min-width: $breakpoint-small) and (max-width: $breakpoint-medium - 1) {
+      @content;
+    }
+  } @else if $media == mediumonly {
+    @media screen and (min-width: $breakpoint-medium) and (max-width: $breakpoint-normal - 1) {
+      @content;
+    }
+  } @else if $media == normalonly {
+    @media screen and (min-width: $breakpoint-normal) and (max-width: $breakpoint-large - 1) {
+      @content;
+    }
+  } @else if $media == largeonly {
+    @media screen and (min-width: $breakpoint-large) {
+      @content;
+    }
+
+  // 2x-assets for retina and other hiDPI displays and print
+  } @else if $media == retina {
+    @media print,
+      (-o-min-device-pixel-ratio: 5/4),
+      (-webkit-min-device-pixel-ratio: 1.25),
+      (min-resolution: 120dpi) {
+      @content;
+    }
+  }
+}

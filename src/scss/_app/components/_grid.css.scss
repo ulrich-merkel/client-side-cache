@@ -1,0 +1,72 @@
+
+/* --------------------------------------------------
+	:: Grid Components
+	-------------------------------------------------- */
+
+	/* basic containers */
+	.container {
+		padding: 0 20px;
+		margin: 0;
+	}
+
+	.column, .columns {
+		margin-left: 2%;
+		float: left;
+		min-height: 1px;
+		position: relative;
+	}
+	.column:first-child, .columns:first-child { margin-left: 0; }
+
+	.row {
+        width: 100%;
+        max-width: 1280px;
+        min-width: 300px;
+        margin: 0 auto;
+		vertical-align: top;
+
+        .row {
+            min-width: 0;
+        }
+
+		.row-content {
+			padding: 20px;
+		}
+
+		.one 		{ width: 6.5%; }
+        .two 		{ width: 15%; }
+        .three 	    { width: 23.5%; }
+        .four 		{ width: 32%; }
+        .five 		{ width: 40.5%; }
+        .six 		{ width: 49%; }
+        .seven 	    { width: 57.5%; }
+        .eight 	    { width: 66%; }
+        .nine 		{ width: 74.5%; }
+        .ten 		{ width: 83%; }
+        .eleven 	{ width: 91.5%; }
+        .twelve 	{ width: 100%; }
+
+		@media screen and (max-width: $breakpoint-landscape) {
+			.one, .two, .three, .four, .five, .six, .seven, .eight, .nine, .ten, .eleven, .twelve {
+				display: block;
+                float: none;
+                clear: both;
+                width: 100%;
+			}
+		}
+    }
+
+	img, object, embed {
+        max-width: 100%;
+        height: auto;
+    }
+	img {
+        -ms-interpolation-mode: bicubic;
+    }
+
+	/* Nicolas Gallagher's micro clearfix */
+	.row:before, .row:after, .clearfix:before, .clearfix:after { content:""; display:table; }
+	.row:after, .clearfix:after { clear: both; }
+	.row, .clearfix { zoom: 1; }
+
+
+

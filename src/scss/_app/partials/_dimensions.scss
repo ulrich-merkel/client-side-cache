@@ -1,0 +1,31 @@
+/* helpers for dimensions and positions
+====================================================================== */
+
+// max width and heights (e.g. for images with auto height)
+%max-width {
+  max-width: 100%;
+  height: auto !important;
+}
+
+%max-height {
+  max-height: 100%;
+  width: auto !important;
+}
+
+// often used for example for thumbs in a gallery
+/*%tiled {
+  margin: 0 $margin-default $margin-default 0;
+  float: left;
+}*/
+
+// centered and as block-element
+%centered {
+  display: block;
+  margin: 0 auto;
+}
+
+// used for after/before-elements that are optical only
+%pseudo {
+  position: absolute;
+  display: block; content: '';
+}

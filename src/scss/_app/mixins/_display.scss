@@ -1,0 +1,27 @@
+/* --------------------------------------------------
+	:: Display mixins
+---------------------------------------------------*/
+
+	// The micro clearfix http://nicolasgallagher.com/micro-clearfix-hack/
+	@mixin clearfix() {
+		*zoom: 1;
+		&:before, &:after { content: " "; display: table; }
+		&:after { clear: both; }
+	}
+
+	// Inline block for all browsers
+    @mixin inline-block {
+        display: inline-block;
+        *display: inline;
+        zoom: 1;
+        *zoom: 1;
+		vertical-align: top;
+    }
+
+	@mixin opacity($opacity) {
+		opacity: $opacity;
+		filter: alpha(opacity = $opacity * 100);
+		-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=#{$opacity * 100})";
+		-moz-opacity: $opacity;
+		-khtml-opacity: $opacity;
+	}

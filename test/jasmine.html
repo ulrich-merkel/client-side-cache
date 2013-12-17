@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Jasmine Spec Runner v2.0.0-rc5</title>
+
+    <link rel="shortcut icon" type="image/png" href="lib/jasmine/jasmine_favicon.png">
+    <link rel="stylesheet" type="text/css" href="lib/jasmine/jasmine-1.3.0/jasmine.css">
+
+    
+</head>
+
+<body>
+    <script type="text/javascript" src="lib/jasmine/jasmine-1.3.0/jasmine.js"></script>
+    <script type="text/javascript" src="lib/jasmine/jasmine-1.3.0/jasmine-html.js"></script>
+
+    <script src="../src/js/_lib/vendor/jquery-1.8.3.js"></script>
+    <script type="text/javascript" src="lib/jasmine/jasmine-jquery.js"></script>
+
+    <!-- include source files here... -->
+    <script type="text/javascript" src="../src/js/cache.js"></script>
+
+    <!-- include spec files here... -->
+    <script type="text/javascript" src="spec/jasmine.specHelper.js"></script>
+    <script type="text/javascript" src="spec/jasmine.specCacheController.js"></script>
+    <script type="text/javascript" src="spec/jasmine.specCacheControllerLoadCss.js"></script>
+    <script type="text/javascript" src="spec/jasmine.specCacheControllerLoadJs.js"></script>
+    <script type="text/javascript" src="spec/jasmine.specCacheControllerLoadImg.js"></script>
+    <script type="text/javascript" src="spec/jasmine.specCacheControllerLoadHtml.js"></script>
+    <script type="text/javascript" src="spec/jasmine.specCacheControllerLoadMultiple.js"></script>
+
+    <script type="text/javascript">
+        (function() {
+            var jasmineEnv = jasmine.getEnv();
+            jasmineEnv.updateInterval = 1000;
+      
+            var htmlReporter = new jasmine.HtmlReporter();
+            
+            jasmineEnv.addReporter(htmlReporter);
+            
+            jasmineEnv.specFilter = function(spec) {
+                return htmlReporter.specFilter(spec);
+            };
+            
+            var currentWindowOnload = window.onload;
+            
+            window.onload = function() {
+                if (currentWindowOnload) {
+                    currentWindowOnload();
+                }
+                execJasmine();
+            };
+            
+            function execJasmine() {
+                jasmineEnv.execute();
+            }
+    
+        })();
+    </script>
+
+    <style id="test-node-style"></style>
+    <script id="test-node-script"></script>
+    <img id="test-node-img"></img>
+    <div id="test-node-html"></div>
+</body>
+</html>

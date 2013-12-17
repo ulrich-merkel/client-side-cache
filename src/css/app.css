@@ -1,0 +1,1583 @@
+/* -------------------------------------------------- 
+	:: Scss Config Vars
+---------------------------------------------------*/
+/*$color-red: #d52b1e;
+$color-yellow: #febe10;
+$color-pink: #fe968f;
+$color-blue: #66cad9;
+$color-blue-dark: #2c3138;
+$color-green: #7c9e21;*/
+/*$color-grey: #bcbcbc;
+$color-grey-light: #e9eaeb;
+$color-grey-dark: #646464;*/
+/*$color-error: #c20c0e;
+$color-default: #000;
+$color-border: #ddd;
+$color-nav-hover: #63140e;
+$color-tap-highlight: $color-red;*/
+/**
+ * backgrounds and colors
+ */
+/**
+ * media query breakpoints
+ */
+/**
+ * left navigation offsets
+ */
+/* default extends / often used combinations
+====================================================================== */
+/* line 6, ../scss/_app/partials/_general.scss */
+.ir {
+  overflow: hidden;
+  border: 0;
+  background-color: transparent;
+}
+/* line 11, ../scss/_app/partials/_general.scss */
+.ir:before {
+  display: block;
+  width: 0;
+  height: 150%;
+  content: "";
+}
+
+/* line 21, ../scss/_app/partials/_general.scss */
+.hidden {
+  display: none !important;
+  visibility: hidden;
+}
+
+/* line 27, ../scss/_app/partials/_general.scss */
+.visuallyhidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+/* line 38, ../scss/_app/partials/_general.scss */
+.visuallyhidden.focusable:active, .visuallyhidden.focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+}
+
+/* line 49, ../scss/_app/partials/_general.scss */
+.clearfix:before,
+.cf:before,
+.clearfix:after,
+.cf:after {
+  display: table;
+  content: " ";
+}
+
+/* line 54, ../scss/_app/partials/_general.scss */
+.clearfix:after,
+.cf:after {
+  clear: both;
+}
+
+/* helpers for dimensions and positions
+====================================================================== */
+/*%tiled {
+  margin: 0 $margin-default $margin-default 0;
+  float: left;
+}*/
+/* --------------------------------------------------
+	:: Display mixins
+---------------------------------------------------*/
+/* --------------------------------------------------
+	:: Typographic mixins
+---------------------------------------------------*/
+/* Requires inline-block or block for proper styling */
+/*
+ * @font-face mixin
+ * @include font-face('family', '../fonts/', 'myfontname');
+ */
+/* --------------------------------------------------
+	:: Css3 mixins
+---------------------------------------------------*/
+/*
+ * Used to normalise select dropdowns
+ * Styles from formalize.me
+ * @include normaliseSelect();
+ */
+/* mixins and other helpers
+====================================================================== */
+/*	--------------------------------------------------
+	:: Global Reset & Standards
+	-------------------------------------------------- */
+/* line 17, ../scss/_app/base/_reset.css.scss */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+/* line 24, ../scss/_app/base/_reset.css.scss */
+html {
+  font-size: 62.5%;
+}
+
+/* line 27, ../scss/_app/base/_reset.css.scss */
+body {
+  position: relative;
+  line-height: 1;
+}
+
+/* HTML5 display-role reset for older browsers */
+/* line 34, ../scss/_app/base/_reset.css.scss */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+/* -------------------------------------------------- 
+	:: Typo Base Styles
+---------------------------------------------------*/
+/* line 6, ../scss/_app/base/_typo.css.scss */
+body, select, textarea, input, button {
+  font-size: 14px;
+  font-size: 1.4rem;
+  font-family: 'Helvetica Neue', 'HelveticaNeue', Helvetica, "Lucida Grande", sans-serif;
+  color: #333333;
+  /**
+   * ie phone note: If the viewport is set using <meta> element, the value
+   * of the CSS text-size-adjust property is ignored.
+   *
+   * webkit note: If -webkit-text-size-adjust is explicitely set to none,
+   * Webkit-based desktop browsers will prevent the user to zoom in or out
+   * the Web page
+   */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /*-webkit-text-stroke: 0.1px; or -webkit-text-stroke: 1px rgba(0, 0, 0, 0.1); or text-shadow: #333 0px 0px 1px; */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* line 33, ../scss/_app/base/_typo.css.scss */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Helvetica Neue', 'HelveticaNeue', Helvetica, "Lucida Grande", sans-serif;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.15;
+  vertical-align: baseline;
+  color: #222222;
+}
+
+/* line 42, ../scss/_app/base/_typo.css.scss */
+h1 {
+  font-size: 26px;
+  font-size: 2.6rem;
+  margin: 20px 0 9px;
+  font-weight: 700;
+}
+
+/* line 47, ../scss/_app/base/_typo.css.scss */
+h2, h3, h4, h5, h6 {
+  font-size: 20px;
+  font-size: 2rem;
+  margin: 0 0 10px;
+}
+
+/* line 52, ../scss/_app/base/_typo.css.scss */
+p {
+  margin: 0 0 22px;
+  line-height: 1.5;
+}
+
+/* line 57, ../scss/_app/base/_typo.css.scss */
+b, strong {
+  font-weight: 700;
+}
+
+/* line 61, ../scss/_app/base/_typo.css.scss */
+em, i {
+  font-style: italic;
+  text-transform: none;
+}
+
+/* line 66, ../scss/_app/base/_typo.css.scss */
+small {
+  font-size: 80%;
+}
+
+/* line 70, ../scss/_app/base/_typo.css.scss */
+address {
+  vertical-align: baseline;
+  font-style: normal;
+  line-height: 1.6;
+}
+
+/* line 76, ../scss/_app/base/_typo.css.scss */
+sub, sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+/* line 82, ../scss/_app/base/_typo.css.scss */
+sup {
+  top: -0.4em;
+}
+
+/* line 83, ../scss/_app/base/_typo.css.scss */
+sub {
+  bottom: -0.25em;
+}
+
+/* line 85, ../scss/_app/base/_typo.css.scss */
+blockquote, q {
+  quotes: none;
+}
+
+/* line 89, ../scss/_app/base/_typo.css.scss */
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+
+/* line 94, ../scss/_app/base/_typo.css.scss */
+abbr, acronym {
+  text-transform: uppercase;
+  font-size: 90%;
+  color: #222;
+  border-bottom: 1px solid #ddd;
+  cursor: help;
+}
+
+/* line 95, ../scss/_app/base/_typo.css.scss */
+abbr {
+  text-transform: none;
+}
+
+/* -------------------------------------------------- 
+	:: Link Base Styles
+---------------------------------------------------*/
+/* line 6, ../scss/_app/base/_links.css.scss */
+a, button {
+  color: #626262;
+  text-decoration: none;
+  -webkit-transition: background 0.5s ease-in-out;
+  -moz-transition: background 0.5s ease-in-out;
+  -ms-transition: background 0.5s ease-in-out;
+  -o-transition: background 0.5s ease-in-out;
+  transition: background 0.5s ease-in-out;
+  -webkit-transition: color 0.3s ease-in-out;
+  -moz-transition: color 0.3s ease-in-out;
+  -ms-transition: color 0.3s ease-in-out;
+  -o-transition: color 0.3s ease-in-out;
+  transition: color 0.3s ease-in-out;
+}
+
+/* line 14, ../scss/_app/base/_links.css.scss */
+.desktop a:hover, .desktop button:hover {
+  color: #055ed2;
+}
+
+/* line 18, ../scss/_app/base/_links.css.scss */
+a:active {
+  color: #999999;
+}
+
+/* line 22, ../scss/_app/base/_links.css.scss */
+a:focus {
+  color: #055ed2;
+  outline: thin dotted;
+}
+
+/* line 28, ../scss/_app/base/_links.css.scss */
+a:active,
+a:hover {
+  outline: 0;
+}
+
+/* -------------------------------------------------- 
+	:: Image Base Styles
+---------------------------------------------------*/
+/* line 6, ../scss/_app/base/_images.css.scss */
+img {
+  vertical-align: middle;
+}
+
+/* -------------------------------------------------- 
+	:: Button Base Styles
+---------------------------------------------------*/
+/* line 6, ../scss/_app/base/_buttons.css.scss */
+button {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  line-height: 1;
+  vertical-align: baseline;
+  background: none;
+  text-decoration: none;
+  text-align: left;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+/*	--------------------------------------------------
+	:: List Base Styles
+	-------------------------------------------------- */
+/* line 4, ../scss/_app/base/_lists.css.scss */
+ul, ol {
+  margin-bottom: 0;
+  list-style: none;
+}
+
+/* line 9, ../scss/_app/base/_lists.css.scss */
+li {
+  margin: 0;
+  padding: 0;
+}
+
+/* -------------------------------------------------- 
+	:: Form Base Styles
+---------------------------------------------------*/
+/* line 6, ../scss/_app/base/_forms.css.scss */
+input:not([type=checkbox]) {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* line 14, ../scss/_app/base/_forms.css.scss */
+input[type=search]::-webkit-search-decoration,
+input[type=search]::-webkit-search-cancel-button,
+input[type=search]::-webkit-search-results-button,
+input[type=search]::-webkit-search-results-decoration {
+  display: none;
+}
+
+/* line 18, ../scss/_app/base/_forms.css.scss */
+textarea {
+  overflow: auto;
+  vertical-align: top;
+  resize: vertical;
+}
+
+/* -------------------------------------------------- 
+	:: Table Base Styles
+---------------------------------------------------*/
+/* line 6, ../scss/_app/base/_tables.css.scss */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* -------------------------------------------------- 
+	:: Hr Base Styles
+---------------------------------------------------*/
+/* line 6, ../scss/_app/base/_lines.css.scss */
+hr {
+  width: 100%;
+  height: 0;
+  border: none;
+  outline: none;
+  border-bottom: 1px solid #e4e4e4;
+}
+
+/* -------------------------------------------------- 
+	:: Custom Typo Component Styles
+---------------------------------------------------*/
+/* line 6, ../scss/_app/components/_typo.css.scss */
+.lead {
+  font-size: 18px;
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: #929292;
+}
+
+/* line 12, ../scss/_app/components/_typo.css.scss */
+.align-left {
+  text-align: left;
+}
+
+/* line 15, ../scss/_app/components/_typo.css.scss */
+.align-center {
+  text-align: center;
+}
+
+/* line 18, ../scss/_app/components/_typo.css.scss */
+.align-right {
+  text-align: right;
+}
+
+/* line 22, ../scss/_app/components/_typo.css.scss */
+.multi-column {
+  -moz-column-count: 2;
+  -moz-column-gap: 1.8em;
+  -webkit-column-count: 2;
+  -webkit-column-gap: 1.4em;
+}
+/* line 28, ../scss/_app/components/_typo.css.scss */
+.multi-column img {
+  float: left;
+  caption-side: right;
+  margin-bottom: 4px;
+}
+
+@media handheld, only screen and (max-width: 847px) {
+  /* line 36, ../scss/_app/components/_typo.css.scss */
+  .multi-column {
+    -moz-column-count: 1;
+    -moz-column-gap: 1.8em;
+    -webkit-column-count: 1;
+    -webkit-column-gap: 1.4em;
+  }
+}
+/* --------------------------------------------------
+	:: Border Components
+	-------------------------------------------------- */
+/* line 6, ../scss/_app/components/_borders.css.scss */
+.border-top {
+  margin-top: 20px !important;
+  border-top: 1px solid #b4b4b4;
+}
+
+/* line 11, ../scss/_app/components/_borders.css.scss */
+.border-bottom {
+  margin-bottom: 20px !important;
+  border-bottom: 1px solid #b4b4b4;
+}
+
+/* -------------------------------------------------- 
+   :: Animation Components
+---------------------------------------------------*/
+/* line 6, ../scss/_app/components/_animations.css.scss */
+.animate-all {
+  -webkit-transition: all 0.5s ease-in-out;
+  -moz-transition: all 0.5s ease-in-out;
+  -o-transition: all 0.5s ease-in-out;
+  -ms-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+}
+
+/* line 14, ../scss/_app/components/_animations.css.scss */
+.animate-no-duration {
+  -webkit-transition-duration: 0 !important;
+  -moz-transition-duration: 0 !important;
+  -o-transition-duration: 0 !important;
+  -ms-transition-duration: 0 !important;
+  transition-duration: 0 !important;
+}
+
+/* --------------------------------------------------
+	:: Button Components
+---------------------------------------------------*/
+/* line 7, ../scss/_app/components/_buttons.css.scss */
+.button {
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
+  *zoom: 1;
+  vertical-align: top;
+  padding: 6px 12px;
+  margin-bottom: 12px;
+  *margin-left: .3em;
+  font-size: 14px;
+  font-size: 1.4rem;
+  line-height: 1.4;
+  *line-height: 20px;
+  color: #333;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  *background-color: #e6e6e6;
+  background-image: -moz-linear-gradient(top, white, #e6e6e6);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(white), to(#e6e6e6));
+  background-image: -webkit-linear-gradient(top, white, #e6e6e6);
+  background-image: -o-linear-gradient(top, white, #e6e6e6);
+  background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
+  background-repeat: repeat-x;
+  border: 1px solid #bbbbbb;
+  *border: 0;
+  border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  border-bottom-color: #a2a2a2;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe6e6e6', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* line 46, ../scss/_app/components/_buttons.css.scss */
+.button.large {
+  font-size: 16px;
+  font-size: 1.6rem;
+  line-height: 20px;
+}
+
+/* line 50, ../scss/_app/components/_buttons.css.scss */
+.button.small {
+  font-size: 12px;
+  font-size: 1.2rem;
+  line-height: 14px;
+}
+
+/* line 54, ../scss/_app/components/_buttons.css.scss */
+.button.full-width {
+  width: 100%;
+}
+
+/* line 57, ../scss/_app/components/_buttons.css.scss */
+.desktop .button:hover {
+  color: #333;
+  text-decoration: none;
+  background-color: #e6e6e6;
+  *background-color: #d9d9d9;
+  /* Buttons in IE7 don't get borders, so darken on hover */
+  background-position: 0 -15px;
+  -webkit-transition: background-position 0.1s linear;
+  -moz-transition: background-position 0.1s linear;
+  -o-transition: background-position 0.1s linear;
+  transition: background-position 0.1s linear;
+}
+
+/* line 71, ../scss/_app/components/_buttons.css.scss */
+.button:focus {
+  outline: thin dotted #333;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+
+/* line 78, ../scss/_app/components/_buttons.css.scss */
+.button.active,
+.button:active {
+  background-color: #e6e6e6;
+  background-color: #d9d9d9 \9;
+  background-image: none;
+  color: #000;
+  outline: 0;
+  -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* --------------------------------------------------
+	:: Grid Components
+	-------------------------------------------------- */
+/* basic containers */
+/* line 7, ../scss/_app/components/_grid.css.scss */
+.container {
+  padding: 0 20px;
+  margin: 0;
+}
+
+/* line 12, ../scss/_app/components/_grid.css.scss */
+.column, .columns {
+  margin-left: 2%;
+  float: left;
+  min-height: 1px;
+  position: relative;
+}
+
+/* line 18, ../scss/_app/components/_grid.css.scss */
+.column:first-child, .columns:first-child {
+  margin-left: 0;
+}
+
+/* line 20, ../scss/_app/components/_grid.css.scss */
+.row {
+  width: 100%;
+  max-width: 1280px;
+  min-width: 300px;
+  margin: 0 auto;
+  vertical-align: top;
+}
+/* line 27, ../scss/_app/components/_grid.css.scss */
+.row .row {
+  min-width: 0;
+}
+/* line 31, ../scss/_app/components/_grid.css.scss */
+.row .row-content {
+  padding: 20px;
+}
+/* line 35, ../scss/_app/components/_grid.css.scss */
+.row .one {
+  width: 6.5%;
+}
+/* line 36, ../scss/_app/components/_grid.css.scss */
+.row .two {
+  width: 15%;
+}
+/* line 37, ../scss/_app/components/_grid.css.scss */
+.row .three {
+  width: 23.5%;
+}
+/* line 38, ../scss/_app/components/_grid.css.scss */
+.row .four {
+  width: 32%;
+}
+/* line 39, ../scss/_app/components/_grid.css.scss */
+.row .five {
+  width: 40.5%;
+}
+/* line 40, ../scss/_app/components/_grid.css.scss */
+.row .six {
+  width: 49%;
+}
+/* line 41, ../scss/_app/components/_grid.css.scss */
+.row .seven {
+  width: 57.5%;
+}
+/* line 42, ../scss/_app/components/_grid.css.scss */
+.row .eight {
+  width: 66%;
+}
+/* line 43, ../scss/_app/components/_grid.css.scss */
+.row .nine {
+  width: 74.5%;
+}
+/* line 44, ../scss/_app/components/_grid.css.scss */
+.row .ten {
+  width: 83%;
+}
+/* line 45, ../scss/_app/components/_grid.css.scss */
+.row .eleven {
+  width: 91.5%;
+}
+/* line 46, ../scss/_app/components/_grid.css.scss */
+.row .twelve {
+  width: 100%;
+}
+@media screen and (max-width: 1024px) {
+  /* line 49, ../scss/_app/components/_grid.css.scss */
+  .row .one, .row .two, .row .three, .row .four, .row .five, .row .six, .row .seven, .row .eight, .row .nine, .row .ten, .row .eleven, .row .twelve {
+    display: block;
+    float: none;
+    clear: both;
+    width: 100%;
+  }
+}
+
+/* line 58, ../scss/_app/components/_grid.css.scss */
+img, object, embed {
+  max-width: 100%;
+  height: auto;
+}
+
+/* line 62, ../scss/_app/components/_grid.css.scss */
+img {
+  -ms-interpolation-mode: bicubic;
+}
+
+/* Nicolas Gallagher's micro clearfix */
+/* line 67, ../scss/_app/components/_grid.css.scss */
+.row:before, .row:after, .clearfix:before, .clearfix:after {
+  content: "";
+  display: table;
+}
+
+/* line 68, ../scss/_app/components/_grid.css.scss */
+.row:after, .clearfix:after {
+  clear: both;
+}
+
+/* line 69, ../scss/_app/components/_grid.css.scss */
+.row, .clearfix {
+  zoom: 1;
+}
+
+/* -------------------------------------------------- 
+	:: Icon Components
+---------------------------------------------------*/
+/* icon defaults */
+/* line 7, ../scss/_app/components/_icons.css.scss */
+.icon {
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
+  width: 10px;
+  height: 10px;
+  margin: 0;
+  padding: 0;
+  background: url("../assets/img/bg/sprite.png") no-repeat 0 0 transparent;
+}
+
+/* retina icons */
+@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2 / 1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
+  /* line 26, ../scss/_app/components/_icons.css.scss */
+  .icon {
+    background-image: url("../img/bg/sprite@2x.png");
+    background-size: 300px 300px;
+  }
+}
+/* define icons */
+/* --------------------------------------------------
+	:: CSS Triangles
+---------------------------------------------------*/
+/* standard triangles */
+/* line 6, ../scss/_app/components/_triangles.css.scss */
+.triangle {
+  position: absolute;
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+}
+/* line 14, ../scss/_app/components/_triangles.css.scss */
+.triangle.arrow-up {
+  border-width: 20px;
+  border-bottom-color: #999;
+}
+/* line 19, ../scss/_app/components/_triangles.css.scss */
+.triangle.arrow-down {
+  border-width: 20px;
+  border-top-color: #999;
+}
+/* line 24, ../scss/_app/components/_triangles.css.scss */
+.triangle.arrow-right {
+  border-width: 20px;
+  border-left-color: #999;
+}
+/* line 29, ../scss/_app/components/_triangles.css.scss */
+.triangle.arrow-left {
+  border-width: 20px;
+  border-right-color: #999;
+}
+
+/* button triangles */
+/* line 37, ../scss/_app/components/_triangles.css.scss */
+.button-has-triangle {
+  position: relative;
+}
+/* line 40, ../scss/_app/components/_triangles.css.scss */
+.button-has-triangle .triangle {
+  position: absolute;
+  border-width: 10px;
+}
+/* line 45, ../scss/_app/components/_triangles.css.scss */
+.button-has-triangle .triangle.arrow-up {
+  top: -20px;
+  left: 50%;
+  margin-left: -10px;
+  border-bottom-color: #e9eaeb;
+}
+
+/* -------------------------------------------------- 
+	:: Selection Components
+---------------------------------------------------*/
+/* line 8, ../scss/_app/components/_selection.css.scss */
+::-moz-selection {
+  background: #e8e9e9;
+  color: white;
+  text-shadow: none;
+}
+
+/* line 9, ../scss/_app/components/_selection.css.scss */
+::selection {
+  background: #e8e9e9;
+  color: white;
+  text-shadow: none;
+}
+
+/* line 11, ../scss/_app/components/_selection.css.scss */
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+/* -------------------------------------------------- 
+	:: Visibility Affordances
+---------------------------------------------------*/
+/* line 6, ../scss/_app/components/_visibility.css.scss */
+.show-on-phones {
+  display: none;
+}
+
+/* line 7, ../scss/_app/components/_visibility.css.scss */
+.show-on-tablets {
+  display: none;
+}
+
+/* line 8, ../scss/_app/components/_visibility.css.scss */
+.show-on-desktops {
+  display: block;
+}
+
+/* line 10, ../scss/_app/components/_visibility.css.scss */
+.hide-on-phones {
+  display: block;
+}
+
+/* line 11, ../scss/_app/components/_visibility.css.scss */
+.hide-on-phones.icon {
+  display: inline-block;
+}
+
+/* line 12, ../scss/_app/components/_visibility.css.scss */
+.hide-on-tablets {
+  display: inline-block;
+}
+
+/* line 13, ../scss/_app/components/_visibility.css.scss */
+.hide-on-desktops {
+  display: none;
+}
+
+/* Modernizr-enabled tablet targeting */
+@media only screen and (max-width: 1280px) and (min-width: 768px) {
+  /* line 17, ../scss/_app/components/_visibility.css.scss */
+  .hide-on-phones {
+    display: block;
+  }
+
+  /* line 18, ../scss/_app/components/_visibility.css.scss */
+  .hide-on-tablets {
+    display: none;
+  }
+
+  /* line 19, ../scss/_app/components/_visibility.css.scss */
+  .hide-on-desktops {
+    display: block;
+  }
+
+  /* line 21, ../scss/_app/components/_visibility.css.scss */
+  .show-on-phones {
+    display: none;
+  }
+
+  /* line 22, ../scss/_app/components/_visibility.css.scss */
+  .show-on-tablets {
+    display: block;
+  }
+
+  /* line 23, ../scss/_app/components/_visibility.css.scss */
+  .show-on-desktops {
+    display: none;
+  }
+}
+/* Mobile Setup */
+@media only screen and (max-width: 767px) {
+  /* line 28, ../scss/_app/components/_visibility.css.scss */
+  .hide-on-phones {
+    display: none;
+  }
+
+  /* line 29, ../scss/_app/components/_visibility.css.scss */
+  .hide-on-tablets {
+    display: inline-block;
+  }
+
+  /* line 30, ../scss/_app/components/_visibility.css.scss */
+  .hide-on-desktops {
+    display: block;
+  }
+
+  /* line 32, ../scss/_app/components/_visibility.css.scss */
+  .show-on-phones {
+    display: block !important;
+  }
+
+  /* line 33, ../scss/_app/components/_visibility.css.scss */
+  .show-on-tablets {
+    display: none;
+  }
+
+  /* line 34, ../scss/_app/components/_visibility.css.scss */
+  .show-on-desktops {
+    display: none;
+  }
+}
+/* font-face */
+@font-face {
+  font-family: "GeneralFoundicons";
+  src: url("../assets/fonts/foundicons/general_foundicons.eot");
+  src: url("../assets/fonts/foundicons/general_foundicons.eot?#iefix") format("embedded-opentype"), url("../assets/fonts/foundicons/general_foundicons.woff") format("woff"), url("../assets/fonts/foundicons/general_foundicons.ttf") format("truetype"), url("../assets/fonts/foundicons/general_foundicons.svg#GeneralFoundicons") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* global foundicon styles */
+/* line 7, ../scss/_app/components/_foundicons/general_foundicons.css.scss */
+[class*="foundicon-"] {
+  display: inline;
+  width: auto;
+  height: auto;
+  line-height: inherit;
+  vertical-align: baseline;
+  background-image: none;
+  background-position: 0 0;
+  background-repeat: repeat;
+}
+
+/* line 17, ../scss/_app/components/_foundicons/general_foundicons.css.scss */
+[class*="foundicon-"]:before {
+  font-family: "GeneralFoundicons";
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: inherit;
+}
+
+/* icons */
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-settings:before {
+  content: "\f000";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-heart:before {
+  content: "\f001";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-star:before {
+  content: "\f002";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-plus:before {
+  content: "\f003";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-minus:before {
+  content: "\f004";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-checkmark:before {
+  content: "\f005";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-remove:before {
+  content: "\f006";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-mail:before {
+  content: "\f007";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-calendar:before {
+  content: "\f008";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-page:before {
+  content: "\f009";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-tools:before {
+  content: "\f00a";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-globe:before {
+  content: "\f00b";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-home:before {
+  content: "\f00c";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-quote:before {
+  content: "\f00d";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-people:before {
+  content: "\f00e";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-monitor:before {
+  content: "\f00f";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-laptop:before {
+  content: "\f010";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-phone:before {
+  content: "\f011";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-cloud:before {
+  content: "\f012";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-error:before {
+  content: "\f013";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-right-arrow:before {
+  content: "\f014";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-left-arrow:before {
+  content: "\f015";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-up-arrow:before {
+  content: "\f016";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-down-arrow:before {
+  content: "\f017";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-trash:before {
+  content: "\f018";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-add-doc:before {
+  content: "\f019";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-edit:before {
+  content: "\f01a";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-lock:before {
+  content: "\f01b";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-unlock:before {
+  content: "\f01c";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-refresh:before {
+  content: "\f01d";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-paper-clip:before {
+  content: "\f01e";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-video:before {
+  content: "\f01f";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-photo:before {
+  content: "\f020";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-graph:before {
+  content: "\f021";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-idea:before {
+  content: "\f022";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-mic:before {
+  content: "\f023";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-cart:before {
+  content: "\f024";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-address-book:before {
+  content: "\f025";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-compass:before {
+  content: "\f026";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-flag:before {
+  content: "\f027";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-location:before {
+  content: "\f028";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-clock:before {
+  content: "\f029";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-folder:before {
+  content: "\f02a";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-inbox:before {
+  content: "\f02b";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-website:before {
+  content: "\f02c";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-smiley:before {
+  content: "\f02d";
+}
+
+/* line 6, ../scss/_app/components/_foundicons/_settings_general_foundicons.css.scss */
+.foundicon-search:before {
+  content: "\f02e";
+}
+
+@font-face {
+  font-family: 'icomoon';
+  src: url("../assets/fonts/icomoon/icomoon.eot");
+  src: url("../assets/fonts/icomoon/icomoon.eot?#iefix") format("embedded-opentype"), url("../assets/fonts/icomoon/icomoon.ttf") format("truetype"), url("../assets/fonts/icomoon/icomoon.woff") format("woff"), url("../assets/fonts/icomoon/icomoon.svg#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* line 13, ../scss/_app/components/_icomoon.css.scss */
+[class^="icon-"].icomoon, [class*=" icon-"].icomoon {
+  font-family: 'icomoon';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  padding-right: 10px;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* line 30, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-home:before {
+  content: "\e600";
+}
+/* line 33, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-support:before {
+  content: "\e601";
+}
+/* line 36, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-clock:before {
+  content: "\e602";
+}
+/* line 39, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-user:before {
+  content: "\e603";
+}
+/* line 42, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-contract:before {
+  content: "\e604";
+}
+/* line 45, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-expand:before {
+  content: "\e605";
+}
+/* line 48, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-cog:before {
+  content: "\e606";
+}
+/* line 51, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-star:before {
+  content: "\e607";
+}
+/* line 54, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-smiley:before {
+  content: "\e608";
+}
+/* line 57, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-tongue:before {
+  content: "\e609";
+}
+/* line 60, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-close:before {
+  content: "\e60a";
+}
+/* line 63, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-checkmark:before {
+  content: "\e60b";
+}
+/* line 66, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-play:before {
+  content: "\e60c";
+}
+/* line 69, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-pause:before {
+  content: "\e60d";
+}
+/* line 72, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-volume-high:before {
+  content: "\e60e";
+}
+/* line 75, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-volume-medium:before {
+  content: "\e60f";
+}
+/* line 78, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-volume-low:before {
+  content: "\e610";
+}
+/* line 81, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-volume-mute:before {
+  content: "\e611";
+}
+/* line 84, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-pacman:before {
+  content: "\e612";
+}
+/* line 87, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-stack:before {
+  content: "\e613";
+}
+/* line 90, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-paint-format:before {
+  content: "\e614";
+}
+/* line 93, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-minus:before {
+  content: "\e615";
+}
+/* line 96, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-plus:before {
+  content: "\e616";
+}
+/* line 99, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-checkbox-checked:before {
+  content: "\e617";
+}
+/* line 102, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-checkbox-unchecked:before {
+  content: "\e618";
+}
+/* line 105, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-google-plus:before {
+  content: "\e619";
+}
+/* line 108, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-facebook:before {
+  content: "\e61a";
+}
+/* line 111, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-twitter:before {
+  content: "\e61b";
+}
+/* line 114, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-vimeo2:before {
+  content: "\e61c";
+}
+/* line 117, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-lanyrd:before {
+  content: "\e61d";
+}
+/* line 120, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-picassa:before {
+  content: "\e61e";
+}
+/* line 123, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-flickr:before {
+  content: "\e61f";
+}
+/* line 126, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-dribbble:before {
+  content: "\e620";
+}
+/* line 129, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-forrst:before {
+  content: "\e621";
+}
+/* line 132, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-deviantart:before {
+  content: "\e622";
+}
+/* line 135, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-tumblr:before {
+  content: "\e623";
+}
+/* line 138, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-github:before {
+  content: "\e624";
+}
+/* line 141, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-pinterest:before {
+  content: "\e625";
+}
+/* line 144, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-xing:before {
+  content: "\e626";
+}
+/* line 147, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-linkedin:before {
+  content: "\e627";
+}
+/* line 150, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-reddit:before {
+  content: "\e628";
+}
+/* line 153, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-delicious:before {
+  content: "\e629";
+}
+/* line 156, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-html5:before {
+  content: "\e62a";
+}
+/* line 159, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-chrome:before {
+  content: "\e62b";
+}
+/* line 162, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-firefox:before {
+  content: "\e62c";
+}
+/* line 165, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-IE:before {
+  content: "\e62d";
+}
+/* line 168, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-opera:before {
+  content: "\e62e";
+}
+/* line 171, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-safari:before {
+  content: "\e62f";
+}
+/* line 174, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-IcoMoon:before {
+  content: "\e630";
+}
+/* line 177, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-lastfm:before {
+  content: "\e631";
+}
+/* line 180, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-stumbleupon:before {
+  content: "\e632";
+}
+/* line 183, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-stackoverflow:before {
+  content: "\e633";
+}
+/* line 186, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-flattr:before {
+  content: "\e634";
+}
+/* line 189, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-soundcloud:before {
+  content: "\e635";
+}
+/* line 192, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-windows8:before {
+  content: "\e636";
+}
+/* line 195, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-android:before {
+  content: "\e637";
+}
+/* line 198, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-apple:before {
+  content: "\e638";
+}
+/* line 201, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-github2:before {
+  content: "\e639";
+}
+/* line 204, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-blogger:before {
+  content: "\e63a";
+}
+/* line 207, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-flickr2:before {
+  content: "\e63b";
+}
+/* line 210, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-feed:before {
+  content: "\e63c";
+}
+/* line 213, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-mail:before {
+  content: "\e63d";
+}
+/* line 216, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-smiley:before {
+  content: "\e63e";
+}
+/* line 219, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-tongue:before {
+  content: "\e63f";
+}
+/* line 222, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-sad:before {
+  content: "\e640";
+}
+/* line 225, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-sad2:before {
+  content: "\e641";
+}
+/* line 228, ../scss/_app/components/_icomoon.css.scss */
+.icomoon.icon-pencil:before {
+  content: "\e642";
+}
+
+/* -------------------------------------------------- 
+	:: Plugin Tooltip
+---------------------------------------------------*/
+/* line 5, ../scss/_app/libs/jquery.tooltip.css.scss */
+#tooltip {
+  position: absolute;
+  z-index: 8050;
+  display: block;
+  padding: 5px;
+  font-size: 12px;
+  visibility: visible;
+  max-width: 200px;
+  padding: 3px 8px;
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  background-color: #000000;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* -------------------------------------------------- 
+	:: Print Base Styles
+---------------------------------------------------*/
+/* line 5, ../scss/_app/base/_print.css.scss */
+.show-on-print {
+  display: none !important;
+}
+
+@media print {
+  /* Setup */
+  /* line 10, ../scss/_app/base/_print.css.scss */
+  * {
+    /* Black prints faster: sanbeiji.com/archives/953 */
+    background: transparent !important;
+    color: black !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -ms-filter: none !important;
+  }
+
+  /* line 18, ../scss/_app/base/_print.css.scss */
+  p a, p a:visited {
+    color: #444 !important;
+    text-decoration: underline;
+  }
+
+  /* line 19, ../scss/_app/base/_print.css.scss */
+  abbr[title]:after {
+    content: " (" attr(title) ")";
+  }
+
+  /* line 20, ../scss/_app/base/_print.css.scss */
+  .ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after {
+    content: "";
+  }
+
+  /* Don't show links for images, or javascript/internal links */
+  /* line 21, ../scss/_app/base/_print.css.scss */
+  pre, blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+
+  /* line 22, ../scss/_app/base/_print.css.scss */
+  thead {
+    display: table-header-group;
+  }
+
+  /* css-discuss.incutio.com/wiki/Printing_Tables */
+  /* line 23, ../scss/_app/base/_print.css.scss */
+  tr, img {
+    page-break-inside: avoid;
+  }
+
+  @page {
+    margin: 0.5cm;
+}
+
+  /* line 25, ../scss/_app/base/_print.css.scss */
+  p, h2, h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* line 26, ../scss/_app/base/_print.css.scss */
+  h2, h3 {
+    page-break-after: avoid;
+  }
+
+  /* line 28, ../scss/_app/base/_print.css.scss */
+  .hide-on-print {
+    display: none !important;
+  }
+
+  /* line 29, ../scss/_app/base/_print.css.scss */
+  .show-on-print {
+    display: block !important;
+  }
+}

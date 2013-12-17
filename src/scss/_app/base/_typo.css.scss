@@ -1,0 +1,95 @@
+
+/* -------------------------------------------------- 
+	:: Typo Base Styles
+---------------------------------------------------*/
+
+	body, select, textarea, input, button {
+
+		@include font-size(14);
+		@include font-family-standard;
+
+		color: $font-color;
+
+		/**
+		 * ie phone note: If the viewport is set using <meta> element, the value
+		 * of the CSS text-size-adjust property is ignored.
+		 *
+		 * webkit note: If -webkit-text-size-adjust is explicitely set to none,
+		 * Webkit-based desktop browsers will prevent the user to zoom in or out
+		 * the Web page
+		 */
+		-webkit-text-size-adjust: 100%;
+		-moz-text-size-adjust: 100%;
+		-ms-text-size-adjust: 100%;
+		text-size-adjust: 100%;
+
+		// better font rendering
+		/*-webkit-text-stroke: 0.1px; or -webkit-text-stroke: 1px rgba(0, 0, 0, 0.1); or text-shadow: #333 0px 0px 1px; */
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+
+	}
+
+	h1, h2, h3, h4, h5, h6 {
+		@include font-family-headline;
+		margin: 0;
+		font-weight: 400;
+		line-height: 1.15;
+		vertical-align: baseline;
+		color: $font-color-headline;
+	}
+
+	h1 {
+		@include font-size(26);
+		margin: 20px 0 9px;
+		font-weight: 700;
+	}
+	h2, h3, h4, h5, h6 {
+		@include font-size(20);
+		margin: 0 0 10px;
+	}
+
+	p {
+		margin: 0 0 22px;
+		line-height: 1.5;
+	}
+
+	b, strong {
+        font-weight: 700;
+    }
+
+	em, i {
+		font-style: italic;
+		text-transform: none;
+	}
+
+	small {
+        font-size: 80%;
+    }
+
+	address {
+		vertical-align: baseline;
+		font-style: normal;
+		line-height: 1.6;
+	}
+
+	sub, sup {
+        font-size: 75%;
+        line-height: 0;
+        position: relative;
+        vertical-align: baseline;
+    }
+    sup { top: -0.4em; }
+    sub { bottom: -0.25em; }
+
+	blockquote, q {
+		quotes: none;
+	}
+	blockquote:before, blockquote:after,
+	q:before, q:after {
+		content: '';
+		content: none;
+	}
+
+	abbr, acronym { text-transform: uppercase; font-size: 90%; color: #222; border-bottom: 1px solid #ddd; cursor: help; }
+	abbr { text-transform: none; }

@@ -1,0 +1,84 @@
+/* -------------------------------------------------- 
+	:: Scss Config Vars
+---------------------------------------------------*/
+
+	// colors
+	/*$color-red: #d52b1e;
+	$color-yellow: #febe10;
+	$color-pink: #fe968f;
+	$color-blue: #66cad9;
+	$color-blue-dark: #2c3138;
+	$color-green: #7c9e21;*/
+
+	$color-white: #fff;
+	$color-black: #000;
+	/*$color-grey: #bcbcbc;
+	$color-grey-light: #e9eaeb;
+	$color-grey-dark: #646464;*/
+
+
+	// shorter fallback vars
+	$color-background: #fff;
+	/*$color-error: #c20c0e;
+	$color-default: #000;
+	$color-border: #ddd;
+	$color-nav-hover: #63140e;
+	$color-tap-highlight: $color-red;*/
+
+	// typography
+	$font-color: #333;
+	$font-color-headline: #222;
+
+    @mixin font-family-standard {
+		font-family: 'Helvetica Neue', 'HelveticaNeue', Helvetica, "Lucida Grande", sans-serif;
+	}
+	@mixin font-family-bold {
+		font-family: 'Helvetica Neue', 'HelveticaNeue', Helvetica, "Lucida Grande", sans-serif;
+		font-weight: 700;
+	}
+	@mixin font-family-headline {
+		font-family: 'Helvetica Neue', 'HelveticaNeue', Helvetica, "Lucida Grande", sans-serif;
+	}
+
+
+    // links
+	$link-color: #626262;
+	$link-color-hover: #055ed2;
+	$link-color-active: #999;
+	$link-color-focus: #055ed2;
+
+
+    /**
+     * backgrounds and colors
+     */
+
+	$background-color: #f4f4f4;
+    $background-body: url('../img/bg/body-bg.png') repeat 0 0 transparent;
+
+	$content-main-max-width: 1440px;
+
+    /**
+     * media query breakpoints
+     */
+	$breakpoint-max: 1630px;
+    $breakpoint-desktop: 1440px;
+	$breakpoint-desktop-medium: 1350px;
+    $breakpoint-desktop-small: 1280px;
+	$breakpoint-notebook: 1200px;
+	$breakpoint-notebook-medium: 1140px;
+	$breakpoint-notebook-small: 1080px;
+	$breakpoint-landscape: 1024px;
+	$breakpoint-landscape-medium: 960px;
+	$breakpoint-landscape-small: 900px;
+	$breakpoint-portrait: 767px;
+	$breakpoint-mobile: 650px;
+
+
+	/**
+	 * left navigation offsets
+	 */
+	$nav-offset-breakpoint-max: 320px;
+    $nav-offset-breakpoint-desktop: 300px;
+    $nav-offset-breakpoint-desktop-small: 280px;
+	$nav-offset-breakpoint-notebook: 260px;
+	$nav-offset-breakpoint-notebook-small: 240px;

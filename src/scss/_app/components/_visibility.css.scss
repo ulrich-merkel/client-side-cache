@@ -1,0 +1,35 @@
+
+/* -------------------------------------------------- 
+	:: Visibility Affordances
+---------------------------------------------------*/
+
+	.show-on-phones { display: none; }	
+	.show-on-tablets { display: none; }
+	.show-on-desktops { display: block; }
+
+	.hide-on-phones { display: block; }
+	.hide-on-phones.icon { display: inline-block; }	
+	.hide-on-tablets { display: inline-block; }
+	.hide-on-desktops { display: none; }
+
+	/* Modernizr-enabled tablet targeting */
+	@media only screen and (max-width: $breakpoint-desktop-small) and (min-width: 768px) {
+		.hide-on-phones { display: block; }
+		.hide-on-tablets { display: none; }
+		.hide-on-desktops { display: block; }
+		
+		.show-on-phones { display: none; }
+		.show-on-tablets { display: block; }
+		.show-on-desktops { display: none; }
+	}
+
+	/* Mobile Setup */
+	@media only screen and (max-width: $breakpoint-portrait) {
+		.hide-on-phones { display: none; }
+		.hide-on-tablets { display: inline-block; }
+		.hide-on-desktops { display: block; }
+		
+		.show-on-phones { display: block !important;}
+		.show-on-tablets { display: none; }
+		.show-on-desktops { display: none; }
+	}

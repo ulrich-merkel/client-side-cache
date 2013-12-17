@@ -1,0 +1,27 @@
+{
+    "name": "Pacman",
+    "version": "0.1.1",
+    "author": "Ulrich Merkel",
+    "private": true,
+
+    "devDependencies": {
+
+        "grunt": "~0.4.0",
+
+        "grunt-contrib-compass": "*",
+        "grunt-contrib-concat": "*",
+        "grunt-contrib-copy": "*",
+        "grunt-contrib-cssmin": "*",
+        "grunt-contrib-sass": "*",
+        "grunt-contrib-uglify": "*",
+        "grunt-contrib-watch": "*",
+
+        "grunt-cssc": "*",
+        "grunt-imageoptim": "*",
+        "grunt-jsdoc-plugin": "*",
+        "grunt-htmlhint": "*",
+
+        "matchdep": "*"
+
+    }
+}

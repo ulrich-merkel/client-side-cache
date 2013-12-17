@@ -1,0 +1,10 @@
+## including bootstrap.js
+
+java -jar /Library/WebServer/Documents/library/Javascript/Tools/closureCompiler/compiler.jar --charset  utf-8  --js _app/helpers/namespace.js  _app/helpers/utils.js _app/helpers/queue.js _app/helpers/client.js _app/helpers/dom.js _app/cache/storage/adapter/fileSystem.js  _app/cache/storage/adapter/indexedDatabase.js _app/cache/storage/adapter/webSqlDatabase.js _app/cache/storage/adapter/webStorage.js _app/cache/storage/adapter/applicationCache.js _app/cache/storage/controller.js _app/cache/controller.js _app/cache/interface.js _app/cache/bootstrap.js --js_output_file cache.min.js  --summary_detail_level 3 --compilation_level SIMPLE_OPTIMIZATIONS --formatting=pretty_print
+
+java -jar /Library/WebServer/Documents/library/Javascript/Tools/closureCompiler/compiler.jar --charset  utf-8  --js _app/helpers/namespace.js  _app/helpers/utils.js _app/helpers/queue.js _app/helpers/client.js _app/helpers/dom.js _app/cache/storage/adapter/fileSystem.js  _app/cache/storage/adapter/indexedDatabase.js _app/cache/storage/adapter/webSqlDatabase.js _app/cache/storage/adapter/webStorage.js _app/cache/storage/adapter/applicationCache.js _app/cache/storage/controller.js _app/cache/controller.js _app/cache/interface.js _app/cache/bootstrap.js --js_output_file cache.min.js --create_source_map cache.min.js.map --source_map_format=V3 --summary_detail_level 3 --compilation_level SIMPLE_OPTIMIZATIONS 
+
+
+## whithout bootstrap.js
+
+java -jar /Library/WebServer/Documents/library/Javascript/Tools/closureCompiler/compiler.jar --charset  utf-8  --js _app/helpers/namespace.js  _app/helpers/utils.js _app/helpers/queue.js _app/helpers/client.js _app/helpers/dom.js _app/cache/storage/adapter/fileSystem.js  _app/cache/storage/adapter/indexedDatabase.js _app/cache/storage/adapter/webSqlDatabase.js _app/cache/storage/adapter/webStorage.js _app/cache/storage/adapter/applicationCache.js _app/cache/storage/controller.js _app/cache/controller.js _app/cache/interface.js --js_output_file cache.min.js  --summary_detail_level 3 --create_source_map cache.min.js.map --source_map_format=V3 --compilation_level SIMPLE_OPTIMIZATIONS

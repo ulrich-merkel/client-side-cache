@@ -1,0 +1,62 @@
+/* default extends / often used combinations
+====================================================================== */
+
+// the default image-replacement method
+.ir,
+%ir {
+  overflow: hidden;
+  border: 0;
+  background-color: transparent;
+
+  &:before {
+    display: block;
+    width: 0;
+    height: 150%;
+    content: "";
+  }
+}
+
+// completely hidden
+.hidden,
+%hidden {
+  display: none !important;
+  visibility: hidden;
+}
+
+// hidden, but focusable and screenreader-compatible
+.visuallyhidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+
+  &.focusable:active,
+  &.focusable:focus {
+    position: static;
+    width: auto; height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+  }
+}
+
+// default clearfix class
+%clearfix:before,
+%clearfix:after {
+  display: table;
+  content: " ";
+}
+
+%clearfix:after {
+  clear: both;
+}
+
+.clearfix,
+.cf {
+  @extend %clearfix;
+}
+

@@ -1,0 +1,30 @@
+
+/* -------------------------------------------------- 
+	:: Link Base Styles
+---------------------------------------------------*/
+
+    a, button {
+        color: $link-color;
+        text-decoration: none;
+
+		@include transition(background 0.5s ease-in-out);
+		@include transition(color 0.3s ease-in-out);
+    }
+
+	.desktop a:hover, .desktop button:hover {
+		color: $link-color-hover;
+	}
+
+	a:active {
+        color: $link-color-active;
+    }
+
+    a:focus {
+		color: $link-color-focus;
+        outline: thin dotted;
+    }
+
+    a:active,
+    a:hover {
+        outline: 0;
+    }

@@ -1,0 +1,51 @@
+/* --------------------------------------------------
+	:: Typographic mixins
+---------------------------------------------------*/
+
+    // Font size mixin to include px and rem
+	@mixin font-size($size, $is-important: false) {
+		$size: if(unitless($size), $size, $size / 1px);
+
+		@if $is-important {
+			font-size: $size + px !important;
+			font-size: ($size / 10) + rem !important;
+		} @else {
+			font-size: $size + px;
+			font-size: ($size / 10) + rem;
+		}
+	}
+
+    // Source: https://github.com/h5bp/html5-boilerplate/commit/aa0396eae757
+    @mixin hide-text {
+        font: 0/0 a;
+        color: transparent;
+        text-shadow: none;
+        background-color: transparent;
+        border: 0;
+    }
+
+    /* Requires inline-block or block for proper styling */
+    @mixin text-overflow {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /*
+     * @font-face mixin
+     * @include font-face('family', '../fonts/', 'myfontname');
+     */
+    @mixin font-face($font-family, $font-url, $font-name) {
+        @font-face {
+            font: {
+                family: $font-family;
+                style: normal;
+                weight: normal;
+            }
+            src: url($font-url + '/' + $font-name + '.eot');
+            src: url($font-url + '/' + $font-name + '.eot') format('embedded-opentype'),
+                 url($font-url + '/' + $font-name + '.woff') format('woff'),
+                 url($font-url + '/' + $font-name + '.ttf') format('truetype'),
+                 url($font-url + '/' + $font-name + '.svg#' + $font-name) format('svg');
+        }
+    }

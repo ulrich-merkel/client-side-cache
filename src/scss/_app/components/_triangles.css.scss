@@ -1,0 +1,52 @@
+/* --------------------------------------------------
+	:: CSS Triangles
+---------------------------------------------------*/
+
+	/* standard triangles */
+	.triangle {
+		position: absolute;
+		display: inline-block;
+		width: 0;
+		height: 0;
+		border-color: transparent;
+		border-style: solid;
+
+		&.arrow-up {
+			border-width: 20px;
+			border-bottom-color: #999;
+		}
+
+		&.arrow-down {
+			border-width: 20px;
+			border-top-color: #999;
+		}
+
+		&.arrow-right {
+			border-width: 20px;
+			border-left-color: #999;
+		}
+
+		&.arrow-left {
+			border-width: 20px;
+			border-right-color: #999;
+		}
+
+	}
+
+	/* button triangles */
+	.button-has-triangle {
+		position: relative;
+
+		.triangle {
+			
+			position: absolute;
+			border-width: 10px;
+
+			&.arrow-up {
+				top: -20px;
+				left: 50%;
+				margin-left: -10px;
+				border-bottom-color: #e9eaeb;
+			}
+		}
+	}

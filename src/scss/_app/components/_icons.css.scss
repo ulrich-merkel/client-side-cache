@@ -1,0 +1,35 @@
+
+/* -------------------------------------------------- 
+	:: Icon Components
+---------------------------------------------------*/
+
+	/* icon defaults */
+	.icon {
+		display: inline-block;
+		*display: inline;
+		zoom: 1;
+		width: 10px;
+		height: 10px;
+		margin: 0;
+		padding: 0;
+		background: url('../assets/img/bg/sprite.png') no-repeat 0 0 transparent;
+	}
+
+	/* retina icons */
+	@media
+	only screen and (-webkit-min-device-pixel-ratio: 2),
+	only screen and (   min--moz-device-pixel-ratio: 2),
+	only screen and (     -o-min-device-pixel-ratio: 2/1),
+	only screen and (        min-device-pixel-ratio: 2),
+	only screen and (                min-resolution: 192dpi),
+	only screen and (                min-resolution: 2dppx) {
+		.icon {
+			background-image: url('../img/bg/sprite@2x.png');
+			background-size: 300px 300px;
+		}
+	}
+
+	/* define icons */
+	.icon {
+		
+	}

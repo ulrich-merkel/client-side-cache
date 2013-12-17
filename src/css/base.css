@@ -1,0 +1,400 @@
+/* -------------------------------------------------- 
+	:: Scss Config Vars
+---------------------------------------------------*/
+/*$color-red: #d52b1e;
+$color-yellow: #febe10;
+$color-pink: #fe968f;
+$color-blue: #66cad9;
+$color-blue-dark: #2c3138;
+$color-green: #7c9e21;*/
+/*$color-grey: #bcbcbc;
+$color-grey-light: #e9eaeb;
+$color-grey-dark: #646464;*/
+/*$color-error: #c20c0e;
+$color-default: #000;
+$color-border: #ddd;
+$color-nav-hover: #63140e;
+$color-tap-highlight: $color-red;*/
+/**
+ * backgrounds and colors
+ */
+/**
+ * media query breakpoints
+ */
+/**
+ * left navigation offsets
+ */
+/* default extends / often used combinations
+====================================================================== */
+/* line 6, ../scss/_app/partials/_general.scss */
+.ir {
+  overflow: hidden;
+  border: 0;
+  background-color: transparent;
+}
+/* line 11, ../scss/_app/partials/_general.scss */
+.ir:before {
+  display: block;
+  width: 0;
+  height: 150%;
+  content: "";
+}
+
+/* line 21, ../scss/_app/partials/_general.scss */
+.hidden {
+  display: none !important;
+  visibility: hidden;
+}
+
+/* line 27, ../scss/_app/partials/_general.scss */
+.visuallyhidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+/* line 38, ../scss/_app/partials/_general.scss */
+.visuallyhidden.focusable:active, .visuallyhidden.focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+}
+
+/* line 49, ../scss/_app/partials/_general.scss */
+.clearfix:before,
+.cf:before,
+.clearfix:after,
+.cf:after {
+  display: table;
+  content: " ";
+}
+
+/* line 54, ../scss/_app/partials/_general.scss */
+.clearfix:after,
+.cf:after {
+  clear: both;
+}
+
+/* helpers for dimensions and positions
+====================================================================== */
+/*%tiled {
+  margin: 0 $margin-default $margin-default 0;
+  float: left;
+}*/
+/* --------------------------------------------------
+	:: Display mixins
+---------------------------------------------------*/
+/* --------------------------------------------------
+	:: Typographic mixins
+---------------------------------------------------*/
+/* Requires inline-block or block for proper styling */
+/*
+ * @font-face mixin
+ * @include font-face('family', '../fonts/', 'myfontname');
+ */
+/* --------------------------------------------------
+	:: Css3 mixins
+---------------------------------------------------*/
+/*
+ * Used to normalise select dropdowns
+ * Styles from formalize.me
+ * @include normaliseSelect();
+ */
+/* mixins and other helpers
+====================================================================== */
+/*	--------------------------------------------------
+	:: Global Reset & Standards
+	-------------------------------------------------- */
+/* line 17, ../scss/_app/base/_reset.css.scss */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+/* line 24, ../scss/_app/base/_reset.css.scss */
+html {
+  font-size: 62.5%;
+}
+
+/* line 27, ../scss/_app/base/_reset.css.scss */
+body {
+  position: relative;
+  line-height: 1;
+}
+
+/* HTML5 display-role reset for older browsers */
+/* line 34, ../scss/_app/base/_reset.css.scss */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+/* -------------------------------------------------- 
+	:: Typo Base Styles
+---------------------------------------------------*/
+/* line 6, ../scss/_app/base/_typo.css.scss */
+body, select, textarea, input, button {
+  font-size: 14px;
+  font-size: 1.4rem;
+  font-family: 'Helvetica Neue', 'HelveticaNeue', Helvetica, "Lucida Grande", sans-serif;
+  color: #333333;
+  /**
+   * ie phone note: If the viewport is set using <meta> element, the value
+   * of the CSS text-size-adjust property is ignored.
+   *
+   * webkit note: If -webkit-text-size-adjust is explicitely set to none,
+   * Webkit-based desktop browsers will prevent the user to zoom in or out
+   * the Web page
+   */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /*-webkit-text-stroke: 0.1px; or -webkit-text-stroke: 1px rgba(0, 0, 0, 0.1); or text-shadow: #333 0px 0px 1px; */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* line 33, ../scss/_app/base/_typo.css.scss */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Helvetica Neue', 'HelveticaNeue', Helvetica, "Lucida Grande", sans-serif;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.15;
+  vertical-align: baseline;
+  color: #222222;
+}
+
+/* line 42, ../scss/_app/base/_typo.css.scss */
+h1 {
+  font-size: 26px;
+  font-size: 2.6rem;
+  margin: 20px 0 9px;
+  font-weight: 700;
+}
+
+/* line 47, ../scss/_app/base/_typo.css.scss */
+h2, h3, h4, h5, h6 {
+  font-size: 20px;
+  font-size: 2rem;
+  margin: 0 0 10px;
+}
+
+/* line 52, ../scss/_app/base/_typo.css.scss */
+p {
+  margin: 0 0 22px;
+  line-height: 1.5;
+}
+
+/* line 57, ../scss/_app/base/_typo.css.scss */
+b, strong {
+  font-weight: 700;
+}
+
+/* line 61, ../scss/_app/base/_typo.css.scss */
+em, i {
+  font-style: italic;
+  text-transform: none;
+}
+
+/* line 66, ../scss/_app/base/_typo.css.scss */
+small {
+  font-size: 80%;
+}
+
+/* line 70, ../scss/_app/base/_typo.css.scss */
+address {
+  vertical-align: baseline;
+  font-style: normal;
+  line-height: 1.6;
+}
+
+/* line 76, ../scss/_app/base/_typo.css.scss */
+sub, sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+/* line 82, ../scss/_app/base/_typo.css.scss */
+sup {
+  top: -0.4em;
+}
+
+/* line 83, ../scss/_app/base/_typo.css.scss */
+sub {
+  bottom: -0.25em;
+}
+
+/* line 85, ../scss/_app/base/_typo.css.scss */
+blockquote, q {
+  quotes: none;
+}
+
+/* line 89, ../scss/_app/base/_typo.css.scss */
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+
+/* line 94, ../scss/_app/base/_typo.css.scss */
+abbr, acronym {
+  text-transform: uppercase;
+  font-size: 90%;
+  color: #222;
+  border-bottom: 1px solid #ddd;
+  cursor: help;
+}
+
+/* line 95, ../scss/_app/base/_typo.css.scss */
+abbr {
+  text-transform: none;
+}
+
+/* -------------------------------------------------- 
+	:: Component Loading Layer
+---------------------------------------------------*/
+/* line 5, ../scss/_app/components/_layers.css.scss */
+.layer, .layer-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: block;
+}
+
+/* line 13, ../scss/_app/components/_layers.css.scss */
+.layer {
+  z-index: 9000;
+}
+
+/* line 16, ../scss/_app/components/_layers.css.scss */
+.layer-content {
+  position: fixed;
+  z-index: 3002;
+  top: 25%;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* line 24, ../scss/_app/components/_layers.css.scss */
+.layer-headline, .layer-subline {
+  display: block;
+  color: #222222;
+}
+
+/* line 28, ../scss/_app/components/_layers.css.scss */
+.layer-headline {
+  font-size: 40px;
+  font-size: 4rem;
+  font-weight: 400;
+  margin: 0 20px 20px;
+}
+
+/* line 33, ../scss/_app/components/_layers.css.scss */
+.layer-subline {
+  height: 35px;
+  font-size: 14px;
+  font-weight: 200;
+  padding: 0 0 40px;
+  margin: 0 0 40px;
+  background: url("../assets/img/bg/ajax-loader.gif") no-repeat bottom center #f4f4f4;
+}
+
+/* line 41, ../scss/_app/components/_layers.css.scss */
+.layer-background {
+  z-index: 3001;
+  background: #f4f4f4;
+}
+
+/* line 47, ../scss/_app/components/_layers.css.scss */
+.lt-ie9 #layer-no-js .layer-background, .lt-ie9 #layer-no-js .layer,
+.lt-ie9 #layer-ie .layer-background, .lt-ie9 #layer-ie .layer,
+.lt-ie9 #layer-update .layer-background, .lt-ie9 #layer-update .layer {
+  filter: alpha(opacity=100);
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+}
+
+/* line 52, ../scss/_app/components/_layers.css.scss */
+.layer-progress-bar {
+  width: 100%;
+  height: 20px;
+  margin: 0 auto;
+  text-align: center;
+  background-color: #eee;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+
+/* line 67, ../scss/_app/components/_layers.css.scss */
+progress[value] {
+  /* Reset the default appearance */
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+}
+
+/* line 78, ../scss/_app/components/_layers.css.scss */
+progress[value]::-webkit-progress-bar, .layer-progress-bar {
+  background-color: #eee;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+
+/* line 83, ../scss/_app/components/_layers.css.scss */
+progress[value]::-webkit-progress-value, .layer-progress-value {
+  position: relative;
+  display: block;
+  width: 10%;
+  height: 20px;
+  background: #f44;
+  -o-transition: width .3s linear;
+  -ms-transition: width .3s linear;
+  -moz-transition: width .3s linear;
+  -webkit-transition: width .3s linear;
+  transition: width .3s linear;
+  background-image: -webkit-linear-gradient(-45deg, transparent 33%, rgba(0, 0, 0, 0.1) 33%, rgba(0, 0, 0, 0.1) 66%, transparent 66%), -webkit-linear-gradient(top, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.25)), -webkit-linear-gradient(left, #0099cc, #ff4444);
+  /*border-radius: 2px; */
+  background-size: 35px 20px, 100% 100%, 100% 100%;
+}
+
+/* line 106, ../scss/_app/components/_layers.css.scss */
+#layer-no-js, #layer-ie, #layer-small-screen {
+  display: none;
+}
+
+/* line 111, ../scss/_app/components/_layers.css.scss */
+#layer-no-js .layer-background {
+  background-image: none;
+}
+/* line 114, ../scss/_app/components/_layers.css.scss */
+#layer-no-js .layer-progress-bar, #layer-no-js .layer-progress-value {
+  display: none;
+}
