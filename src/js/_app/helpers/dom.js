@@ -256,7 +256,7 @@
                          * event handler for link elements
                          */
 
-                        if (client.isMsie || client.isOpera) {
+                        if (client.isMsie() || client.isOpera()) {
                             link.onload = callback;
                         } else {
                             callback();
@@ -398,6 +398,8 @@
              * @param {string} data The image data string (base64 encoded)
              * @param {function} callback The success function
              * @param {object} node The optional dom node element information object to append the data to
+             *
+             * @todo: check loaded, see imagesLoaded Remy Sharp
              */
             appendImg: function (url, data, callback, node) {
 
@@ -437,6 +439,15 @@
                 } else if (url) {
                     // if there is no data but the url parameter
                     image.src = url;
+                }
+
+                /**
+                 * check if image is cached, trigger load manually
+                 *
+                 * @see http://github.com/desandro/imagesloaded
+                 */
+                if (!!image.complete && image.naturalWidth !== undefined) {
+                    image.onload();
                 }
 
                 privateAppendedImg.push(url);
@@ -479,7 +490,7 @@
                      */
                     try {
                         html.innerHTML = data;
-                        if (node.id && client.isMsie) {
+                        if (node.id && client.isMsie()) {
                             // force ie 8 to render (or update) the html content
                             document.styleSheets[0].addRule("#" + node.id + ":after", "content: ' ';");
                         }

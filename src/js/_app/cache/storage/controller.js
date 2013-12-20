@@ -13,12 +13,13 @@
  * - convert resource data, encode data into storable formats and decode data form storage
  * - implementing the strategy pattern for storage adapters
  * 
- * @version 0.1.5
+ * @version 0.1.6
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.6 logging improved
  * - 0.1.5 improved namespacing
  * - 0.1.4 timeout for xhr connections added
  * - 0.1.3 bug fix when checking adapter support - additionally checking with adapter.open and not just isSupported, modified getStorageAdapter function
@@ -26,11 +27,16 @@
  * - 0.1.1 bug fix init when cache storage is disabled
  * - 0.1 basic functions and structur
  *
+ * @see
+ * - http://www.html5rocks.com/en/tutorials/offline/storage/
+ * - http://www.html5rocks.com/de/features/storage
+ *
  * @bugs
  * - 
  * 
  */
 (function (document, ns, undefined) {
+
     'use strict';
 
     /**
@@ -49,16 +55,16 @@
      */
 
     // module vars
-    var controllerType = 'storage',                             // @type {string} The controller type string
-        helpers = ns.helpers,                                   // @type {object} Shortcut for helper functions
-        client = helpers.client,                                // @type {object} Shortcut for client functions
-        utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
-        log = utils.log,                                        // @type {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // @type {function} Shortcut for utils.callback function
-        json = utils.getJson(),                                 // @type {function} Global window.Json object if available
-        xhr = utils.xhr,                                        // @type {function} Shortcut for utils.xhr function
-        appCacheStorageAdapter = ns.cache.storage.adapter,      // @type {object} Shortcut for ns.cache.storage.adapter namespace
-        hasCanvasSupport = client.hasCanvas(),                  // @type {boolean} Whether there is canvas support or not
+    var controllerType = 'storage',                                 // @type {string} The controller type string
+        helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
+        client = helpers.client,                                    // @type {object} Shortcut for client functions
+        utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
+        json = utils.getJson(),                                     // @type {function} Global window.Json object if available
+        xhr = utils.xhr,                                            // @type {function} Shortcut for utils.xhr function
+        appCacheStorageAdapter = ns.cache.storage.adapter,          // @type {object} Shortcut for ns.cache.storage.adapter namespace
+        hasCanvasSupport = client.hasCanvas(),                      // @type {boolean} Whether there is canvas support or not
 
         /**
          * @type {array} Config array with objects for different storage types
@@ -85,7 +91,7 @@
             name: 'localcache',                                 // @type {string} [adapterDefaults.name=localcache] Default db name
             table: 'cache',                                     // @type {string} [adapterDefaults.table=cache] Default db table name
             description: 'local resource cache',                // @type {string} [adapterDefaults.description] Default db description
-            size: 4 * 1024 * 1024,                              // @type {integer} [adapterDefaults.size=4194304] Default db size 4 MB
+            size: 4 * 1024 * 1024,                              // @type {integer} [adapterDefaults.size=4194304] Default db size 4 MB (prevents popup on old ios versions)
             version: '1.0',                                     // @type {string} [adapterDefaults.version=1.0] Default db version, needs to be string for web sql database and should be 1.0
             key: 'key',                                         // @type {string} [adapterDefaults.key=key] Default db primary key
             lifetime: 'local',                                  // @type {string} [adapterDefaults.lifetime=local] Default lifetime for webstorage
@@ -113,9 +119,19 @@
 
     /**
      * -------------------------------------------
-     * helper functions for xhr
+     * general helper functions
      * -------------------------------------------
      */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + controllerType + ' controller] ' + message);
+    }
+
 
     /**
      * helper function for ajax requests
@@ -187,7 +203,7 @@
         try {
             result = utils.jsonToObject(string);
         } catch (e) {
-            log('[' + controllerType + ' controller] Couldn\'t convert json string to object.' + e);
+            moduleLog('Couldn\'t convert json string to object.' + e);
         }
 
         // return result
@@ -203,6 +219,8 @@
      * @param {string} imageType The optional image type (jpeg, png), standard is jpeg
      *
      * @returns {string} Returns converted data as callback parameter or false
+     *
+     * @todo: check loaded, see imagesLoaded Remy Sharp
      */
     function convertImageToBase64(url, callback, imageType) {
 
@@ -219,29 +237,34 @@
 
             // check imageType parameter
             if (!imageType) {
-                imageType = "jpeg";
+                imageType = 'jpeg';
             }
 
             // catch loading errors
             image.onerror = function () {
-                callback();
 
                 // avoid memory leaks
                 image.onload = image.onerror = null;
+
+                callback();
+
             };
 
             // asynch event handler when image is loaded
             image.onload = function () {
+
+                // avoid memory leaks
+                image.onload = image.onerror = null;
 
                 // set canvas dimensions
                 height = canvas.height = image.height;
                 width = canvas.width = image.width;
 
                 // get 2d context
-                context = canvas.getContext("2d");
+                context = canvas.getContext('2d');
 
                 // set background color (for jpeg images out of transparent png files)
-                context.fillStyle = "rgba(50, 50, 50, 0)";
+                context.fillStyle = 'rgba(50, 50, 50, 0)';
 
                 // draw background, start on top/left and set fullwith/height
                 context.fillRect(0, 0, width, height);
@@ -250,15 +273,22 @@
                 context.drawImage(image, 0, 0);
 
                 // get base64 data string and return result
-                result = canvas.toDataURL("image/" + imageType);
+                result = canvas.toDataURL('image/' + imageType);
                 callback(result);
 
-                // avoid memory leaks
-                image.onload = image.onerror = null;
             };
 
             // set image source after the event handler is attached
             image.src = url;
+
+            /**
+             * check if image is cached, trigger load manually
+             *
+             * @see http://github.com/desandro/imagesloaded
+             */
+            if (!!image.complete && image.naturalWidth !== undefined) {
+                image.onload();
+            }
 
         } else {
 
@@ -273,7 +303,11 @@
 
 
     /**
-     * replace relative with absolute urls, used whithin resource string data (e.g css background urls)
+     * replace relative with absolute urls 
+     *
+     * used whithin css resource string  data (e.g css background urls),
+     * this needs to be done because the css string a put directly into the
+     * html structur and therefor all relative url pathes needs to change
      *
      * @param {object} resource The resource object item
      *
@@ -296,7 +330,8 @@
 
             /**
              * search for different css code styles for embeding urls
-             * in css rules (this is important for some css minifiers)
+             * in css rules (this is important for some css minifiers
+             * and different coding styles)
              */
             result = data.replace(/url\(\../g, 'url(' + folder + '..');
             result = result.replace(/url\(\'../g, 'url(\'' + folder + '..');
@@ -388,9 +423,11 @@
 
         // init storage and check support
         storageType = storageAdapters[0].type;
-        log('[' + controllerType + ' controller] Testing for storage adapter type: ' + storageType);
+        moduleLog('Testing for storage adapter type: ' + storageType);
 
+        // check for storage adapter
         if (!!appCacheStorageAdapter[storageType]) {
+            // get new storage adapter instance
             adapter = new appCacheStorageAdapter[storageType](adapterDefaults);
         } else {
             // recursiv call
@@ -408,7 +445,7 @@
                     adapterAvailable = storageType;
                     adapterAvailableConfig = storageAdapters[0];
 
-                    log('[' + controllerType + ' controller] Used storage adapter type: ' + adapterAvailable);
+                    moduleLog('Used storage adapter type: ' + adapterAvailable);
                     callback(adapter);
 
                 } else {
@@ -445,7 +482,7 @@
 
             try {
                 // init storage and check support
-                log('[' + controllerType + ' controller] Testing for storage adapter type: ' + storageType);
+                moduleLog('Testing for storage adapter type: ' + storageType);
                 if (appCacheStorageAdapter[storageType]) {
                     adapter = new appCacheStorageAdapter[storageType](adapterDefaults);
                 } else {
@@ -468,13 +505,13 @@
                                 }
                             }
                             if (adapterAvailableConfig) {
-                                log('[' + controllerType + ' controller] Used storage type: ' + adapterAvailable);
+                                moduleLog('Used storage type: ' + adapterAvailable);
                                 callback(adapter);
                                 return;
                             }
 
                             // if there is no config, test the next adapter type
-                            log('[' + controllerType + ' controller] Storage config not found: ' + adapterAvailable);
+                            moduleLog('Storage config not found: ' + adapterAvailable);
                             getStorageAdapter(callback);
 
                         } else {
@@ -490,7 +527,7 @@
                 }
             } catch (e) {
                 // javascript api is not (or mayby in a different standard way implemented and) supported, recursiv call
-                log('[' + controllerType + ' controller] Storage adapter could not be initialized: type ' + storageType);
+                moduleLog('Storage adapter could not be initialized: type ' + storageType, e);
                 getStorageAdapter(callback);
             }
 
@@ -583,7 +620,7 @@
                 createCallback = function (data) {
 
                     if (!data) {
-                        log('[' + controllerType + ' controller] Couldn\'t get data via network');
+                        moduleLog('Couldn\'t get data via network');
                         callback(resource);
                         return;
                     }
@@ -594,11 +631,15 @@
 
                     if (null !== self.adapter && isRessourceStorable(type)) {
 
-                        // create storage content
+                       // create storage content
                         var key = convertObjectToString(url),
-                            content = convertObjectToString(copyStorageContent(resource));
+                            storageContent = copyStorageContent(resource),
+                            content = convertObjectToString(storageContent);
 
-                        //resource.data = content.data;
+                        // update meta data, mainly for test suites
+                        resource.expires = storageContent.expires;
+                        resource.version = storageContent.version;
+
                         /**
                         * there is a bug in older browser versions (seamonkey)
                         * when trying to read or write from db (due to non-standard implementation),
@@ -608,10 +649,10 @@
                             // create storage entry
                             self.adapter.create(key, content, function (success) {
                                 if (success) {
-                                    log('[' + controllerType + ' controller] Create new resource in storage adapter: type ' + type + ', url ' + url);
+                                    moduleLog('Create new resource in storage adapter: type ' + type + ', url ' + url);
                                     callback(resource);
                                 } else {
-                                    log('[' + controllerType + ' controller] Create new resource in storage adapter failed');
+                                    moduleLog('Create new resource in storage adapter failed');
                                     callback(false);
                                 }
                             });
@@ -621,7 +662,7 @@
                         }
 
                     } else {
-                        log('[' + controllerType + ' controller] Trying to create new resource, but resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
+                        moduleLog('Trying to create new resource, but resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
                         callback(resource);
                     }
 
@@ -665,7 +706,7 @@
             // try to read from storage
             if (null !== this.adapter && isRessourceStorable(type)) {
 
-                log('[' + controllerType + ' controller] Trying to read resource from storage: type ' + type + ', url ' + url);
+                moduleLog('Trying to read resource from storage: type ' + type + ', url ' + url);
 
                 /**
                  * there is a bug in older browser versions (seamonkey)
@@ -676,6 +717,7 @@
                 try {
                     self.adapter.read(convertObjectToString(url), function (data) {
                         if (data) {
+
                             resource = convertStringToObject(data);
 
                             /**
@@ -684,25 +726,24 @@
                              * so we remove the old resource from storage instead to create a new one.
                              */
                             if (!resource) {
-                                self.adapter.remove(convertObjectToString(url), function () {
-                                    log('[' + controllerType + ' controller] Resource deleted from storage adapter to create a new one: type ' + type + ', url ' + url);
+                                self.remove({url: url, type: type}, function () {
                                     callback(false);
                                 });
                                 return;
                             }
 
                             resource.url = url;
-                            log('[' + controllerType + ' controller] Successfully read resource from storage: type ' + type + ', url ' + url);
+                            moduleLog('Successfully read resource from storage: type ' + type + ', url ' + url);
                             callback(resource, true);
                         } else {
-                            log('[' + controllerType + ' controller] There is no data coming back from storage while reading: type ' + type + ', url ' + url);
+                            moduleLog('There is no data coming back from storage while reading: type ' + type + ', url ' + url);
                             callback(false);
                         }
                     });
                 } catch (e) {
                     handleXhrRequests(url, function (data) {
                         resource.data = data;
-                        log('[' + controllerType + ' controller] Try to read resource from storage, but storage adapter is not available: type ' + type + ', url ' + url);
+                        moduleLog('Try to read resource from storage, but storage adapter is not available: type ' + type + ', url ' + url);
                         callback(resource, true);
                     }, resource);
                 }
@@ -730,7 +771,7 @@
 
                     // try to use stored data if resource couldn't be updated via network
                     if (!data) {
-                        log('[' + controllerType + ' controller] Couldn\'t get data via network, trying to used stored version');
+                        moduleLog('Couldn\'t get data via network, trying to used stored version');
                         self.read(resource, function (item) {
                             if (item && item.data) {
                                 resource.data = item.data;
@@ -751,7 +792,12 @@
 
                         // create storage content
                         var key = convertObjectToString(url),
-                            content = convertObjectToString(copyStorageContent(resource));
+                            storageContent = copyStorageContent(resource),
+                            content = convertObjectToString(storageContent);
+
+                        // update meta data, mainly for test suites
+                        resource.expires = storageContent.expires;
+                        resource.version = storageContent.version;
 
                         /**
                         * there is a bug in older browser versions (seamonkey)
@@ -762,10 +808,10 @@
                             // create storage entry
                             self.adapter.update(key, content, function (success) {
                                 if (!!success) {
-                                    log('[' + controllerType + ' controller] Update existing resource in storage adapter: type ' + type + ', url ' + url);
+                                    moduleLog('Update existing resource in storage adapter: type ' + type + ', url ' + url);
                                     callback(resource);
                                 } else {
-                                    log('[' + controllerType + ' controller] Updating resource in storage failed.');
+                                    moduleLog('Updating resource in storage failed.');
                                     callback(false);
                                 }
                             });
@@ -775,7 +821,7 @@
                         }
 
                     } else {
-                        log('[' + controllerType + ' controller] Resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
+                        moduleLog('Resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
                         callback(resource);
                     }
                 };
@@ -817,20 +863,19 @@
 
             // try to remove resource from storage
             if (null !== self.adapter && isRessourceStorable(type)) {
-                self.adapter.remove(convertObjectToString(url), function (data) {
-                    resource = convertStringToObject(data);
+                self.adapter.remove(convertObjectToString(url), function (success) {
 
-                    if (!resource) {
+                    if (!success) {
+                        moduleLog('Deleting resource form storage failed: type ' + type + ', url ' + url);
                         callback(false);
                         return;
                     }
 
-                    resource.url = url;
-                    log('[' + controllerType + ' controller] Delete resource form storage: type ' + type + ', url ' + url);
+                    moduleLog('Delete resource form storage: type ' + type + ', url ' + url);
                     callback(resource);
                 });
             } else {
-                log('[' + controllerType + ' controller] Delete resource from storage failed, resource type is not cachable or there is no storage adapter: type ' + type + ', url ' + url);
+                moduleLog('Delete resource from storage failed, resource type is not cachable or there is no storage adapter: type ' + type + ', url ' + url);
                 callback(resource);
             }
 
@@ -916,10 +961,10 @@
                  */
 
                 if (!json) {
-                    log('[' + controllerType + ' controller] There is no json support');
+                    moduleLog('There is no json support');
                 }
                 if (!self.isEnabled) {
-                    log('[' + controllerType + ' controller] Caching data is disabled');
+                    moduleLog('Caching data is disabled');
                 }
 
                 callback(self);
@@ -937,4 +982,4 @@
     ns.namespace('cache.storage.controller', Storage);
 
 
-}(document, window.getNamespace())); // immediatly invoke function
+}(document, window.getNs())); // immediatly invoke function

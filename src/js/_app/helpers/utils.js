@@ -561,26 +561,28 @@
 
                 var query_string = {},
                     query = window.location.search.substring(1),
-                    vars = query.split("&"),
+                    vars = query.split('&'),
                     varsLength = vars.length,
                     i = 0,
                     pair,
+                    pair0,
+                    pair1,
                     arr;
 
                 for (i = 0; i < varsLength; i = i + 1) {
 
                     // get value pairs
-                    pair = vars[i].split("=");
+                    pair = vars[i].split('=');
 
-                    // if first entry with this name
                     if (query_string[pair[0]] === undefined) {
+                        // if first entry with this name
                         query_string[pair[0]] = pair[1];
-                    // if second entry with this name
-                    } else if (typeof query_string[pair[0]] === "string") {
+                    } else if (typeof query_string[pair[0]] === 'string') {
+                        // if second entry with this name
                         arr = [query_string[pair[0]], pair[1]];
                         query_string[pair[0]] = arr;
-                    // if third or later entry with this name
                     } else {
+                        // if third or later entry with this name
                         query_string[pair[0]].push(pair[1]);
                     }
 
@@ -622,6 +624,10 @@
              */
             trim: function (string) {
 
+                if (typeof string !== 'string' || !(string instanceof String)) {
+                    return string;
+                }
+
                 /**
                  * check fo native string trim function, otherwise
                  * initialize it
@@ -654,23 +660,28 @@
              */
             isArray: function (value) {
 
+                // local vars for better compression and faster access
+                var arrayIsArray = Array.isArray,
+                    objectProtoypeToString = Object.prototype.toString;
+
                 /**
                  * override existing function based on
                  * browser capabilities
                  */
 
-                if (!!Array.isArray && typeof Array.isArray === "function") {
+                if (!!arrayIsArray && typeof arrayIsArray === "function") {
                     // ECMA Script 5
                     utils.isArray = function (value) {
-                        return Array.isArray(value);
+                        return arrayIsArray(value);
                     };
-                } else if (!!Object.prototype.toString && Object.prototype.toString === "function") {
+                } else if (!!objectProtoypeToString && objectProtoypeToString === "function") {
                     // Juriy Zaytsev (aka Kangax)
                     utils.isArray = function (value) {
-                        return Object.prototype.toString.call(value) === "[object Array]";
+                        return objectProtoypeToString.call(value) === "[object Array]";
                     };
                 } else {
-                    // Duck typing arrays (by Douglas Crockford), asume sort function is only available for arrays
+                    // Duck-Typing arrays (by Douglas Crockford), asume sort function is only available for arrays
+                    // Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array" 
                     utils.isArray = function (value) {
                         return (!!value.sort && typeof value.sort === "function");
                     };

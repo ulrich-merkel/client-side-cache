@@ -529,6 +529,7 @@
             },
 
             // hide mobile status bar
+			// @ see http://remysharp.com/2010/08/05/doing-it-right-skipping-the-iphone-url-bar/
             hideStatusbar: function (delay) {
 
                 // check params

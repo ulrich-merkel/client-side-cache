@@ -37,6 +37,7 @@
  * -
  */
 (function (window, ns, undefined) {
+
     'use strict';
 
     /**
@@ -62,6 +63,28 @@
 
 
     /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + storageType + ' Adapter] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * storage adapter
+     * -------------------------------------------
+     */
+
+    /**
      * the actual instance constructor
      * directly called after new Adapter()
      *
@@ -78,10 +101,10 @@
         self.type = storageType;
 
         // defaults
-        self.dbName = 'merkel';
+        self.dbName = 'cache';
         self.dbVersion = '1.0';
         self.dbTable = 'offline';
-        self.dbDescription = 'Local cache';
+        self.dbDescription = 'Local offline cache';
         self.dbKey = 'key';
 
         // run init function
@@ -109,7 +132,7 @@
             if (null === boolIsSupported) {
                 boolIsSupported =  !!window.indexedDB || !!window.webkitIndexedDB || !!window.mozIndexedDB || !!window.OIndexedDB || !!window.msIndexedDB;
                 if (!boolIsSupported) {
-                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
+                    moduleLog(storageType + ' is not supported');
                 }
             }
 
@@ -140,13 +163,13 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to init transaction while creating/updating database entry ' + dbName + ' ' + e);
+                moduleLog('Failed to init transaction while creating/updating database entry ' + dbName + ' ' + e);
                 callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to create/update database entry ' + dbName + ' ' + e);
+                moduleLog('Failed to create/update database entry ' + dbName + ' ' + e);
                 callback(false, e);
             };
 
@@ -170,7 +193,7 @@
             var self = this,
                 dbTable = self.dbTable,
                 dbName = self.dbName,
-                transaction = self.adapter.transaction([dbTable], "readonly"),
+                transaction = self.adapter.transaction([dbTable], 'readonly'),
                 request = transaction.objectStore(dbTable).get(key);
 
             /**
@@ -183,12 +206,12 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to init transaction while reading database ' + dbName + ' ' + e);
+                moduleLog('Failed to init transaction while reading database ' + dbName + ' ' + e);
             };
 
             // check for request error
             request.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to read database entry ' + dbName + ' ' + e);
+                moduleLog('Failed to read database entry ' + dbName + ' ' + e);
                 callback(false, e);
             };
 
@@ -237,7 +260,7 @@
             var self = this,
                 dbTable = self.dbTable,
                 dbName = self.dbName,
-                transaction = self.adapter.transaction([dbTable], "readwrite"),
+                transaction = self.adapter.transaction([dbTable], 'readwrite'),
                 objectStore = transaction.objectStore(dbTable),
                 request = objectStore(dbTable).put({
                     key: key,
@@ -246,13 +269,13 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to init transaction while deleting database entry ' + dbName + ' ' + e);
+                moduleLog('Failed to init transaction while deleting database entry ' + dbName + ' ' + e);
                 callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to delete database entry ' + dbName + ' ' + e);
+                moduleLog('Failed to delete database entry ' + dbName + ' ' + e);
                 callback(false, e);
             };
 
@@ -310,7 +333,11 @@
 
                 // get database after it is opened
                 onsuccess = function (e) {
-                    var db = request.result;
+
+                    var db = request.result,
+                        dbResult,
+                        store;
+
                     self.adapter = db;
 
                     /**
@@ -330,16 +357,16 @@
 
                         // request failed
                         setVersionRequest.onfailure = function (e) {
-                            log('[' + storageType + ' Adapter] Failed to open database: ' + dbName + ' ' + e);
+                            moduleLog('Failed to open database: ' + dbName + ' ' + e);
                             callback(false);
                         };
 
                         // set version is successful, create new object store
                         setVersionRequest.onsuccess = function (e) {
-                            var db = request.result,
-                                store = db.createObjectStore(dbTable, {keyPath: self.dbKey});
+                            dbResult = request.result;
+                            store = dbResult.createObjectStore(dbTable, {keyPath: self.dbKey});
 
-                            log('[' + storageType + ' Adapter] Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
+                            moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
 
                             // create new database indexes
                             store.createIndex('key',  'key',  { unique: true });
@@ -354,10 +381,11 @@
 
                 // database needs upgrade to new version or is not created
                 onupgradeneeded = function (e) {
+
                     var db = request.result,
                         store = db.createObjectStore(dbTable, {keyPath: self.dbKey});
 
-                    log('[' + storageType + ' Adapter] Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
+                    moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
 
                     // create new database indexes
                     store.createIndex('key',  'key',  { unique: true });
@@ -367,37 +395,37 @@
 
                 // database can't be opened
                 onerror = function (e) {
-                    log('[' + storageType + ' Adapter] Failed to open database: ' + dbName + ' ' + e);
+
+                    moduleLog('Failed to open database: ' + dbName + ' ' + e);
                     if (!setVersion) {
                         self.open(callback, true);
                     }
                     callback(false);
+
                 };
 
                 // database is blocked by another process
                 onblocked = function (e) {
-                    log('[' + storageType + ' Adapter] Opening database request is blocked! ' + dbName + ' ' + e);
+
+                    moduleLog('Opening database request is blocked! ' + dbName + ' ' + e);
                     callback(false);
+
                 };
 
                 /**
                  * open db
                  *
-                 * different implementations for windowObject.open(dbName, dbVersion) in some browers
+                 * hack: different implementations for windowObject.open(dbName, dbVersion) in some browers,
                  * to keep it working in older versions (e.g. firefox 18.0.1 produces version error due to dbVersion param)
-                 * we just set dbName parameter if setVersion param isn't set.
+                 * we just set dbName parameter if setVersion param isn't set. ie10 also trigger an error here if they
+                 * try to access database and the disc space is full
                  */
-
                 if (setVersion) {
 
-                    /**
-                     * try catch here if ie tries to access database and the disc
-                     * space is full (tested with ie10).
-                     */
                     try {
                         request = windowObject.open(dbName, self.dbVersion);
                     } catch (e) {
-                        log(e);
+                        moduleLog(e);
                         request = windowObject.open(dbName);
                     }
 
@@ -405,6 +433,7 @@
                     request = windowObject.open(dbName);
                 }
 
+                // set event handlers
                 request.onsuccess = onsuccess;
                 request.onupgradeneeded = onupgradeneeded;
                 request.onerror = onerror;
@@ -475,4 +504,4 @@
     ns.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNamespace())); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function

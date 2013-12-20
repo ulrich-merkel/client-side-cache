@@ -76,5 +76,42 @@ describe('Cache Controller', function () {
 
     });
 
+    it('Call remove without arguments', function () {
+
+        var instance,
+            cache = new app.cache.controller(function (callbackObject) {
+                instance = callbackObject;
+            });
+
+        cache.remove();
+
+        waitsFor(function () {
+            return instance !== undefined;
+        }, 'cache.storage initialized', 1000);
+
+        runs(function () {
+            expect(1).toEqual(1);
+        });
+
+    });
+
+    it('Call remove with empty resource arguments', function () {
+
+        var instance,
+            cache = new app.cache.controller(function (callbackObject) {
+                instance = callbackObject;
+            });
+
+        cache.remove([]);
+
+        waitsFor(function () {
+            return instance !== undefined;
+        }, 'cache.storage initialized', 1000);
+
+        runs(function () {
+            expect(1).toEqual(1);
+        });
+
+    });
 });
 

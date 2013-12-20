@@ -150,7 +150,7 @@
      * @export
      */
     window[namespaceName] = ns;
-    window.getNamespace = getNamespace;
+    window.getNamespace = window.getNs = getNamespace;
 
 }(window));
 
@@ -160,14 +160,15 @@
  * ns.helpers.error
  * 
  * @description
- * - catch javascript errors and log message
+ * - catch javascript errors and log according message
  * 
  * @author Ulrich Merkel, 2013
- * @version 0.1
+ * @version 0.1.1
  *
  * @namespace ns
  * 
  * @changelog
+ * - 0.1.1 switched to console.warn (if available)
  * - 0.1 basic functions and plugin structur
  * 
  */
@@ -192,17 +193,24 @@
 
 
     /**
-     * export to globals
+     * handle javascript errors
+     *
+     * this function will just cache undefined vars and functions,
+     * syntax errors and other stuff can't be catched
      *
      * @export
+     * @param {string} msg The error message
+     * @param {string} url The url where the error occurs
+     * @param {string} line The script code line where the error occurs
      */
     window.onerror = function (msg, url, line) {
-
+    
         // log error message
         ns.helpers.utils.warn(msg + "\nurl: " + url + "\nline: " + line);
-
+    
         // return true keeps the browser running instead of stopping execution
         return true;
+
     };
 
 }(window, window.getNamespace()));
@@ -899,26 +907,28 @@
 
                 var query_string = {},
                     query = window.location.search.substring(1),
-                    vars = query.split("&"),
+                    vars = query.split('&'),
                     varsLength = vars.length,
                     i = 0,
                     pair,
+                    pair0,
+                    pair1,
                     arr;
 
                 for (i = 0; i < varsLength; i = i + 1) {
 
                     // get value pairs
-                    pair = vars[i].split("=");
+                    pair = vars[i].split('=');
 
-                    // if first entry with this name
                     if (query_string[pair[0]] === undefined) {
+                        // if first entry with this name
                         query_string[pair[0]] = pair[1];
-                    // if second entry with this name
-                    } else if (typeof query_string[pair[0]] === "string") {
+                    } else if (typeof query_string[pair[0]] === 'string') {
+                        // if second entry with this name
                         arr = [query_string[pair[0]], pair[1]];
                         query_string[pair[0]] = arr;
-                    // if third or later entry with this name
                     } else {
+                        // if third or later entry with this name
                         query_string[pair[0]].push(pair[1]);
                     }
 
@@ -960,6 +970,10 @@
              */
             trim: function (string) {
 
+                if (typeof string !== 'string' || !(string instanceof String)) {
+                    return string;
+                }
+
                 /**
                  * check fo native string trim function, otherwise
                  * initialize it
@@ -992,23 +1006,28 @@
              */
             isArray: function (value) {
 
+                // local vars for better compression and faster access
+                var arrayIsArray = Array.isArray,
+                    objectProtoypeToString = Object.prototype.toString;
+
                 /**
                  * override existing function based on
                  * browser capabilities
                  */
 
-                if (!!Array.isArray && typeof Array.isArray === "function") {
+                if (!!arrayIsArray && typeof arrayIsArray === "function") {
                     // ECMA Script 5
                     utils.isArray = function (value) {
-                        return Array.isArray(value);
+                        return arrayIsArray(value);
                     };
-                } else if (!!Object.prototype.toString && Object.prototype.toString === "function") {
+                } else if (!!objectProtoypeToString && objectProtoypeToString === "function") {
                     // Juriy Zaytsev (aka Kangax)
                     utils.isArray = function (value) {
-                        return Object.prototype.toString.call(value) === "[object Array]";
+                        return objectProtoypeToString.call(value) === "[object Array]";
                     };
                 } else {
-                    // Duck typing arrays (by Douglas Crockford), asume sort function is only available for arrays
+                    // Duck-Typing arrays (by Douglas Crockford), asume sort function is only available for arrays
+                    // Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array" 
                     utils.isArray = function (value) {
                         return (!!value.sort && typeof value.sort === "function");
                     };
@@ -1624,6 +1643,7 @@
             },
 
             // hide mobile status bar
+			// @ see http://remysharp.com/2010/08/05/doing-it-right-skipping-the-iphone-url-bar/
             hideStatusbar: function (delay) {
 
                 // check params
@@ -1919,7 +1939,7 @@
                          * event handler for link elements
                          */
 
-                        if (client.isMsie || client.isOpera) {
+                        if (client.isMsie() || client.isOpera()) {
                             link.onload = callback;
                         } else {
                             callback();
@@ -2061,6 +2081,8 @@
              * @param {string} data The image data string (base64 encoded)
              * @param {function} callback The success function
              * @param {object} node The optional dom node element information object to append the data to
+             *
+             * @todo: check loaded, see imagesLoaded Remy Sharp
              */
             appendImg: function (url, data, callback, node) {
 
@@ -2100,6 +2122,15 @@
                 } else if (url) {
                     // if there is no data but the url parameter
                     image.src = url;
+                }
+
+                /**
+                 * check if image is cached, trigger load manually
+                 *
+                 * @see http://github.com/desandro/imagesloaded
+                 */
+                if (!!image.complete && image.naturalWidth !== undefined) {
+                    image.onload();
                 }
 
                 privateAppendedImg.push(url);
@@ -2142,7 +2173,7 @@
                      */
                     try {
                         html.innerHTML = data;
-                        if (node.id && client.isMsie) {
+                        if (node.id && client.isMsie()) {
                             // force ie 8 to render (or update) the html content
                             document.styleSheets[0].addRule("#" + node.id + ":after", "content: ' ';");
                         }
@@ -2186,12 +2217,13 @@
  *      - Google Crome 26.0 +
  *      - Maxthon 4.0.5 +
  *
- * @version 0.1.3
+ * @version 0.1.4
  * @author Ulrich Merkel, 2013
  *
  * @namespace ns
  *
  * @changelog
+ * - 0.1.4 improved logging
  * - 0.1.3 improved namespacing, handleStorageEvents adjusted to for current browser updates (event object error)
  * - 0.1.2 creating test item while open added, bug fixes for chrome 17
  * - 0.1.1 refactoring, js lint
@@ -2199,6 +2231,9 @@
  *
  * @see
  * - http://www.w3.org/TR/file-system-api/
+ * - http://www.w3.org/TR/FileAPI/
+ * - http://www.html5rocks.com/de/tutorials/file/filesystem/
+ * - http://updates.html5rocks.com/2011/08/Debugging-the-Filesystem-API
  *
  * @bugs
  * -
@@ -2232,6 +2267,28 @@
 
 
     /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + storageType + ' Adapter] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * storage adapter
+     * -------------------------------------------
+     */
+
+    /**
      * handle storage events
      *
      * @param {object} e The event object
@@ -2249,27 +2306,27 @@
 
         switch (code) {
         case FileError.QUOTA_EXCEEDED_ERR:
-            msg = '[' + storageType + ' Adapter] File System Event: QUOTA_EXCEEDED_ERR';
+            msg = 'File System Event: QUOTA_EXCEEDED_ERR';
             break;
         case FileError.NOT_FOUND_ERR:
-            msg = '[' + storageType + ' Adapter] File System Event: NOT_FOUND_ERR, file does not exist';
+            msg = 'File System Event: NOT_FOUND_ERR, file does not exist';
             break;
         case FileError.SECURITY_ERR:
-            msg = '[' + storageType + ' Adapter] File System Event: SECURITY_ERR';
+            msg = 'File System Event: SECURITY_ERR';
             break;
         case FileError.INVALID_MODIFICATION_ERR:
-            msg = '[' + storageType + ' Adapter] File System Event: INVALID_MODIFICATION_ERR';
+            msg = 'File System Event: INVALID_MODIFICATION_ERR';
             break;
         case FileError.INVALID_STATE_ERR:
-            msg = '[' + storageType + ' Adapter] File System Event: INVALID_STATE_ERR';
+            msg = 'File System Event: INVALID_STATE_ERR';
             break;
         default:
-            msg = '[' + storageType + ' Adapter] File System Event: Unknown Error';
+            msg = 'File System Event: Unknown Error';
             break;
         }
 
         // log message string
-        log(msg);
+        moduleLog(msg, e);
 
     }
 
@@ -2387,7 +2444,7 @@
             if (null === boolIsSupported) {
                 boolIsSupported = (!!window.requestFileSystem || !!window.webkitRequestFileSystem) && !!window.Blob;
                 if (!boolIsSupported) {
-                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
+                    moduleLog(storageType + ' is not supported');
                 }
             }
 
@@ -2419,12 +2476,12 @@
                     adapter = self.adapter = filesystem;
 
                     /* create test item */
-                    log('[' + storageType + ' Adapter] Try to create test resource');
+                    moduleLog('Try to create test resource');
                     try {
                         self.create('test-item', utils.jsonToString({test: "test-content"}), function (success) {
                             if (!!success) {
                                 self.remove('test-item', function () {
-                                    log('[' + storageType + ' Adapter] Test resource created and successfully deleted');
+                                    moduleLog('Test resource created and successfully deleted');
                                     callback(adapter);
                                     //return;
                                 });
@@ -2484,6 +2541,12 @@
                          * while creating new blob
                          */
                         try {
+
+                            /**
+                             * create transparent binary file copy via blobs
+                             *
+                             * @see https://developer.mozilla.org/de/docs/Web/API/Blob
+                             */
                             var blob = new Blob([content], {type: 'text/plain'});
 
                             // write data
@@ -2573,7 +2636,7 @@
             var adapter = this.adapter,
                 errorHandler = function (e) {
                     handleStorageEvents(e);
-                    callback(key, e);
+                    callback(false, e);
                 };
 
             // check directory exists
@@ -2584,7 +2647,7 @@
 
                     // remove file
                     fileEntry.remove(function () {
-                        callback();
+                        callback(true);
                     }, errorHandler);
 
                 }, errorHandler);
@@ -2637,7 +2700,7 @@
     ns.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNamespace())); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function
 
 /*jslint browser: true, devel: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false*/
@@ -2678,6 +2741,7 @@
  * -
  */
 (function (window, ns, undefined) {
+
     'use strict';
 
     /**
@@ -2703,6 +2767,28 @@
 
 
     /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + storageType + ' Adapter] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * storage adapter
+     * -------------------------------------------
+     */
+
+    /**
      * the actual instance constructor
      * directly called after new Adapter()
      *
@@ -2719,10 +2805,10 @@
         self.type = storageType;
 
         // defaults
-        self.dbName = 'merkel';
+        self.dbName = 'cache';
         self.dbVersion = '1.0';
         self.dbTable = 'offline';
-        self.dbDescription = 'Local cache';
+        self.dbDescription = 'Local offline cache';
         self.dbKey = 'key';
 
         // run init function
@@ -2750,7 +2836,7 @@
             if (null === boolIsSupported) {
                 boolIsSupported =  !!window.indexedDB || !!window.webkitIndexedDB || !!window.mozIndexedDB || !!window.OIndexedDB || !!window.msIndexedDB;
                 if (!boolIsSupported) {
-                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
+                    moduleLog(storageType + ' is not supported');
                 }
             }
 
@@ -2781,13 +2867,13 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to init transaction while creating/updating database entry ' + dbName + ' ' + e);
+                moduleLog('Failed to init transaction while creating/updating database entry ' + dbName + ' ' + e);
                 callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to create/update database entry ' + dbName + ' ' + e);
+                moduleLog('Failed to create/update database entry ' + dbName + ' ' + e);
                 callback(false, e);
             };
 
@@ -2811,7 +2897,7 @@
             var self = this,
                 dbTable = self.dbTable,
                 dbName = self.dbName,
-                transaction = self.adapter.transaction([dbTable], "readonly"),
+                transaction = self.adapter.transaction([dbTable], 'readonly'),
                 request = transaction.objectStore(dbTable).get(key);
 
             /**
@@ -2824,12 +2910,12 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to init transaction while reading database ' + dbName + ' ' + e);
+                moduleLog('Failed to init transaction while reading database ' + dbName + ' ' + e);
             };
 
             // check for request error
             request.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to read database entry ' + dbName + ' ' + e);
+                moduleLog('Failed to read database entry ' + dbName + ' ' + e);
                 callback(false, e);
             };
 
@@ -2878,7 +2964,7 @@
             var self = this,
                 dbTable = self.dbTable,
                 dbName = self.dbName,
-                transaction = self.adapter.transaction([dbTable], "readwrite"),
+                transaction = self.adapter.transaction([dbTable], 'readwrite'),
                 objectStore = transaction.objectStore(dbTable),
                 request = objectStore(dbTable).put({
                     key: key,
@@ -2887,13 +2973,13 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to init transaction while deleting database entry ' + dbName + ' ' + e);
+                moduleLog('Failed to init transaction while deleting database entry ' + dbName + ' ' + e);
                 callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
-                log('[' + storageType + ' Adapter] Failed to delete database entry ' + dbName + ' ' + e);
+                moduleLog('Failed to delete database entry ' + dbName + ' ' + e);
                 callback(false, e);
             };
 
@@ -2951,7 +3037,11 @@
 
                 // get database after it is opened
                 onsuccess = function (e) {
-                    var db = request.result;
+
+                    var db = request.result,
+                        dbResult,
+                        store;
+
                     self.adapter = db;
 
                     /**
@@ -2971,16 +3061,16 @@
 
                         // request failed
                         setVersionRequest.onfailure = function (e) {
-                            log('[' + storageType + ' Adapter] Failed to open database: ' + dbName + ' ' + e);
+                            moduleLog('Failed to open database: ' + dbName + ' ' + e);
                             callback(false);
                         };
 
                         // set version is successful, create new object store
                         setVersionRequest.onsuccess = function (e) {
-                            var db = request.result,
-                                store = db.createObjectStore(dbTable, {keyPath: self.dbKey});
+                            dbResult = request.result;
+                            store = dbResult.createObjectStore(dbTable, {keyPath: self.dbKey});
 
-                            log('[' + storageType + ' Adapter] Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
+                            moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
 
                             // create new database indexes
                             store.createIndex('key',  'key',  { unique: true });
@@ -2995,10 +3085,11 @@
 
                 // database needs upgrade to new version or is not created
                 onupgradeneeded = function (e) {
+
                     var db = request.result,
                         store = db.createObjectStore(dbTable, {keyPath: self.dbKey});
 
-                    log('[' + storageType + ' Adapter] Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
+                    moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
 
                     // create new database indexes
                     store.createIndex('key',  'key',  { unique: true });
@@ -3008,37 +3099,37 @@
 
                 // database can't be opened
                 onerror = function (e) {
-                    log('[' + storageType + ' Adapter] Failed to open database: ' + dbName + ' ' + e);
+
+                    moduleLog('Failed to open database: ' + dbName + ' ' + e);
                     if (!setVersion) {
                         self.open(callback, true);
                     }
                     callback(false);
+
                 };
 
                 // database is blocked by another process
                 onblocked = function (e) {
-                    log('[' + storageType + ' Adapter] Opening database request is blocked! ' + dbName + ' ' + e);
+
+                    moduleLog('Opening database request is blocked! ' + dbName + ' ' + e);
                     callback(false);
+
                 };
 
                 /**
                  * open db
                  *
-                 * different implementations for windowObject.open(dbName, dbVersion) in some browers
+                 * hack: different implementations for windowObject.open(dbName, dbVersion) in some browers,
                  * to keep it working in older versions (e.g. firefox 18.0.1 produces version error due to dbVersion param)
-                 * we just set dbName parameter if setVersion param isn't set.
+                 * we just set dbName parameter if setVersion param isn't set. ie10 also trigger an error here if they
+                 * try to access database and the disc space is full
                  */
-
                 if (setVersion) {
 
-                    /**
-                     * try catch here if ie tries to access database and the disc
-                     * space is full (tested with ie10).
-                     */
                     try {
                         request = windowObject.open(dbName, self.dbVersion);
                     } catch (e) {
-                        log(e);
+                        moduleLog(e);
                         request = windowObject.open(dbName);
                     }
 
@@ -3046,6 +3137,7 @@
                     request = windowObject.open(dbName);
                 }
 
+                // set event handlers
                 request.onsuccess = onsuccess;
                 request.onupgradeneeded = onupgradeneeded;
                 request.onerror = onerror;
@@ -3116,7 +3208,7 @@
     ns.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNamespace())); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function
 
 /*global window */
 
@@ -3133,12 +3225,13 @@
  *      - iOs 6.1 + (3.2)
  *      - Android 2.1 +
  *
- * @version 0.1.4
+ * @version 0.1.5
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.5 improved namespacing
  * - 0.1.4 improved namespacing
  * - 0.1.3 refactoring, js lint
  * - 0.1.2 several version change bug fixes
@@ -3155,6 +3248,7 @@
  *
  */
 (function (window, ns, undefined) {
+
     'use strict';
 
     /**
@@ -3179,6 +3273,28 @@
         log = utils.log,                                        // @type {function} Shortcut for utils.log function
         boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
 
+
+    /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + storageType + ' Adapter] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * storage adapter
+     * -------------------------------------------
+     */
 
     /**
      * execute sql statement
@@ -3226,14 +3342,14 @@
     function handleStorageEvents(e) {
 
         // init local vars
-        var msg = '[' + storageType + ' Adapter] Errorcode: ' + e.code + ', Message: ' + e.message;
+        var msg = 'Errorcode: ' + e.code + ', Message: ' + e.message;
 
         if (e.info) {
             msg = msg + ' - ' + e.info;
         }
 
         // log message string
-        log(msg);
+        moduleLog(msg);
 
     }
 
@@ -3264,8 +3380,8 @@
         self.dbTable = 'cache';
 
         /**
-         * only Safari prompts the user if you try to create a database over the size of the default database size, 5MB
-         * on ios less due to meta data it prompts greater than 4MB.
+         * only Safari prompts the user if you try to create a database over the size of the default database size (5MB),
+         * for ios we define less due to meta data it prompts greater for databases greater than 4MB.
          */
         self.dbSize = 4 * 1024 * 1024;
 
@@ -3295,7 +3411,7 @@
             if (null === boolIsSupported) {
                 boolIsSupported = !!window.openDatabase;
                 if (!boolIsSupported) {
-                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
+                    moduleLog(storageType + ' is not supported');
                 }
             }
 
@@ -3506,11 +3622,10 @@
                      * if you specify an empty string for the version, the database is opened regardless of the database version.
                      * but then safari always indicates version 1.0.
                      * 
-                     * safari (6.0.4) doesn't fire the success callback parameter on openDatabase(), so we just can
-                     * pass in name, the empty version number, the table description and size.
-                     *
-                     * also, changeVersion, the method to change the database version, is not fully supported in Webkit.
-                     * it works in Chrome and Opera, but not in Safari or Webkit. 
+                     * hack: safari (6.0.4) doesn't fire the success callback parameter on openDatabase(), so we just can
+                     * pass in name, the empty version number, the table description and size. changeVersion, the method
+                     * to change the database version, is not fully supported in Webkit. it works in Chrome and Opera,
+                     * but not in Safari or Webkit.
                      */
                     self.adapter = adapter = window.openDatabase(self.dbName, '', self.dbDescription, self.dbSize);
 
@@ -3613,7 +3728,7 @@
     ns.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNamespace())); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function
 
 /*jslint unparam: false, browser: true, devel: true, ass: true, plusplus: true, regexp: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false */
@@ -3631,9 +3746,10 @@
  *      - Safari 4.0 +
  *      - Google Crome 4.0 +
  *      - Opera 10.5 +
+ *      - Opera Mobile 11.5 +
  *      - Maxthon 4.0.5 +
- *      - iOs 2.0 +
- *      - Android 2.0 +
+ *      - iOs 2.0 (3.2) +
+ *      - Android 2.0 (2.1) +
  *      - Camino 2.1.2 +
  *      - Fake 1.8 +
  *      - Omni Web 5.11 +
@@ -3641,12 +3757,13 @@
  *      - Seamonkey 2.15 +
  *      - Sunrise 2.2 +
  * 
- * @version 0.1.5
+ * @version 0.1.6
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.6 improved namespacing
  * - 0.1.5 improved namespacing
  * - 0.1.4 polyfill moved to separate function
  * - 0.1.3 polyfill for globalStorage and ie userdata added
@@ -3656,7 +3773,7 @@
  *
  * @see
  * - http://www.w3.org/TR/webstorage/
- *
+ * - http://diveintohtml5.info/storage.html
  *
  * @bugs
  * -
@@ -3689,6 +3806,28 @@
 
 
     /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + storageType + ' Adapter] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * storage adapter
+     * -------------------------------------------
+     */
+
+    /**
      * handle web storage events
      *
      * the event only fires on other windows – it won’t fire on the window that did the storing.
@@ -3708,10 +3847,10 @@
         }
 
         // init local vars
-        var msg = '[' + storageType + ' Adapter] Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event');
+        var msg = 'Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event');
 
         // log event
-        log(msg);
+        moduleLog(msg);
     }
 
 
@@ -3793,7 +3932,7 @@
                 try {
                     boolIsSupported = !!window[type] && !!window[type].getItem;
                 } catch (e) {
-                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
+                    moduleLog(storageType + ' is not supported');
                     boolIsSupported = false;
                 }
             }
@@ -3888,7 +4027,7 @@
             try {
                 // delete data and call callback
                 this.adapter.removeItem(key);
-                callback(key);
+                callback(true);
 
             } catch (e) {
                 // handle errors
@@ -3921,11 +4060,11 @@
                     on(window, 'storage', handleStorageEvents);
 
                     // create test item
-                    log('[' + storageType + ' Adapter] Try to create test resource');
+                    moduleLog('Try to create test resource');
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
-                                log('[' + storageType + ' Adapter] Test resource created and successfully deleted');
+                                moduleLog('Test resource created and successfully deleted');
                                 callback(adapter);
                                 return;
                             });
@@ -3993,7 +4132,7 @@
     ns.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNamespace())); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function
 
 /*global window, document, confirm*/
 
@@ -4012,12 +4151,13 @@
  *      - Maxthon 4.0.5 +
  *      - iOs 3.2 +
  * 
- * @version 0.1.5
+ * @version 0.1.6
  * @author Ulrich Merkel, 2013
  *
  * @namespace app
  *
  * @changelog
+ * - 0.1.6 improved logging
  * - 0.1.5 improved namespacing
  * - 0.1.4 renamed addEventListener to adapterEvent, bug fixes progress event
  * - 0.1.3 improved module structur
@@ -4078,6 +4218,28 @@
 
 
     /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + storageType + ' Adapter] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * storage adapter
+     * -------------------------------------------
+     */
+
+    /**
      * the actual instance constructor
      * directly called after new Adapter()
      *
@@ -4120,7 +4282,7 @@
             if (null === boolIsSupported) {
                 boolIsSupported = !!window.applicationCache && !!dom.getAttribute(htmlNode, 'manifest');
                 if (!boolIsSupported) {
-                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported or there is no manifest html attribute');
+                    moduleLog(storageType + ' is not supported or there is no manifest html attribute');
                 }
             }
 
@@ -4146,7 +4308,7 @@
                 self.isLoaded = true;
                 window.setTimeout(function () {
                     callback();
-                    log('[' + storageType + ' Adapter] Event loaded');
+                    moduleLog('Event loaded');
                 }, self.delay);
             }
 
@@ -4186,17 +4348,17 @@
                  * handle updates
                  */
                 onUpdateReady = function () {
-                    log('[' + storageType + ' Adapter] Event updateready');
+                    moduleLog('Event updateready');
 
                     // avoid errors in browsers that are not capable of swapCache
                     try {
                         adapter.swapCache();
                     } catch (e) {
-                        log('[' + storageType + ' Adapter] Event updateready: swapcache is not available');
+                        moduleLog('Event updateready: swapcache is not available', e);
                     }
 
                     // ask user for refreshing the page
-                    if (confirm("A new version of this website is available. Do you want to an update?")) {
+                    if (confirm('A new version of this website is available. Do you want to an update?')) {
                         window.location.reload(true);
                     } else {
                         self.loaded(callback);
@@ -4213,7 +4375,7 @@
                  * the noupdate event is fired and the process ends.
                  */
                 on(adapter, 'checking', function () {
-                    log('[' + storageType + ' Adapter] Event checking');
+                    moduleLog('Event checking');
 
                     return false;
                 });
@@ -4226,7 +4388,7 @@
                  * the noupdate event is fired and the process ends.
                  */
                 on(adapter, 'noupdate', function () {
-                    log('[' + storageType + ' Adapter] Event noupdate');
+                    moduleLog('Event noupdate');
                     self.loaded(callback);
 
                     return false;
@@ -4241,7 +4403,7 @@
                  * the downloading event signals the start of this download process.
                  */
                 on(adapter, 'downloading', function () {
-                    log('[' + storageType + ' Adapter] Event downloading');
+                    moduleLog('Event downloading');
                     manifestProgressCount = 0;
 
                     return false;
@@ -4257,7 +4419,7 @@
                  * @param {object} e The progress event object holding additionally information
                  */
                 on(adapter, 'progress', function (e) {
-                    log('[' + storageType + ' Adapter] Event progress');
+                    moduleLog('Event progress');
 
                     var progress = "";
 
@@ -4287,7 +4449,7 @@
                  * fires the cached event when the download is complete.
                  */
                 on(adapter, 'cached', function () {
-                    log('[' + storageType + ' Adapter] Event cached');
+                    moduleLog('Event cached');
                     self.loaded(callback);
 
                     return false;
@@ -4314,7 +4476,7 @@
                  * subsequent loads are done from the network rather than from the cache.
                  */
                 on(adapter, 'obsolete', function () {
-                    log('[' + storageType + ' Adapter] Event obsolete');
+                    moduleLog('Event obsolete');
                     window.location.reload(true);
 
                     return false;
@@ -4328,7 +4490,7 @@
                  * ressources can't be loaded.
                  */
                 on(adapter, 'error', function () {
-                    log('[' + storageType + ' Adapter] Event error');
+                    moduleLog('Event error');
                     self.loaded(callback);
 
                     return false;
@@ -4372,7 +4534,7 @@
                     try {
                         adapter.update();
                     } catch (e) {
-                        log('[' + storageType + ' Adapter] Window event online: update cache is not available');
+                        moduleLog('Window event online: update cache is not available', e);
                     }
                 });
 
@@ -4438,7 +4600,7 @@
     ns.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, document, window.getNamespace())); // immediatly invoke function
+}(window, document, window.getNs())); // immediatly invoke function
 
 /*jslint browser: true, devel: true, regexp: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50 */
@@ -4455,12 +4617,13 @@
  * - convert resource data, encode data into storable formats and decode data form storage
  * - implementing the strategy pattern for storage adapters
  * 
- * @version 0.1.5
+ * @version 0.1.6
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.6 logging improved
  * - 0.1.5 improved namespacing
  * - 0.1.4 timeout for xhr connections added
  * - 0.1.3 bug fix when checking adapter support - additionally checking with adapter.open and not just isSupported, modified getStorageAdapter function
@@ -4468,11 +4631,16 @@
  * - 0.1.1 bug fix init when cache storage is disabled
  * - 0.1 basic functions and structur
  *
+ * @see
+ * - http://www.html5rocks.com/en/tutorials/offline/storage/
+ * - http://www.html5rocks.com/de/features/storage
+ *
  * @bugs
  * - 
  * 
  */
 (function (document, ns, undefined) {
+
     'use strict';
 
     /**
@@ -4491,16 +4659,16 @@
      */
 
     // module vars
-    var controllerType = 'storage',                             // @type {string} The controller type string
-        helpers = ns.helpers,                                   // @type {object} Shortcut for helper functions
-        client = helpers.client,                                // @type {object} Shortcut for client functions
-        utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
-        log = utils.log,                                        // @type {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // @type {function} Shortcut for utils.callback function
-        json = utils.getJson(),                                 // @type {function} Global window.Json object if available
-        xhr = utils.xhr,                                        // @type {function} Shortcut for utils.xhr function
-        appCacheStorageAdapter = ns.cache.storage.adapter,      // @type {object} Shortcut for ns.cache.storage.adapter namespace
-        hasCanvasSupport = client.hasCanvas(),                  // @type {boolean} Whether there is canvas support or not
+    var controllerType = 'storage',                                 // @type {string} The controller type string
+        helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
+        client = helpers.client,                                    // @type {object} Shortcut for client functions
+        utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
+        json = utils.getJson(),                                     // @type {function} Global window.Json object if available
+        xhr = utils.xhr,                                            // @type {function} Shortcut for utils.xhr function
+        appCacheStorageAdapter = ns.cache.storage.adapter,          // @type {object} Shortcut for ns.cache.storage.adapter namespace
+        hasCanvasSupport = client.hasCanvas(),                      // @type {boolean} Whether there is canvas support or not
 
         /**
          * @type {array} Config array with objects for different storage types
@@ -4527,7 +4695,7 @@
             name: 'localcache',                                 // @type {string} [adapterDefaults.name=localcache] Default db name
             table: 'cache',                                     // @type {string} [adapterDefaults.table=cache] Default db table name
             description: 'local resource cache',                // @type {string} [adapterDefaults.description] Default db description
-            size: 4 * 1024 * 1024,                              // @type {integer} [adapterDefaults.size=4194304] Default db size 4 MB
+            size: 4 * 1024 * 1024,                              // @type {integer} [adapterDefaults.size=4194304] Default db size 4 MB (prevents popup on old ios versions)
             version: '1.0',                                     // @type {string} [adapterDefaults.version=1.0] Default db version, needs to be string for web sql database and should be 1.0
             key: 'key',                                         // @type {string} [adapterDefaults.key=key] Default db primary key
             lifetime: 'local',                                  // @type {string} [adapterDefaults.lifetime=local] Default lifetime for webstorage
@@ -4555,9 +4723,19 @@
 
     /**
      * -------------------------------------------
-     * helper functions for xhr
+     * general helper functions
      * -------------------------------------------
      */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + controllerType + ' controller] ' + message);
+    }
+
 
     /**
      * helper function for ajax requests
@@ -4629,7 +4807,7 @@
         try {
             result = utils.jsonToObject(string);
         } catch (e) {
-            log('[' + controllerType + ' controller] Couldn\'t convert json string to object.' + e);
+            moduleLog('Couldn\'t convert json string to object.' + e);
         }
 
         // return result
@@ -4645,6 +4823,8 @@
      * @param {string} imageType The optional image type (jpeg, png), standard is jpeg
      *
      * @returns {string} Returns converted data as callback parameter or false
+     *
+     * @todo: check loaded, see imagesLoaded Remy Sharp
      */
     function convertImageToBase64(url, callback, imageType) {
 
@@ -4661,29 +4841,34 @@
 
             // check imageType parameter
             if (!imageType) {
-                imageType = "jpeg";
+                imageType = 'jpeg';
             }
 
             // catch loading errors
             image.onerror = function () {
-                callback();
 
                 // avoid memory leaks
                 image.onload = image.onerror = null;
+
+                callback();
+
             };
 
             // asynch event handler when image is loaded
             image.onload = function () {
+
+                // avoid memory leaks
+                image.onload = image.onerror = null;
 
                 // set canvas dimensions
                 height = canvas.height = image.height;
                 width = canvas.width = image.width;
 
                 // get 2d context
-                context = canvas.getContext("2d");
+                context = canvas.getContext('2d');
 
                 // set background color (for jpeg images out of transparent png files)
-                context.fillStyle = "rgba(50, 50, 50, 0)";
+                context.fillStyle = 'rgba(50, 50, 50, 0)';
 
                 // draw background, start on top/left and set fullwith/height
                 context.fillRect(0, 0, width, height);
@@ -4692,15 +4877,22 @@
                 context.drawImage(image, 0, 0);
 
                 // get base64 data string and return result
-                result = canvas.toDataURL("image/" + imageType);
+                result = canvas.toDataURL('image/' + imageType);
                 callback(result);
 
-                // avoid memory leaks
-                image.onload = image.onerror = null;
             };
 
             // set image source after the event handler is attached
             image.src = url;
+
+            /**
+             * check if image is cached, trigger load manually
+             *
+             * @see http://github.com/desandro/imagesloaded
+             */
+            if (!!image.complete && image.naturalWidth !== undefined) {
+                image.onload();
+            }
 
         } else {
 
@@ -4715,7 +4907,11 @@
 
 
     /**
-     * replace relative with absolute urls, used whithin resource string data (e.g css background urls)
+     * replace relative with absolute urls 
+     *
+     * used whithin css resource string  data (e.g css background urls),
+     * this needs to be done because the css string a put directly into the
+     * html structur and therefor all relative url pathes needs to change
      *
      * @param {object} resource The resource object item
      *
@@ -4738,7 +4934,8 @@
 
             /**
              * search for different css code styles for embeding urls
-             * in css rules (this is important for some css minifiers)
+             * in css rules (this is important for some css minifiers
+             * and different coding styles)
              */
             result = data.replace(/url\(\../g, 'url(' + folder + '..');
             result = result.replace(/url\(\'../g, 'url(\'' + folder + '..');
@@ -4830,9 +5027,11 @@
 
         // init storage and check support
         storageType = storageAdapters[0].type;
-        log('[' + controllerType + ' controller] Testing for storage adapter type: ' + storageType);
+        moduleLog('Testing for storage adapter type: ' + storageType);
 
+        // check for storage adapter
         if (!!appCacheStorageAdapter[storageType]) {
+            // get new storage adapter instance
             adapter = new appCacheStorageAdapter[storageType](adapterDefaults);
         } else {
             // recursiv call
@@ -4850,7 +5049,7 @@
                     adapterAvailable = storageType;
                     adapterAvailableConfig = storageAdapters[0];
 
-                    log('[' + controllerType + ' controller] Used storage adapter type: ' + adapterAvailable);
+                    moduleLog('Used storage adapter type: ' + adapterAvailable);
                     callback(adapter);
 
                 } else {
@@ -4887,7 +5086,7 @@
 
             try {
                 // init storage and check support
-                log('[' + controllerType + ' controller] Testing for storage adapter type: ' + storageType);
+                moduleLog('Testing for storage adapter type: ' + storageType);
                 if (appCacheStorageAdapter[storageType]) {
                     adapter = new appCacheStorageAdapter[storageType](adapterDefaults);
                 } else {
@@ -4910,13 +5109,13 @@
                                 }
                             }
                             if (adapterAvailableConfig) {
-                                log('[' + controllerType + ' controller] Used storage type: ' + adapterAvailable);
+                                moduleLog('Used storage type: ' + adapterAvailable);
                                 callback(adapter);
                                 return;
                             }
 
                             // if there is no config, test the next adapter type
-                            log('[' + controllerType + ' controller] Storage config not found: ' + adapterAvailable);
+                            moduleLog('Storage config not found: ' + adapterAvailable);
                             getStorageAdapter(callback);
 
                         } else {
@@ -4932,7 +5131,7 @@
                 }
             } catch (e) {
                 // javascript api is not (or mayby in a different standard way implemented and) supported, recursiv call
-                log('[' + controllerType + ' controller] Storage adapter could not be initialized: type ' + storageType);
+                moduleLog('Storage adapter could not be initialized: type ' + storageType, e);
                 getStorageAdapter(callback);
             }
 
@@ -5025,7 +5224,7 @@
                 createCallback = function (data) {
 
                     if (!data) {
-                        log('[' + controllerType + ' controller] Couldn\'t get data via network');
+                        moduleLog('Couldn\'t get data via network');
                         callback(resource);
                         return;
                     }
@@ -5036,11 +5235,15 @@
 
                     if (null !== self.adapter && isRessourceStorable(type)) {
 
-                        // create storage content
+                       // create storage content
                         var key = convertObjectToString(url),
-                            content = convertObjectToString(copyStorageContent(resource));
+                            storageContent = copyStorageContent(resource),
+                            content = convertObjectToString(storageContent);
 
-                        //resource.data = content.data;
+                        // update meta data, mainly for test suites
+                        resource.expires = storageContent.expires;
+                        resource.version = storageContent.version;
+
                         /**
                         * there is a bug in older browser versions (seamonkey)
                         * when trying to read or write from db (due to non-standard implementation),
@@ -5050,10 +5253,10 @@
                             // create storage entry
                             self.adapter.create(key, content, function (success) {
                                 if (success) {
-                                    log('[' + controllerType + ' controller] Create new resource in storage adapter: type ' + type + ', url ' + url);
+                                    moduleLog('Create new resource in storage adapter: type ' + type + ', url ' + url);
                                     callback(resource);
                                 } else {
-                                    log('[' + controllerType + ' controller] Create new resource in storage adapter failed');
+                                    moduleLog('Create new resource in storage adapter failed');
                                     callback(false);
                                 }
                             });
@@ -5063,7 +5266,7 @@
                         }
 
                     } else {
-                        log('[' + controllerType + ' controller] Trying to create new resource, but resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
+                        moduleLog('Trying to create new resource, but resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
                         callback(resource);
                     }
 
@@ -5107,7 +5310,7 @@
             // try to read from storage
             if (null !== this.adapter && isRessourceStorable(type)) {
 
-                log('[' + controllerType + ' controller] Trying to read resource from storage: type ' + type + ', url ' + url);
+                moduleLog('Trying to read resource from storage: type ' + type + ', url ' + url);
 
                 /**
                  * there is a bug in older browser versions (seamonkey)
@@ -5118,6 +5321,7 @@
                 try {
                     self.adapter.read(convertObjectToString(url), function (data) {
                         if (data) {
+
                             resource = convertStringToObject(data);
 
                             /**
@@ -5126,25 +5330,24 @@
                              * so we remove the old resource from storage instead to create a new one.
                              */
                             if (!resource) {
-                                self.adapter.remove(convertObjectToString(url), function () {
-                                    log('[' + controllerType + ' controller] Resource deleted from storage adapter to create a new one: type ' + type + ', url ' + url);
+                                self.remove({url: url, type: type}, function () {
                                     callback(false);
                                 });
                                 return;
                             }
 
                             resource.url = url;
-                            log('[' + controllerType + ' controller] Successfully read resource from storage: type ' + type + ', url ' + url);
+                            moduleLog('Successfully read resource from storage: type ' + type + ', url ' + url);
                             callback(resource, true);
                         } else {
-                            log('[' + controllerType + ' controller] There is no data coming back from storage while reading: type ' + type + ', url ' + url);
+                            moduleLog('There is no data coming back from storage while reading: type ' + type + ', url ' + url);
                             callback(false);
                         }
                     });
                 } catch (e) {
                     handleXhrRequests(url, function (data) {
                         resource.data = data;
-                        log('[' + controllerType + ' controller] Try to read resource from storage, but storage adapter is not available: type ' + type + ', url ' + url);
+                        moduleLog('Try to read resource from storage, but storage adapter is not available: type ' + type + ', url ' + url);
                         callback(resource, true);
                     }, resource);
                 }
@@ -5172,7 +5375,7 @@
 
                     // try to use stored data if resource couldn't be updated via network
                     if (!data) {
-                        log('[' + controllerType + ' controller] Couldn\'t get data via network, trying to used stored version');
+                        moduleLog('Couldn\'t get data via network, trying to used stored version');
                         self.read(resource, function (item) {
                             if (item && item.data) {
                                 resource.data = item.data;
@@ -5193,7 +5396,12 @@
 
                         // create storage content
                         var key = convertObjectToString(url),
-                            content = convertObjectToString(copyStorageContent(resource));
+                            storageContent = copyStorageContent(resource),
+                            content = convertObjectToString(storageContent);
+
+                        // update meta data, mainly for test suites
+                        resource.expires = storageContent.expires;
+                        resource.version = storageContent.version;
 
                         /**
                         * there is a bug in older browser versions (seamonkey)
@@ -5204,10 +5412,10 @@
                             // create storage entry
                             self.adapter.update(key, content, function (success) {
                                 if (!!success) {
-                                    log('[' + controllerType + ' controller] Update existing resource in storage adapter: type ' + type + ', url ' + url);
+                                    moduleLog('Update existing resource in storage adapter: type ' + type + ', url ' + url);
                                     callback(resource);
                                 } else {
-                                    log('[' + controllerType + ' controller] Updating resource in storage failed.');
+                                    moduleLog('Updating resource in storage failed.');
                                     callback(false);
                                 }
                             });
@@ -5217,7 +5425,7 @@
                         }
 
                     } else {
-                        log('[' + controllerType + ' controller] Resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
+                        moduleLog('Resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
                         callback(resource);
                     }
                 };
@@ -5259,20 +5467,19 @@
 
             // try to remove resource from storage
             if (null !== self.adapter && isRessourceStorable(type)) {
-                self.adapter.remove(convertObjectToString(url), function (data) {
-                    resource = convertStringToObject(data);
+                self.adapter.remove(convertObjectToString(url), function (success) {
 
-                    if (!resource) {
+                    if (!success) {
+                        moduleLog('Deleting resource form storage failed: type ' + type + ', url ' + url);
                         callback(false);
                         return;
                     }
 
-                    resource.url = url;
-                    log('[' + controllerType + ' controller] Delete resource form storage: type ' + type + ', url ' + url);
+                    moduleLog('Delete resource form storage: type ' + type + ', url ' + url);
                     callback(resource);
                 });
             } else {
-                log('[' + controllerType + ' controller] Delete resource from storage failed, resource type is not cachable or there is no storage adapter: type ' + type + ', url ' + url);
+                moduleLog('Delete resource from storage failed, resource type is not cachable or there is no storage adapter: type ' + type + ', url ' + url);
                 callback(resource);
             }
 
@@ -5358,10 +5565,10 @@
                  */
 
                 if (!json) {
-                    log('[' + controllerType + ' controller] There is no json support');
+                    moduleLog('There is no json support');
                 }
                 if (!self.isEnabled) {
-                    log('[' + controllerType + ' controller] Caching data is disabled');
+                    moduleLog('Caching data is disabled');
                 }
 
                 callback(self);
@@ -5379,7 +5586,7 @@
     ns.namespace('cache.storage.controller', Storage);
 
 
-}(document, window.getNamespace())); // immediatly invoke function
+}(document, window.getNs())); // immediatly invoke function
 
 /*jslint unparam: true */
 /*global window, document*/
@@ -5393,11 +5600,13 @@
  * - handle logic to check for outdated data
  * 
  * @author Ulrich Merkel (hello@ulrichmerkel.com)
- * @version 0.1.6
+ * @version 0.1.7
  *
  * @namespace ns
  *
  * @changelog
+ * - 0.1.8 improved logging
+ * - 0.1.7 bug fix isResourceValid, remove added, improvements for testing
  * - 0.1.6 improved namespacing
  * - 0.1.5 separated check for outdated data in new isResourceValid function, resource loaded callback param added
  * - 0.1.4 refactoring
@@ -5444,6 +5653,28 @@
         log = utils.log,                                        // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback;                         // @type {function} Shortcut for utils.callback function
 
+
+    /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + controllerType + ' controller] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * cache controller
+     * -------------------------------------------
+     */
 
     /**
      * cache controller constructor
@@ -5553,7 +5784,7 @@
                         resourceLoaded = checkCallback(resource.loaded),
                         callback = function () {
                             loadResourceGroupQueue.loaded();
-                            resourceLoaded(data);
+                            resourceLoaded(resource);
                         },
                         node = resource.node || null;
 
@@ -5587,7 +5818,7 @@
                  * check if cached item is still valid
                  *
                  * @param {object} resource The resource object
-                 * @param {object} item The cached resource object
+                 * @param {object} item The cached resource object for comparison
                  *
                  * @return {object} resource The resource object with isValid and lastmod properties
                  */
@@ -5598,11 +5829,11 @@
                         itemLifetime = parseInt(item.lifetime, 10),
                         itemVersion = item.version,
                         itemLastmod = !!item.lastmod ? item.lastmod : 0,
-                        itemAndResourceVersionAndLastmodCheck = false,
+                        itemResourceVersionAndLastmodCheck = false,
                         resourceVersion,
                         resourceLastmod = !!resource.lastmod ? resource.lastmod : 0,
                         lastmodCheck = true,
-                        isValid;
+                        isValid = false;
 
                     // check optional resource attributes and set defaults
                     resource.version = resourceVersion = resource.version !== undefined ? parseFloat(resource.version) : resourceDefaults.version;
@@ -5626,7 +5857,7 @@
                          */
                         resourceLastmod = itemLastmod;
 
-                    } else {
+                    } else if (!resourceLastmod) {
 
                         /**
                          * there is no lastmod option set for the resouce request
@@ -5637,7 +5868,7 @@
                     }
 
                     // shortcut for version and lastmod check for better compression results
-                    itemAndResourceVersionAndLastmodCheck = (lastmodCheck && resourceVersion === itemVersion);
+                    itemResourceVersionAndLastmodCheck = (lastmodCheck && resourceVersion === itemVersion);
 
                     /**
                      * check for outdated data
@@ -5649,11 +5880,11 @@
                      * needs to be the same and finally there is a check if the item is expired using the current timestamp.
                      */
                     isValid = (itemLifetime !== 0) && (
-                                (itemLifetime !== -1 && itemAndResourceVersionAndLastmodCheck && item.expires > now) ||
-                                (itemLifetime === -1 && itemAndResourceVersionAndLastmodCheck)
-                              );
+                        (itemLifetime !== -1 && itemResourceVersionAndLastmodCheck && item.expires > now) ||
+                        (itemLifetime === -1 && itemResourceVersionAndLastmodCheck)
+                    );
 
-                    // set meta data
+                    // update meta data, mainly for test suites
                     resource.lastmod = resourceLastmod;
                     resource.isValid = isValid;
 
@@ -5698,7 +5929,7 @@
                          * created then - it just returns the data via xhr.
                          */
                         if (!item || !item.data) {
-                            log('[' + controllerType + ' controller] Resource or resource data is not available in storage adapter: type ' + resource.type + ', url ' + resource.url);
+                            moduleLog('Resource or resource data is not available in storage adapter: type ' + resource.type + ', url ' + resource.url);
                             storage.create(resource, callback);
                             return;
                         }
@@ -5706,10 +5937,10 @@
                         // check for outdated data and network connection
                         resource = isResourceValid(resource, item);
                         if (resource.isValid || !client.isOnline()) {
-                            log('[' + controllerType + ' controller] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
+                            moduleLog('Resource is up to date: type ' + resource.type + ', url ' + resource.url);
                             data = item.data;
                         } else {
-                            log('[' + controllerType + ' controller] Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
+                            moduleLog('Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
                             storage.update(resource, callback);
                             return;
                         }
@@ -5867,12 +6098,91 @@
                     callback = checkCallback(mainCallback);
 
                     // call main load function to start the process
-                    log('[' + controllerType + ' controller] Load resource function called: resources count ' + resources.length);
+                    moduleLog('Load resource function called: resources count ' + resources.length);
                     load(resources, callback);
 
                 };
 
+
+            // start routine
             init(resources, mainCallback);
+
+
+        },
+
+
+        /**
+         * load multiple resources
+         *
+         * @param {array} resources The array with resource objects
+         * @param {function} mainCallback The callback after all resources are loaded
+         */
+        remove: function (resources, mainCallback) {
+
+            // init local vars
+            var self = this,
+                storage = self.storage,
+
+                /**
+                 * main remove function
+                 *
+                 * @param {array} resources All the grouped resources
+                 * @param {function} callback The main callback function
+                 */
+                remove = function (resources, callback) {
+
+                    var length = resources.length,
+                        i,
+                        resource,
+                        resourceRemovedCallback = function (current, url) {
+                            moduleLog('Successfully removed resource: url ' + url);
+                            if (current === length - 1) {
+                                callback();
+                            }
+                        };
+
+                    if (!length) {
+                        callback();
+                        return;
+                    }
+
+                    // toggle through resources
+                    for (i = 0; i < length; i = i + 1) {
+
+                        // remove each resource if it is a valid array entry
+                        resource = resources[i];
+                        if (resource) {
+                            storage.remove(resource, resourceRemovedCallback(i, resource.url));
+                        }
+
+                    }
+
+                },
+
+                /**
+                 * init remove, check parameters
+                 *
+                 * @param {array} resources All the given resources
+                 * @param {function} callback The main callback function
+                 */
+                init = function (resources, callback) {
+
+                    // check function parameters
+                    if (!resources || !utils.isArray(resources)) {
+                        resources = [];
+                    }
+                    callback = checkCallback(mainCallback);
+
+                    // call main load function to start the process
+                    moduleLog('Remove resource function called: resources count ' + resources.length);
+                    remove(resources, callback);
+
+                };
+
+
+            // start routine
+            init(resources, mainCallback);
+
 
         },
 
@@ -5893,7 +6203,7 @@
             callback = checkCallback(callback);
 
             // init storage
-            log('[' + controllerType + ' controller] Cache initializing and checking for storage adapters');
+            moduleLog('Cache initializing and checking for storage adapters');
             storage = new ns.cache.storage.controller(function (storage) {
 
                 self.storage = storage;
@@ -5913,7 +6223,7 @@
     ns.namespace('cache.controller', Controller);
 
 
-}(window, document, window.getNamespace())); // immediatly invoke function
+}(window, document, window.getNs())); // immediatly invoke function
 
 /*jslint unparam: true */
 /*global window*/
@@ -5968,8 +6278,8 @@
      */
 
     // module vars
-    var Controller = ns.cache.controller,                                      // @type {object} Shortcut for cache controller public functions and vars
-        helpers = ns.helpers,                                                  // @type {object} Shortcut for ns.helpers
+    var Controller = ns.cache.controller,                                       // @type {object} Shortcut for cache controller public functions and vars
+        helpers = ns.helpers,                                                   // @type {object} Shortcut for ns.helpers
         utils = helpers.utils,                                                  // @type {object} Shortcut for ns.helpers.utils
         isArray = utils.isArray,                                                // @type {function} Shortcut for isArray function
         jsonToString = utils.jsonToString,                                      // @type {function} Shortcut for jsonToString function
@@ -5984,11 +6294,14 @@
      * @constructor
      */
     function CacheControllerInterface(parameters) {
-        this.controller = null;
-        this.storage = null;
-        this.params = parameters;
-        this.queue = new Queue();
-        this.calls = 0;
+
+        var self = this;
+
+        self.controller = null;
+        self.storage = null;
+        self.params = parameters;
+        self.queue = new Queue();
+        self.calls = 0;
     }
 
 
@@ -6004,8 +6317,8 @@
 
         // init local vars
         var result = null,
-            i,
-            length = cacheControllers.length;
+            length = cacheControllers.length,
+            i;
 
         // check parameters
         if (!parameters) {
@@ -6015,7 +6328,12 @@
         // toggle through already initialized cache controller interfaces
         for (i = 0; i < length; i = i + 1) {
 
-            // convert objects to strings for easier comparison
+            /**
+             * convert objects to strings for easier comparison
+             *
+             * check if this parameter config object is already
+             * stored in the interface cacheControllers array
+             */
             if (jsonToString(cacheControllers[i].params) === jsonToString(parameters)) {
                 result = cacheControllers[i];
             }
@@ -6082,7 +6400,7 @@
                 controllerInterfaceLoaded(resources, callback, parameters);
             });
 
-            // increase to calls with the current parameters
+            // increase the calls with the current parameters
             controllerInterface.calls = controllerInterface.calls + 1;
 
             // init controller just once
@@ -6095,7 +6413,6 @@
 
                     // if controller storage is loaded, start queue
                     if (!!controllerInterface.controller) {
-                        
                         controllerInterface.queue.flush(this);
                     } else {
 
@@ -6136,4 +6453,4 @@
     ns.namespace('cache.load', cacheInterface);
 
 
-}(window, window.getNamespace()));
+}(window, window.getNs()));

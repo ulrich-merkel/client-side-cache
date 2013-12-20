@@ -13,12 +13,13 @@
  *      - iOs 6.1 + (3.2)
  *      - Android 2.1 +
  *
- * @version 0.1.4
+ * @version 0.1.5
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.5 improved namespacing
  * - 0.1.4 improved namespacing
  * - 0.1.3 refactoring, js lint
  * - 0.1.2 several version change bug fixes
@@ -35,6 +36,7 @@
  *
  */
 (function (window, ns, undefined) {
+
     'use strict';
 
     /**
@@ -59,6 +61,28 @@
         log = utils.log,                                        // @type {function} Shortcut for utils.log function
         boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
 
+
+    /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + storageType + ' Adapter] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * storage adapter
+     * -------------------------------------------
+     */
 
     /**
      * execute sql statement
@@ -106,14 +130,14 @@
     function handleStorageEvents(e) {
 
         // init local vars
-        var msg = '[' + storageType + ' Adapter] Errorcode: ' + e.code + ', Message: ' + e.message;
+        var msg = 'Errorcode: ' + e.code + ', Message: ' + e.message;
 
         if (e.info) {
             msg = msg + ' - ' + e.info;
         }
 
         // log message string
-        log(msg);
+        moduleLog(msg);
 
     }
 
@@ -144,8 +168,8 @@
         self.dbTable = 'cache';
 
         /**
-         * only Safari prompts the user if you try to create a database over the size of the default database size, 5MB
-         * on ios less due to meta data it prompts greater than 4MB.
+         * only Safari prompts the user if you try to create a database over the size of the default database size (5MB),
+         * for ios we define less due to meta data it prompts greater for databases greater than 4MB.
          */
         self.dbSize = 4 * 1024 * 1024;
 
@@ -175,7 +199,7 @@
             if (null === boolIsSupported) {
                 boolIsSupported = !!window.openDatabase;
                 if (!boolIsSupported) {
-                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
+                    moduleLog(storageType + ' is not supported');
                 }
             }
 
@@ -386,11 +410,10 @@
                      * if you specify an empty string for the version, the database is opened regardless of the database version.
                      * but then safari always indicates version 1.0.
                      * 
-                     * safari (6.0.4) doesn't fire the success callback parameter on openDatabase(), so we just can
-                     * pass in name, the empty version number, the table description and size.
-                     *
-                     * also, changeVersion, the method to change the database version, is not fully supported in Webkit.
-                     * it works in Chrome and Opera, but not in Safari or Webkit. 
+                     * hack: safari (6.0.4) doesn't fire the success callback parameter on openDatabase(), so we just can
+                     * pass in name, the empty version number, the table description and size. changeVersion, the method
+                     * to change the database version, is not fully supported in Webkit. it works in Chrome and Opera,
+                     * but not in Safari or Webkit.
                      */
                     self.adapter = adapter = window.openDatabase(self.dbName, '', self.dbDescription, self.dbSize);
 
@@ -493,4 +516,4 @@
     ns.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNamespace())); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function

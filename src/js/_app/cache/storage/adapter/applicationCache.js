@@ -15,12 +15,13 @@
  *      - Maxthon 4.0.5 +
  *      - iOs 3.2 +
  * 
- * @version 0.1.5
+ * @version 0.1.6
  * @author Ulrich Merkel, 2013
  *
  * @namespace app
  *
  * @changelog
+ * - 0.1.6 improved logging
  * - 0.1.5 improved namespacing
  * - 0.1.4 renamed addEventListener to adapterEvent, bug fixes progress event
  * - 0.1.3 improved module structur
@@ -81,6 +82,28 @@
 
 
     /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + storageType + ' Adapter] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * storage adapter
+     * -------------------------------------------
+     */
+
+    /**
      * the actual instance constructor
      * directly called after new Adapter()
      *
@@ -123,7 +146,7 @@
             if (null === boolIsSupported) {
                 boolIsSupported = !!window.applicationCache && !!dom.getAttribute(htmlNode, 'manifest');
                 if (!boolIsSupported) {
-                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported or there is no manifest html attribute');
+                    moduleLog(storageType + ' is not supported or there is no manifest html attribute');
                 }
             }
 
@@ -149,7 +172,7 @@
                 self.isLoaded = true;
                 window.setTimeout(function () {
                     callback();
-                    log('[' + storageType + ' Adapter] Event loaded');
+                    moduleLog('Event loaded');
                 }, self.delay);
             }
 
@@ -189,17 +212,17 @@
                  * handle updates
                  */
                 onUpdateReady = function () {
-                    log('[' + storageType + ' Adapter] Event updateready');
+                    moduleLog('Event updateready');
 
                     // avoid errors in browsers that are not capable of swapCache
                     try {
                         adapter.swapCache();
                     } catch (e) {
-                        log('[' + storageType + ' Adapter] Event updateready: swapcache is not available');
+                        moduleLog('Event updateready: swapcache is not available', e);
                     }
 
                     // ask user for refreshing the page
-                    if (confirm("A new version of this website is available. Do you want to an update?")) {
+                    if (confirm('A new version of this website is available. Do you want to an update?')) {
                         window.location.reload(true);
                     } else {
                         self.loaded(callback);
@@ -216,7 +239,7 @@
                  * the noupdate event is fired and the process ends.
                  */
                 on(adapter, 'checking', function () {
-                    log('[' + storageType + ' Adapter] Event checking');
+                    moduleLog('Event checking');
 
                     return false;
                 });
@@ -229,7 +252,7 @@
                  * the noupdate event is fired and the process ends.
                  */
                 on(adapter, 'noupdate', function () {
-                    log('[' + storageType + ' Adapter] Event noupdate');
+                    moduleLog('Event noupdate');
                     self.loaded(callback);
 
                     return false;
@@ -244,7 +267,7 @@
                  * the downloading event signals the start of this download process.
                  */
                 on(adapter, 'downloading', function () {
-                    log('[' + storageType + ' Adapter] Event downloading');
+                    moduleLog('Event downloading');
                     manifestProgressCount = 0;
 
                     return false;
@@ -260,7 +283,7 @@
                  * @param {object} e The progress event object holding additionally information
                  */
                 on(adapter, 'progress', function (e) {
-                    log('[' + storageType + ' Adapter] Event progress');
+                    moduleLog('Event progress');
 
                     var progress = "";
 
@@ -290,7 +313,7 @@
                  * fires the cached event when the download is complete.
                  */
                 on(adapter, 'cached', function () {
-                    log('[' + storageType + ' Adapter] Event cached');
+                    moduleLog('Event cached');
                     self.loaded(callback);
 
                     return false;
@@ -317,7 +340,7 @@
                  * subsequent loads are done from the network rather than from the cache.
                  */
                 on(adapter, 'obsolete', function () {
-                    log('[' + storageType + ' Adapter] Event obsolete');
+                    moduleLog('Event obsolete');
                     window.location.reload(true);
 
                     return false;
@@ -331,7 +354,7 @@
                  * ressources can't be loaded.
                  */
                 on(adapter, 'error', function () {
-                    log('[' + storageType + ' Adapter] Event error');
+                    moduleLog('Event error');
                     self.loaded(callback);
 
                     return false;
@@ -375,7 +398,7 @@
                     try {
                         adapter.update();
                     } catch (e) {
-                        log('[' + storageType + ' Adapter] Window event online: update cache is not available');
+                        moduleLog('Window event online: update cache is not available', e);
                     }
                 });
 
@@ -441,4 +464,4 @@
     ns.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, document, window.getNamespace())); // immediatly invoke function
+}(window, document, window.getNs())); // immediatly invoke function

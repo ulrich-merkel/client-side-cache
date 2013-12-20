@@ -51,8 +51,8 @@
      */
 
     // module vars
-    var Controller = ns.cache.controller,                                      // @type {object} Shortcut for cache controller public functions and vars
-        helpers = ns.helpers,                                                  // @type {object} Shortcut for ns.helpers
+    var Controller = ns.cache.controller,                                       // @type {object} Shortcut for cache controller public functions and vars
+        helpers = ns.helpers,                                                   // @type {object} Shortcut for ns.helpers
         utils = helpers.utils,                                                  // @type {object} Shortcut for ns.helpers.utils
         isArray = utils.isArray,                                                // @type {function} Shortcut for isArray function
         jsonToString = utils.jsonToString,                                      // @type {function} Shortcut for jsonToString function
@@ -67,11 +67,14 @@
      * @constructor
      */
     function CacheControllerInterface(parameters) {
-        this.controller = null;
-        this.storage = null;
-        this.params = parameters;
-        this.queue = new Queue();
-        this.calls = 0;
+
+        var self = this;
+
+        self.controller = null;
+        self.storage = null;
+        self.params = parameters;
+        self.queue = new Queue();
+        self.calls = 0;
     }
 
 
@@ -87,8 +90,8 @@
 
         // init local vars
         var result = null,
-            i,
-            length = cacheControllers.length;
+            length = cacheControllers.length,
+            i;
 
         // check parameters
         if (!parameters) {
@@ -98,7 +101,12 @@
         // toggle through already initialized cache controller interfaces
         for (i = 0; i < length; i = i + 1) {
 
-            // convert objects to strings for easier comparison
+            /**
+             * convert objects to strings for easier comparison
+             *
+             * check if this parameter config object is already
+             * stored in the interface cacheControllers array
+             */
             if (jsonToString(cacheControllers[i].params) === jsonToString(parameters)) {
                 result = cacheControllers[i];
             }
@@ -165,7 +173,7 @@
                 controllerInterfaceLoaded(resources, callback, parameters);
             });
 
-            // increase to calls with the current parameters
+            // increase the calls with the current parameters
             controllerInterface.calls = controllerInterface.calls + 1;
 
             // init controller just once
@@ -178,7 +186,6 @@
 
                     // if controller storage is loaded, start queue
                     if (!!controllerInterface.controller) {
-                        
                         controllerInterface.queue.flush(this);
                     } else {
 
@@ -219,4 +226,4 @@
     ns.namespace('cache.load', cacheInterface);
 
 
-}(window, window.getNamespace()));
+}(window, window.getNs()));

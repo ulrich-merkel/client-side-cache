@@ -14,9 +14,10 @@
  *      - Safari 4.0 +
  *      - Google Crome 4.0 +
  *      - Opera 10.5 +
+ *      - Opera Mobile 11.5 +
  *      - Maxthon 4.0.5 +
- *      - iOs 2.0 +
- *      - Android 2.0 +
+ *      - iOs 2.0 (3.2) +
+ *      - Android 2.0 (2.1) +
  *      - Camino 2.1.2 +
  *      - Fake 1.8 +
  *      - Omni Web 5.11 +
@@ -24,12 +25,13 @@
  *      - Seamonkey 2.15 +
  *      - Sunrise 2.2 +
  * 
- * @version 0.1.5
+ * @version 0.1.6
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.6 improved namespacing
  * - 0.1.5 improved namespacing
  * - 0.1.4 polyfill moved to separate function
  * - 0.1.3 polyfill for globalStorage and ie userdata added
@@ -39,7 +41,7 @@
  *
  * @see
  * - http://www.w3.org/TR/webstorage/
- *
+ * - http://diveintohtml5.info/storage.html
  *
  * @bugs
  * -
@@ -72,6 +74,28 @@
 
 
     /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + storageType + ' Adapter] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * storage adapter
+     * -------------------------------------------
+     */
+
+    /**
      * handle web storage events
      *
      * the event only fires on other windows – it won’t fire on the window that did the storing.
@@ -91,10 +115,10 @@
         }
 
         // init local vars
-        var msg = '[' + storageType + ' Adapter] Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event');
+        var msg = 'Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event');
 
         // log event
-        log(msg);
+        moduleLog(msg);
     }
 
 
@@ -176,7 +200,7 @@
                 try {
                     boolIsSupported = !!window[type] && !!window[type].getItem;
                 } catch (e) {
-                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
+                    moduleLog(storageType + ' is not supported');
                     boolIsSupported = false;
                 }
             }
@@ -271,7 +295,7 @@
             try {
                 // delete data and call callback
                 this.adapter.removeItem(key);
-                callback(key);
+                callback(true);
 
             } catch (e) {
                 // handle errors
@@ -304,11 +328,11 @@
                     on(window, 'storage', handleStorageEvents);
 
                     // create test item
-                    log('[' + storageType + ' Adapter] Try to create test resource');
+                    moduleLog('Try to create test resource');
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
-                                log('[' + storageType + ' Adapter] Test resource created and successfully deleted');
+                                moduleLog('Test resource created and successfully deleted');
                                 callback(adapter);
                                 return;
                             });
@@ -376,4 +400,4 @@
     ns.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNamespace())); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function

@@ -555,4 +555,4 @@
 
 	});
 
-}(window, document, window.jQuery, window.app || {}));
+}(window, document, window.jQuery, window.getNs()));

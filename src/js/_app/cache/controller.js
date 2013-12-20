@@ -10,11 +10,13 @@
  * - handle logic to check for outdated data
  * 
  * @author Ulrich Merkel (hello@ulrichmerkel.com)
- * @version 0.1.6
+ * @version 0.1.7
  *
  * @namespace ns
  *
  * @changelog
+ * - 0.1.8 improved logging
+ * - 0.1.7 bug fix isResourceValid, remove added, improvements for testing
  * - 0.1.6 improved namespacing
  * - 0.1.5 separated check for outdated data in new isResourceValid function, resource loaded callback param added
  * - 0.1.4 refactoring
@@ -61,6 +63,28 @@
         log = utils.log,                                        // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback;                         // @type {function} Shortcut for utils.callback function
 
+
+    /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + controllerType + ' controller] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * cache controller
+     * -------------------------------------------
+     */
 
     /**
      * cache controller constructor
@@ -170,7 +194,7 @@
                         resourceLoaded = checkCallback(resource.loaded),
                         callback = function () {
                             loadResourceGroupQueue.loaded();
-                            resourceLoaded(data);
+                            resourceLoaded(resource);
                         },
                         node = resource.node || null;
 
@@ -204,7 +228,7 @@
                  * check if cached item is still valid
                  *
                  * @param {object} resource The resource object
-                 * @param {object} item The cached resource object
+                 * @param {object} item The cached resource object for comparison
                  *
                  * @return {object} resource The resource object with isValid and lastmod properties
                  */
@@ -215,11 +239,11 @@
                         itemLifetime = parseInt(item.lifetime, 10),
                         itemVersion = item.version,
                         itemLastmod = !!item.lastmod ? item.lastmod : 0,
-                        itemAndResourceVersionAndLastmodCheck = false,
+                        itemResourceVersionAndLastmodCheck = false,
                         resourceVersion,
                         resourceLastmod = !!resource.lastmod ? resource.lastmod : 0,
                         lastmodCheck = true,
-                        isValid;
+                        isValid = false;
 
                     // check optional resource attributes and set defaults
                     resource.version = resourceVersion = resource.version !== undefined ? parseFloat(resource.version) : resourceDefaults.version;
@@ -243,7 +267,7 @@
                          */
                         resourceLastmod = itemLastmod;
 
-                    } else {
+                    } else if (!resourceLastmod) {
 
                         /**
                          * there is no lastmod option set for the resouce request
@@ -254,7 +278,7 @@
                     }
 
                     // shortcut for version and lastmod check for better compression results
-                    itemAndResourceVersionAndLastmodCheck = (lastmodCheck && resourceVersion === itemVersion);
+                    itemResourceVersionAndLastmodCheck = (lastmodCheck && resourceVersion === itemVersion);
 
                     /**
                      * check for outdated data
@@ -266,11 +290,11 @@
                      * needs to be the same and finally there is a check if the item is expired using the current timestamp.
                      */
                     isValid = (itemLifetime !== 0) && (
-                                (itemLifetime !== -1 && itemAndResourceVersionAndLastmodCheck && item.expires > now) ||
-                                (itemLifetime === -1 && itemAndResourceVersionAndLastmodCheck)
-                              );
+                        (itemLifetime !== -1 && itemResourceVersionAndLastmodCheck && item.expires > now) ||
+                        (itemLifetime === -1 && itemResourceVersionAndLastmodCheck)
+                    );
 
-                    // set meta data
+                    // update meta data, mainly for test suites
                     resource.lastmod = resourceLastmod;
                     resource.isValid = isValid;
 
@@ -315,7 +339,7 @@
                          * created then - it just returns the data via xhr.
                          */
                         if (!item || !item.data) {
-                            log('[' + controllerType + ' controller] Resource or resource data is not available in storage adapter: type ' + resource.type + ', url ' + resource.url);
+                            moduleLog('Resource or resource data is not available in storage adapter: type ' + resource.type + ', url ' + resource.url);
                             storage.create(resource, callback);
                             return;
                         }
@@ -323,10 +347,10 @@
                         // check for outdated data and network connection
                         resource = isResourceValid(resource, item);
                         if (resource.isValid || !client.isOnline()) {
-                            log('[' + controllerType + ' controller] Resource is up to date: type ' + resource.type + ', url ' + resource.url);
+                            moduleLog('Resource is up to date: type ' + resource.type + ', url ' + resource.url);
                             data = item.data;
                         } else {
-                            log('[' + controllerType + ' controller] Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
+                            moduleLog('Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
                             storage.update(resource, callback);
                             return;
                         }
@@ -484,12 +508,91 @@
                     callback = checkCallback(mainCallback);
 
                     // call main load function to start the process
-                    log('[' + controllerType + ' controller] Load resource function called: resources count ' + resources.length);
+                    moduleLog('Load resource function called: resources count ' + resources.length);
                     load(resources, callback);
 
                 };
 
+
+            // start routine
             init(resources, mainCallback);
+
+
+        },
+
+
+        /**
+         * load multiple resources
+         *
+         * @param {array} resources The array with resource objects
+         * @param {function} mainCallback The callback after all resources are loaded
+         */
+        remove: function (resources, mainCallback) {
+
+            // init local vars
+            var self = this,
+                storage = self.storage,
+
+                /**
+                 * main remove function
+                 *
+                 * @param {array} resources All the grouped resources
+                 * @param {function} callback The main callback function
+                 */
+                remove = function (resources, callback) {
+
+                    var length = resources.length,
+                        i,
+                        resource,
+                        resourceRemovedCallback = function (current, url) {
+                            moduleLog('Successfully removed resource: url ' + url);
+                            if (current === length - 1) {
+                                callback();
+                            }
+                        };
+
+                    if (!length) {
+                        callback();
+                        return;
+                    }
+
+                    // toggle through resources
+                    for (i = 0; i < length; i = i + 1) {
+
+                        // remove each resource if it is a valid array entry
+                        resource = resources[i];
+                        if (resource) {
+                            storage.remove(resource, resourceRemovedCallback(i, resource.url));
+                        }
+
+                    }
+
+                },
+
+                /**
+                 * init remove, check parameters
+                 *
+                 * @param {array} resources All the given resources
+                 * @param {function} callback The main callback function
+                 */
+                init = function (resources, callback) {
+
+                    // check function parameters
+                    if (!resources || !utils.isArray(resources)) {
+                        resources = [];
+                    }
+                    callback = checkCallback(mainCallback);
+
+                    // call main load function to start the process
+                    moduleLog('Remove resource function called: resources count ' + resources.length);
+                    remove(resources, callback);
+
+                };
+
+
+            // start routine
+            init(resources, mainCallback);
+
 
         },
 
@@ -510,7 +613,7 @@
             callback = checkCallback(callback);
 
             // init storage
-            log('[' + controllerType + ' controller] Cache initializing and checking for storage adapters');
+            moduleLog('Cache initializing and checking for storage adapters');
             storage = new ns.cache.storage.controller(function (storage) {
 
                 self.storage = storage;
@@ -530,4 +633,4 @@
     ns.namespace('cache.controller', Controller);
 
 
-}(window, document, window.getNamespace())); // immediatly invoke function
+}(window, document, window.getNs())); // immediatly invoke function

@@ -4,14 +4,15 @@
  * ns.helpers.error
  * 
  * @description
- * - catch javascript errors and log message
+ * - catch javascript errors and log according message
  * 
  * @author Ulrich Merkel, 2013
- * @version 0.1
+ * @version 0.1.1
  *
  * @namespace ns
  * 
  * @changelog
+ * - 0.1.1 switched to console.warn (if available)
  * - 0.1 basic functions and plugin structur
  * 
  */
@@ -36,17 +37,24 @@
 
 
     /**
-     * export to globals
+     * handle javascript errors
+     *
+     * this function will just cache undefined vars and functions,
+     * syntax errors and other stuff can't be catched
      *
      * @export
+     * @param {string} msg The error message
+     * @param {string} url The url where the error occurs
+     * @param {string} line The script code line where the error occurs
      */
     window.onerror = function (msg, url, line) {
-
+    
         // log error message
         ns.helpers.utils.warn(msg + "\nurl: " + url + "\nline: " + line);
-
+    
         // return true keeps the browser running instead of stopping execution
         return true;
+
     };
 
 }(window, window.getNamespace()));

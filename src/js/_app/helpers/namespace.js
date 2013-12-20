@@ -150,6 +150,6 @@
      * @export
      */
     window[namespaceName] = ns;
-    window.getNamespace = getNamespace;
+    window.getNamespace = window.getNs = getNamespace;
 
 }(window));

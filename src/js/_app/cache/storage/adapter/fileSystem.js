@@ -12,12 +12,13 @@
  *      - Google Crome 26.0 +
  *      - Maxthon 4.0.5 +
  *
- * @version 0.1.3
+ * @version 0.1.4
  * @author Ulrich Merkel, 2013
  *
  * @namespace ns
  *
  * @changelog
+ * - 0.1.4 improved logging
  * - 0.1.3 improved namespacing, handleStorageEvents adjusted to for current browser updates (event object error)
  * - 0.1.2 creating test item while open added, bug fixes for chrome 17
  * - 0.1.1 refactoring, js lint
@@ -25,6 +26,9 @@
  *
  * @see
  * - http://www.w3.org/TR/file-system-api/
+ * - http://www.w3.org/TR/FileAPI/
+ * - http://www.html5rocks.com/de/tutorials/file/filesystem/
+ * - http://updates.html5rocks.com/2011/08/Debugging-the-Filesystem-API
  *
  * @bugs
  * -
@@ -58,6 +62,28 @@
 
 
     /**
+     * -------------------------------------------
+     * general helper functions
+     * -------------------------------------------
+     */
+
+    /**
+     * console log helper
+     *
+     * @param {string} message The message to log
+     */
+    function moduleLog(message) {
+        log('[' + storageType + ' Adapter] ' + message);
+    }
+
+
+    /**
+     * -------------------------------------------
+     * storage adapter
+     * -------------------------------------------
+     */
+
+    /**
      * handle storage events
      *
      * @param {object} e The event object
@@ -75,27 +101,27 @@
 
         switch (code) {
         case FileError.QUOTA_EXCEEDED_ERR:
-            msg = '[' + storageType + ' Adapter] File System Event: QUOTA_EXCEEDED_ERR';
+            msg = 'File System Event: QUOTA_EXCEEDED_ERR';
             break;
         case FileError.NOT_FOUND_ERR:
-            msg = '[' + storageType + ' Adapter] File System Event: NOT_FOUND_ERR, file does not exist';
+            msg = 'File System Event: NOT_FOUND_ERR, file does not exist';
             break;
         case FileError.SECURITY_ERR:
-            msg = '[' + storageType + ' Adapter] File System Event: SECURITY_ERR';
+            msg = 'File System Event: SECURITY_ERR';
             break;
         case FileError.INVALID_MODIFICATION_ERR:
-            msg = '[' + storageType + ' Adapter] File System Event: INVALID_MODIFICATION_ERR';
+            msg = 'File System Event: INVALID_MODIFICATION_ERR';
             break;
         case FileError.INVALID_STATE_ERR:
-            msg = '[' + storageType + ' Adapter] File System Event: INVALID_STATE_ERR';
+            msg = 'File System Event: INVALID_STATE_ERR';
             break;
         default:
-            msg = '[' + storageType + ' Adapter] File System Event: Unknown Error';
+            msg = 'File System Event: Unknown Error';
             break;
         }
 
         // log message string
-        log(msg);
+        moduleLog(msg, e);
 
     }
 
@@ -213,7 +239,7 @@
             if (null === boolIsSupported) {
                 boolIsSupported = (!!window.requestFileSystem || !!window.webkitRequestFileSystem) && !!window.Blob;
                 if (!boolIsSupported) {
-                    log('[' + storageType + ' Adapter] ' + storageType + ' is not supported');
+                    moduleLog(storageType + ' is not supported');
                 }
             }
 
@@ -245,12 +271,12 @@
                     adapter = self.adapter = filesystem;
 
                     /* create test item */
-                    log('[' + storageType + ' Adapter] Try to create test resource');
+                    moduleLog('Try to create test resource');
                     try {
                         self.create('test-item', utils.jsonToString({test: "test-content"}), function (success) {
                             if (!!success) {
                                 self.remove('test-item', function () {
-                                    log('[' + storageType + ' Adapter] Test resource created and successfully deleted');
+                                    moduleLog('Test resource created and successfully deleted');
                                     callback(adapter);
                                     //return;
                                 });
@@ -310,6 +336,12 @@
                          * while creating new blob
                          */
                         try {
+
+                            /**
+                             * create transparent binary file copy via blobs
+                             *
+                             * @see https://developer.mozilla.org/de/docs/Web/API/Blob
+                             */
                             var blob = new Blob([content], {type: 'text/plain'});
 
                             // write data
@@ -399,7 +431,7 @@
             var adapter = this.adapter,
                 errorHandler = function (e) {
                     handleStorageEvents(e);
-                    callback(key, e);
+                    callback(false, e);
                 };
 
             // check directory exists
@@ -410,7 +442,7 @@
 
                     // remove file
                     fileEntry.remove(function () {
-                        callback();
+                        callback(true);
                     }, errorHandler);
 
                 }, errorHandler);
@@ -463,4 +495,4 @@
     ns.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNamespace())); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function
