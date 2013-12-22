@@ -202,7 +202,10 @@
              * overridden with the correct implemation the first time it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
-             * 
+             *
+             * @see
+             * - http://coding.smashingmagazine.com/2013/11/12/an-introduction-to-dom-events/
+             *
              * @param {string} target The dom object
              * @param {string} eventType The event type to bind
              * @param {function} handler The function to bind
@@ -243,7 +246,10 @@
              * overridden with the correct implemation the first time it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
-             * 
+             *
+             * @see
+             * - http://coding.smashingmagazine.com/2013/11/12/an-introduction-to-dom-events/
+             *
              * @param {string} target The dom object
              * @param {string} eventType The event type to unbind
              * @param {function} handler The function to unbind
@@ -520,7 +526,7 @@
             url: function (url) {
 
                 // check params
-                if (!url) {
+                if (!utils.isString(url)) {
                     return;
                 }
 
@@ -555,12 +561,14 @@
             /**
              * get url query string
              *
+             * @param {string} url The optional url to get the query string from
+             *  
              * @return {object} Current url query strings
              */
-            queryString: (function () {
+            queryString: (function (url) {
 
                 var query_string = {},
-                    query = window.location.search.substring(1),
+                    query = utils.isString(url) ? utils.url(url).query : window.location.search.substring(1),
                     vars = query.split('&'),
                     varsLength = vars.length,
                     i = 0,
@@ -624,7 +632,7 @@
              */
             trim: function (string) {
 
-                if (typeof string !== 'string' || !(string instanceof String)) {
+                if (!utils.isString(string)) {
                     return string;
                 }
 
@@ -641,6 +649,15 @@
                 // return trimmed string
                 return string.trim();
 
+            },
+
+
+            /**
+             *
+             *
+             */
+            isString: function (string) {
+                return typeof string == 'string' || string instanceof String;
             },
 
 
@@ -669,21 +686,21 @@
                  * browser capabilities
                  */
 
-                if (!!arrayIsArray && typeof arrayIsArray === "function") {
+                if (!!arrayIsArray && typeof arrayIsArray === 'function') {
                     // ECMA Script 5
                     utils.isArray = function (value) {
                         return arrayIsArray(value);
                     };
-                } else if (!!objectProtoypeToString && objectProtoypeToString === "function") {
+                } else if (!!objectProtoypeToString && objectProtoypeToString === 'function') {
                     // Juriy Zaytsev (aka Kangax)
                     utils.isArray = function (value) {
-                        return objectProtoypeToString.call(value) === "[object Array]";
+                        return objectProtoypeToString.call(value) === '[object Array]';
                     };
                 } else {
                     // Duck-Typing arrays (by Douglas Crockford), asume sort function is only available for arrays
                     // Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array" 
                     utils.isArray = function (value) {
-                        return (!!value.sort && typeof value.sort === "function");
+                        return (!!value.sort && typeof value.sort === 'function');
                     };
                 }
 

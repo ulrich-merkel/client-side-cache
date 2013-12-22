@@ -66,32 +66,32 @@ module.exports = function (grunt) {
         copy: {
             html: {
                 files: [
-                    { expand: true, flatten: true, src: ["src/index.html"], dest: "build/" },
-                    { expand: true, flatten: true, src: ["src/js-templates.html"], dest: "build/" }
+                    { expand: true, flatten: true, src: ["src/index.html"], dest: "example/" }
                 ]
             },
             css: {
                 files: [
-                    { expand: true, flatten: true, src: ["src/css/base.css"], dest: "build/css/" },
-                    { expand: true, flatten: true, src: ["src/css/app.css"], dest: "build/css/" }
+                    { expand: true, flatten: true, src: ["src/css/base.css"], dest: "example/css/" },
+                    { expand: true, flatten: true, src: ["src/css/app.css"], dest: "example/css/" }
                 ]
             },
             js: {
                 files: [
-                    { expand: true, flatten: true, src: ["src/js/cache.js"], dest: "build/js/" },
-                    { expand: true, flatten: true, src: ["src/js/lib.js"], dest: "build/js/" },
-                    { expand: true, flatten: true, src: ["src/js/app.js"], dest: "build/js/" }
+                    { expand: true, flatten: true, src: ["src/js/cache.js"], dest: "example/js/" },
+                    { expand: true, flatten: true, src: ["src/js/cache.js"], dest: "build/" },
+                    { expand: true, flatten: true, src: ["src/js/lib.js"], dest: "example/js/" },
+                    { expand: true, flatten: true, src: ["src/js/app.js"], dest: "example/js/" }
                 ]
             },
             assets: {
                 files: [
-                    { expand: true, cwd: 'src/',  src: ["assets/**/*"], dest: "build/" }
+                    { expand: true, cwd: 'src/',  src: ["assets/**/*"], dest: "example/" }
                 ]
             },
             serverFiles: {
                 files: [
-                    { expand: true, flatten: true, src: ["src/.htaccess"], dest: "build/" },
-                    { expand: true, flatten: true, src: ["src/cache.manifest"], dest: "build/" }
+                    { expand: true, flatten: true, src: ["src/.htaccess"], dest: "example/" },
+                    { expand: true, flatten: true, src: ["src/cache.manifest"], dest: "example/" }
                 ]
             }
         },
@@ -104,7 +104,7 @@ module.exports = function (grunt) {
                     imageAlpha: true,
                     quitAfter: true
                 },
-                src: ['build/assets/img/', 'build/assets/img/']
+                src: ['example/assets/img/', 'example/assets/img/']
             }
         },
 
@@ -121,7 +121,7 @@ module.exports = function (grunt) {
                     'id-unique': true,
                     'head-script-disabled': false
                 },
-                src: ['build/**/*index.html']
+                src: ['example/**/*index.html']
             },
             src: {
                 options: {
@@ -140,19 +140,20 @@ module.exports = function (grunt) {
 
         // uglify js files
         uglify: {
-            //jsCache: {
-            //    files: {
-            //        'build/js/lib.js': ['build/js/cache.js']
-            //    }
-            //},
-            jsLib: {
+            cache: {
                 files: {
-                    'build/js/lib.js': ['build/js/lib.js']
+                    'example/js/cache.js': ['example/js/cache.js'],
+                    'build/cache.js': ['build/cache.js']
                 }
             },
-            jsApp: {
+            app: {
                 files: {
-                    'build/js/app.js': ['build/js/app.js']
+                    'example/js/lib.js': ['example/js/lib.js']
+                }
+            },
+            lib: {
+                files: {
+                    'example/js/app.js': ['example/js/app.js']
                 }
             }
         },
@@ -182,8 +183,8 @@ module.exports = function (grunt) {
                     consolidateMediaQueries:    true
                 },
                 files: {
-                    'build/css/base.css': 'build/css/base.css',
-                    'build/css/app.css': 'build/css/app.css'
+                    'example/css/base.css': 'example/css/base.css',
+                    'example/css/app.css': 'example/css/app.css'
                 }
             }
         },
@@ -191,12 +192,12 @@ module.exports = function (grunt) {
         // minify builded css files
         cssmin: {
             base: {
-                src: 'build/css/base.css',
-                dest: 'build/css/base.css'
+                src: 'example/css/base.css',
+                dest: 'example/css/base.css'
             },
             app: {
-                src: 'build/css/app.css',
-                dest: 'build/css/app.css'
+                src: 'example/css/app.css',
+                dest: 'example/css/app.css'
             }
         },
 

@@ -153,7 +153,9 @@
     <script src="js/cache.js"></script>
 	<script>
 
+		// wrap cache initializing in a closure
 		(function (window, document, ns, undefined) {
+
 			'use strict';
 		
 			/**
@@ -164,14 +166,14 @@
 			 * truly undefined. In ES5, undefined can no longer be
 			 * modified.
 			 * 
-			 * document and ns are passed through as local
+			 * window, document and ns are passed through as local
 			 * variables rather than as globals, because this (slightly)
 			 * quickens the resolution process and can be more
 			 * efficiently minified (especially when both are
 			 * regularly referenced in this module).
 			 */
 		
-			// module vars
+			// local vars for faster access
 			var helpers = ns.helpers,                                       // @type {object} Shortcut for helpers functions
 				utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
 				logTimerStart = utils.logTimerStart,                        // @type {function} Shortcut for utils.logTimerStart functions
@@ -185,14 +187,15 @@
 			 */
 			on(window, 'load', function () {
 
-				// start timers to profile loading time
+				// start timers to profile loading time, just for testing purposes
 				logTimerStart('Page css and js files loaded');
 				logTimerStart('Page images loaded');
 				logTimerStart('Html loaded');
 				logTimerStart('Application Cache loaded');
 
 
-				// init base vars and loaded callback
+				// init base vars and loaded callback, loaded callback will be invoked
+				// when called twice
 				var baseUrl = window.baseurl || utils.url(window.location.pathname).folder,
 				    loaded = 0,
 				    layerLoading = document.getElementById('layer-loading'),
@@ -201,24 +204,28 @@
 				        if (loaded === 2 && layerLoading) {
 				            layerLoading.style.display = 'none';
 				        }
-				    };
-
-
-				// load application cache
-				ns.cache.load('applicationCache', function () {
-				    logTimerEnd('Application Cache loaded');
-				    loadedCallback();
-				}, {
-				    progress: function (data) {
-				        var loadingBar = document.getElementById('layer-progress-value');
+				    },
+					loadingBar = document.getElementById('layer-progress-value'),
+					animateLoadingBar = function (data) {
 				        if (loadingBar) {
 				            helpers.dom.setAttribute(loadingBar, 'value', data);
 				        }
+					};
+
+
+				// init application cache, listen to events
+				ns.cache.load('applicationCache', function () {
+				    logTimerEnd('Application Cache loaded');
+					animateLoadingBar(100);
+				    loadedCallback();
+				}, {
+				    progress: function (data) {
+						animateLoadingBar(data);
 				    }
 				});
 
 
-				// load dynamic css and js
+				// load css and js dynamically
 				ns.cache.load([
 				    {url: baseUrl + "css/app.css", type: "css"},
 				    {url: baseUrl + "js/lib.js", type: "js"},
@@ -229,7 +236,7 @@
 				});
 
 
-				// load dynamic images
+				// load images dynamically
 				ns.cache.load([
 				    {url: baseUrl + "assets/img/content/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
 				    {url: baseUrl + "assets/img/content/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
@@ -239,7 +246,7 @@
 				});
 
 
-				// load dynamic html
+				// load html data dynamically
 				ns.cache.load([
 					{url: baseUrl + "ajax.html", type: "html", node: {id: "ajax"}}
 				], function () {
@@ -248,7 +255,7 @@
 
 			});
 
-		}(window, document, window.getNamespace()));
+		}(window, document, window.getNs()));
 	</script>
 </body>
 
