@@ -301,7 +301,7 @@
             // check params
             callback = checkCallback(callback);
 
-            // init vars and create success callback
+            // init vars and read success callback
             var self = this,
                 sqlSuccess = function (transaction, data) {
 
