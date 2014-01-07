@@ -8,6 +8,7 @@
 
         "grunt": "~0.4.0",
 
+        "grunt-contrib-clean": "*",
         "grunt-contrib-compass": "*",
         "grunt-contrib-concat": "*",
         "grunt-contrib-copy": "*",
@@ -15,10 +16,11 @@
         "grunt-contrib-sass": "*",
         "grunt-contrib-uglify": "*",
         "grunt-contrib-watch": "*",
+        
 
         "grunt-cssc": "*",
         "grunt-imageoptim": "*",
-        "grunt-jsdoc-plugin": "*",
+        "grunt-jsdoc": "*",
         "grunt-htmlhint": "*",
 
         "matchdep": "*"

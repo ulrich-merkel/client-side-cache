@@ -3,7 +3,7 @@
 
 ## Introduction ##
 
-This javascript functions are demonstrating the possibility of client side caching via javascript and html5 storage apis. Page resources like images, javascript files, stylesheets and html content could be saved locally in the users browser. On subsequent page views these resources will be taken from cache and won't be won't loaded via network. This could reduce the number of http request used for loading the page.
+This javascript functions are demonstrating the possibility of client side caching via javascript and html5 storage apis. Page resources like **images, javascript files, stylesheets and html content could be saved locally** in the users browser. On subsequent page views these resources will be taken from cache and won't be won't loaded via network. This could reduce the number of http request used for page loading.
 
 The given resources will be appended to the dom automatically in case of javascript and stylesheet files. You are also able to append data to a specific element on the page, e.g. to load images from cache.
 
@@ -18,13 +18,33 @@ The offline application cache differs from the usage of the other four. Due to i
 ### Demo ####
 If you just want to see a working demo, open the generated index.html **/example/index.html** file in your browser. You need to run this file in a webserver to make shure the ajax calls are working.
 
+### Installation ####
+
+This project is based on Grunt.js, a [node.js](http://nodejs.org/ "Node Js") build tool. For more and deeper information please visit the [ofifficial website](http://gruntjs.com/ "Grunt Js") or just do some [googling](http://google.com/?q=grunt "Google"). Some basic terminal commands are listed for your convenience below.
+
+#### Grunt installation ####
+
+	npm install
+	npm install -g grunt-cli
+    npm install -g grunt-init
+
+#### Example Usage ####
+        
+    grunt			// default watch task
+    grunt build		// build project
+
+
 ## Usage ##
 
 
 #### Basic html example code with cache initializing: ####
 
 An interface to load resources is given via the `window.app.cache.load(resourceArray, callbackFunction)` function. It expects as the first parameter the resources array and the second parameter is the optional callback function after they've been loaded.
-There is a minified and combined version of the functions you need included in the js directory named __build/js/cache.js__. Append the __cache.js__ file just before the closing body tag. The application cache needs the manifest attribute on the html element and expects a valid path to the manifest file, if you want to use this storage adapter. Listed below is a combined example of how you can initialize local caching in your html file:
+There is a minified and combined version of the functions you need included in the build directory (__build/cache.js__). Append the __cache.js__ file just before the closing body tag.
+
+The application cache needs the manifest attribute on the html element and expects a valid path to the manifest file, if you want to use this storage adapter.
+
+Below you will find a combined example of how you can initialize local caching in your html file:
 
         <!doctype html>
 		<html manifest="cache.manifest">
@@ -209,7 +229,7 @@ There are several options you can use to specify a resource. This can be useful 
  
 
 ### Javascript source files ####
-There is no external library neccessary for the code to work. The logic is split into several functions and files under the global javascript namespace `window.app`. If you want to modify the source code, the files you will need are listed in **src/js/_app/cache/** and  **src/js/_app/helpers/**. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (make sure you include the **helpers first**). The correspondig javascript namespace is handled by the namespace.js helper functions.
+There is no external library neccessary for the code to work. The logic is split into several functions and files under the global javascript namespace `window.app`. If you want to modify the source code, the files you will need are listed in **src/js/_app/cache/** and  **src/js/_app/helpers/**. The underscore within the _app folder just indicates that this folder won't be generated during the build process. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (make sure you include the **helpers first**). The correspondig javascript namespace is handled by the namespace.js helper functions.
 
 ##### Helpers #####
 - src/js/_app/helpers/namespace.js
@@ -232,14 +252,23 @@ The helper files are used to get some utility functions. They provide useful fun
 
 The storage controller (src/js/\_app/cache/storage/controller.js) is responsible for checking the different storage adapters. He also provides an consistent interface to store and retrieve the data from cache. The main logic for handling the cache is listed in the cache controller (src/js/\_app/cache/controller.js). This file will take care of checking outdated data and loading the data you are requesting.
 
+##### Customizing #####
 If you don't need one or some of the storage adapters src/js/\_app/cache/storage/adapter/...js, you can just delete these files to reduce the overall file size. If you just want to use the webStorage adapter to save data locally, the javascript caching files you will need to include are:
+
+- src/js/_app/helpers/namespace.js
+- src/js/_app/helpers/utils.js
+- src/js/_app/helpers/queue.js
+- src/js/_app/helpers/client.js
+- src/js/_app/helpers/dom.js
 
 - src/js/_app/cache/storage/controller.js
 - src/js/_app/cache/storage/adapter/webStorage.js
 - src/js/_app/cache/controller.js
 - src/js/_app/cache/interface.js
 
-It is recommended that you combine all the single files into one and minimize the combined file. I've included lot's of comments in the source files to make the code better readable which will be removed while minification. You will find a minified and combined version at build/js/cache.js. This file includes all storage adapters and cache files you will need.
+It is recommended that you combine all the single files into one and minimize the combined file. I've included lot's of comments in the source files to make the code better readable which will be removed while minification. You will find a minified and combined version at **build/cache.js**. This file includes all storage adapters and cache files you will need.
+
+If you need to organize your code and the caching functions under if different javascript namespace rather than `window.app`, you are free to modify it. Just edit the corresponding variable (`namespaceName`) in src/js/_app/helpers/namespace.js and all the caching functions are available under your custom namespace.
 
 
 ### Tested and supported browsers:  ###

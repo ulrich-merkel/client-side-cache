@@ -284,7 +284,9 @@
             /**
              * check if image is cached, trigger load manually
              *
-             * @see http://github.com/desandro/imagesloaded
+             * @see
+             * - http://github.com/desandro/imagesloaded
+             * - http://www.html5rocks.com/en/tutorials/es6/promises/?redirect_from_locale=de
              */
             if (!!image.complete && image.naturalWidth !== undefined) {
                 image.onload();
@@ -894,6 +896,8 @@
             var self = this,
                 storageType = false;
 
+            // check basic params
+            callback = checkCallback(callback);
             if (parameters && parameters.isEnabled !== undefined) {
                 self.isEnabled = !!parameters.isEnabled;
             }
@@ -948,7 +952,6 @@
 
                 getStorageAdapter(function (adapter) {
                     self.adapter = adapter;
-                    callback = checkCallback(callback);
                     callback(self);
                 }, storageType);
 

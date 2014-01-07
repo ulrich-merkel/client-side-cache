@@ -568,7 +568,8 @@
             queryString: (function (url) {
 
                 var query_string = {},
-                    query = utils.isString(url) ? utils.url(url).query : window.location.search.substring(1),
+                    //query = this.isString(url) ? this.url(url).query : window.location.search.substring(1),
+                    query = window.location.search.substring(1),
                     vars = query.split('&'),
                     varsLength = vars.length,
                     i = 0,

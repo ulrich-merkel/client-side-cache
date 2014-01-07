@@ -1,6 +1,6 @@
-/*jslint unparam: false, browser: true, devel: true, ass: true, plusplus: true, regexp: true */
+/*jslint unparam: false, browser: true, devel: true, ass: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false */
-/*global undefined */
+/*global window, undefined */
 
 
 /**
@@ -25,12 +25,13 @@
  *      - Seamonkey 2.15 +
  *      - Sunrise 2.2 +
  * 
- * @version 0.1.6
+ * @version 0.1.7
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
- *
+ * 
  * @changelog
+ * - 0.1.7 example doc added, synchronous interface added
  * - 0.1.6 improved namespacing
  * - 0.1.5 improved namespacing
  * - 0.1.4 polyfill moved to separate function
@@ -43,11 +44,84 @@
  * - http://www.w3.org/TR/webstorage/
  * - http://diveintohtml5.info/storage.html
  *
+ * @requires
+ * - ns.helpers.utils
+ * 
  * @bugs
  * -
  * 
+ * @example
+ * 
+ *      // init storage adapter
+ *      var storage = new ns.cache.storage.adapter.webStorage(optionalParametersObject);
+ *      storage.open(function (success) {
+ *          if (!!success) {
+ *              // instance is ready to use via var storage
+ *          } else {
+ *              // storage adapter is not supported or data couldn't be written
+ *          }
+ *      });
+ *
+ *      // read data from storage (similar to storage.remove)
+ *      // there is a asynchronous and synchronous interface
+ *      // available
+ *
+ *      // asynchronous way
+ *      storage.read('key', function (data) {
+ *          if (!!data) {
+ *              // data successfully read
+ *              var jsonObject = JSON.parse(data);
+ *          } else {
+ *              // data could not be read
+ *          }
+ *      });
+ *      
+ *      // synchronous way
+ *      var data = storage.read('key'),
+ *          jsonObject;
+ *          
+ *      if (!!data) {
+ *          // data successfully read
+ *          jsonObject = JSON.parse(data);
+ *      } else {
+ *          // data could not be read
+ *      }
+ *
+ *      // create data in storage (similar to storage.update)
+ *      // there is a asynchronous and synchronous interface
+ *      // available
+ *
+ *      // asynchronous way
+ *      var data = {
+ *              custom: data
+ *          },
+ *          jsonString = JSON.stringify(data);
+ *     
+ *      storage.create('key', jsonString, function (success) {
+ *          if (!!success) {
+ *              // data successfully created
+ *          } else {
+ *              // data could not be created
+ *          }
+ *      });
+ *
+ *      // synchronous way
+ *      var data = {
+ *              custom: data
+ *          },
+ *          jsonString = JSON.stringify(data),
+ *          success;
+ *     
+ *      success = storage.create('key', jsonString);
+ *      if (!!success) {
+ *          // data successfully created
+ *      } else {
+ *          // data could not be created
+ *      }
+ *      
  */
-(function (window, ns, undefined) {
+(function (window, undefined) {
+
     'use strict';
 
     /**
@@ -58,19 +132,21 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window and ns are passed through as local
-     * variables rather than as globals, because this (slightly)
+     * window is passed through as local variable rather
+     * than as global, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
      */
 
     // create the global vars once
-    var storageType = 'webStorage',                             // @type {string} The storage type string
-        utils = ns.helpers.utils,                               // @type {object} Shortcut for utils functions
-        on = utils.on,                                          // @type {function} Shortcut for utils.on function
-        log = utils.log,                                        // @type {function} Shortcut for utils.log function
-        boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
+    var storageType = 'webStorage',                                 // @type {string} The storage type string
+        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
+        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
+        on = utils.on,                                              // @type {function} Shortcut for utils.on function
+        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
+        boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not
 
 
     /**
@@ -114,11 +190,8 @@
             e = window.event;
         }
 
-        // init local vars
-        var msg = 'Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event');
-
         // log event
-        moduleLog(msg);
+        moduleLog('Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event'));
     }
 
 
@@ -131,8 +204,8 @@
      */
     function getStorageType(type) {
 
-        // init default
-        var result = 'localStorage';
+        // init local vars
+        var result;
 
         // get type string
         switch (type) {
@@ -143,6 +216,7 @@
             result = 'sessionStorage';
             break;
         default:
+            result = 'localStorage';
             break;
         }
 
@@ -156,7 +230,7 @@
      * directly called after new Adapter()
      *
      * @constructor
-     * @param {object} parameters The instance parameters
+     * @param {object} parameters The optional instance parameters
      */
     function Adapter(parameters) {
 
@@ -198,6 +272,7 @@
             // check for global var
             if (null === boolIsSupported) {
                 try {
+                    // additionally test for getItem method
                     boolIsSupported = !!window[type] && !!window[type].getItem;
                 } catch (e) {
                     moduleLog(storageType + ' is not supported');
@@ -214,23 +289,38 @@
         /**
          * create a new resource in storage
          * 
-         * @param {object} key The resource object
-         * @param {string} content The content string
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource object
+         * @param {string} content The required content string
+         * @param {function} callback The optional function called on success
+         *
+         * @returns {boolean} The functions success state
          */
         create: function (key, content, callback) {
 
+            // init local vars
+            var self = this,
+                result = true;
+
+            // check params
+            callback = checkCallback(callback);
+
             try {
+
                 // save data and call callback
-                this.adapter.setItem(key, content);
-                callback(true);
+                self.adapter.setItem(key, content);
+                callback(result);
 
             } catch (e) {
+
                 // handle errors
                 handleStorageEvents(e);
-                callback(false, e);
+                result = !result;
+                callback(result, e);
 
             }
+
+            // return synchron result
+            return result;
 
         },
 
@@ -238,20 +328,25 @@
         /**
          * read storage item
          *
-         * @param {object} key The resource object
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource object
+         * @param {function} callback The optional function called on success
+         *
+         * @returns {(boolean|string)} The resource data string if found
          */
         read: function (key, callback) {
 
             var self = this,
                 data;
 
+            // check params
+            callback = checkCallback(callback);
+
             try {
                 // try to load data
                 data = self.adapter.getItem(key);
 
                 // return data
-                if (data) {
+                if (!!data) {
                     callback(data);
                 } else {
                     callback(false);
@@ -265,6 +360,8 @@
 
             }
 
+            // return synchron result
+            return data;
 
         },
 
@@ -272,14 +369,16 @@
         /**
          * update a resource in storage
          * 
-         * @param {object} key The resource object
-         * @param {string} content The content string
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource object
+         * @param {string} content The required content string
+         * @param {function} callback The optional function called on success
+         *
+         * @returns {boolean} The functions success state
          */
         update: function (key, content, callback) {
 
             // same logic as this.create
-            this.create(key, content, callback);
+            return this.create(key, content, callback);
 
         },
 
@@ -287,22 +386,37 @@
         /**
          * delete a resource from storage
          * 
-         * @param {object} key The resource object
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource object
+         * @param {function} callback The optional function called on success
+         *
+         * @returns {boolean} The functions success state
          */
         remove: function (key, callback) {
 
+            // init local vars
+            var self = this,
+                result = true;
+
+            // check params
+            callback = checkCallback(callback);
+
             try {
+
                 // delete data and call callback
-                this.adapter.removeItem(key);
-                callback(true);
+                self.adapter.removeItem(key);
+                callback(result);
 
             } catch (e) {
+
                 // handle errors
                 handleStorageEvents(e);
-                callback(false, e);
+                result = !result;
+                callback(result, e);
 
             }
+
+            // return synchron result
+            return result;
 
         },
 
@@ -310,7 +424,7 @@
         /**
          * open and initialize storage if not already done
          * 
-         * @param {function} callback The function called on success
+         * @param {function} callback The optional function called on success
          */
         open: function (callback) {
 
@@ -319,7 +433,10 @@
                 adapter = self.adapter,
                 type = getStorageType(self.lifetime);
 
-            // check for database
+            // check params
+            callback = checkCallback(callback);
+
+            // check for adapter already initiliazed
             if (null === adapter) {
                 try {
 
@@ -359,10 +476,10 @@
         /**
          * init storage
          *
-         * @param {object} parameters The instance parameters
+         * @param {object} parameters The optional instance parameters
          * @param {string} [parameters.lifetime=localStorage] Set storage type to localStorage or sessionStorage
          *
-         * @return {this} The instance if supported or false
+         * @return {(this|false)} The instance if supported or false
          */
         init: function (parameters) {
 
@@ -391,13 +508,16 @@
 
 
     /**
-     * make the storage constructor available for
-     * ns.cache.storage.adapter.webStorage() calls under the
-     * ns.cache namespace
-     *
+     * make the storage constructor available for ns.cache.storage.adapter.webStorage()
+     * calls under the ns.cache namespace, alternativly save it to window object
+     * 
      * @export
      */
-    ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (!!ns.namespace && typeof ns.namespace === 'function') {
+        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    } else {
+        ns[storageType] = Adapter;
+    }
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window)); // immediatly invoke function

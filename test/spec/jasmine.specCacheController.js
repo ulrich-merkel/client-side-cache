@@ -11,7 +11,7 @@ describe('Cache Controller', function () {
             storage = new app.cache.storage.controller();
 
         waitsFor(function () {
-            return cache.storage !== null && storage.adapter !== null;
+            return cache.storage !== null && (!!storage.isEnabled ? storage.adapter !== null : true);
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
@@ -29,7 +29,7 @@ describe('Cache Controller', function () {
             storage = new app.cache.storage.controller();
 
         waitsFor(function () {
-            return storageInstance !== undefined && storage.adapter !== undefined;
+           return cache.storage !== null && (!!storage.isEnabled ? storage.adapter !== null : true);
         }, 'cache.storage initialized', 1000);
 
         runs(function () {

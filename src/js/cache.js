@@ -37,8 +37,8 @@
      */
 
     // init module vars
-    var namespaceName = 'app',
-        ns;
+    var namespaceName = 'app',                                  // @type {string} The name of the global javascript namespace (directly accessable via window)
+        ns;                                                     // @type {object} The current global window namespace object
 
 
     /**
@@ -206,10 +206,10 @@
     window.onerror = function (msg, url, line) {
     
         // log error message
-        ns.helpers.utils.warn(msg + "\nurl: " + url + "\nline: " + line);
-    
-        // return true keeps the browser running instead of stopping execution
-        return true;
+        //ns.helpers.utils.warn(msg + "\nurl: " + url + "\nline: " + line);
+        //
+        //// return true keeps the browser running instead of stopping execution
+        //return true;
 
     };
 
@@ -548,7 +548,10 @@
              * overridden with the correct implemation the first time it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
-             * 
+             *
+             * @see
+             * - http://coding.smashingmagazine.com/2013/11/12/an-introduction-to-dom-events/
+             *
              * @param {string} target The dom object
              * @param {string} eventType The event type to bind
              * @param {function} handler The function to bind
@@ -589,7 +592,10 @@
              * overridden with the correct implemation the first time it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
-             * 
+             *
+             * @see
+             * - http://coding.smashingmagazine.com/2013/11/12/an-introduction-to-dom-events/
+             *
              * @param {string} target The dom object
              * @param {string} eventType The event type to unbind
              * @param {function} handler The function to unbind
@@ -866,7 +872,7 @@
             url: function (url) {
 
                 // check params
-                if (!url) {
+                if (!utils.isString(url)) {
                     return;
                 }
 
@@ -901,11 +907,14 @@
             /**
              * get url query string
              *
+             * @param {string} url The optional url to get the query string from
+             *  
              * @return {object} Current url query strings
              */
-            queryString: (function () {
+            queryString: (function (url) {
 
                 var query_string = {},
+                    //query = this.isString(url) ? this.url(url).query : window.location.search.substring(1),
                     query = window.location.search.substring(1),
                     vars = query.split('&'),
                     varsLength = vars.length,
@@ -970,7 +979,7 @@
              */
             trim: function (string) {
 
-                if (typeof string !== 'string' || !(string instanceof String)) {
+                if (!utils.isString(string)) {
                     return string;
                 }
 
@@ -987,6 +996,15 @@
                 // return trimmed string
                 return string.trim();
 
+            },
+
+
+            /**
+             *
+             *
+             */
+            isString: function (string) {
+                return typeof string == 'string' || string instanceof String;
             },
 
 
@@ -1015,21 +1033,21 @@
                  * browser capabilities
                  */
 
-                if (!!arrayIsArray && typeof arrayIsArray === "function") {
+                if (!!arrayIsArray && typeof arrayIsArray === 'function') {
                     // ECMA Script 5
                     utils.isArray = function (value) {
                         return arrayIsArray(value);
                     };
-                } else if (!!objectProtoypeToString && objectProtoypeToString === "function") {
+                } else if (!!objectProtoypeToString && objectProtoypeToString === 'function') {
                     // Juriy Zaytsev (aka Kangax)
                     utils.isArray = function (value) {
-                        return objectProtoypeToString.call(value) === "[object Array]";
+                        return objectProtoypeToString.call(value) === '[object Array]';
                     };
                 } else {
                     // Duck-Typing arrays (by Douglas Crockford), asume sort function is only available for arrays
                     // Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array" 
                     utils.isArray = function (value) {
-                        return (!!value.sort && typeof value.sort === "function");
+                        return (!!value.sort && typeof value.sort === 'function');
                     };
                 }
 
@@ -3210,7 +3228,7 @@
 
 }(window, window.getNs())); // immediatly invoke function
 
-/*global window */
+/*global window, undefined */
 
 /**
  * ns.cache.storage.adapter.webSqlDatabase
@@ -3225,12 +3243,13 @@
  *      - iOs 6.1 + (3.2)
  *      - Android 2.1 +
  *
- * @version 0.1.5
+ * @version 0.1.6
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.6 example doc added
  * - 0.1.5 improved namespacing
  * - 0.1.4 improved namespacing
  * - 0.1.3 refactoring, js lint
@@ -3243,11 +3262,51 @@
  * - http://developer.apple.com/library/safari/#documentation/iphone/conceptual/safarijsdatabaseguide/UsingtheJavascriptDatabase/UsingtheJavascriptDatabase.html
  * - http://html5doctor.com/introducing-web-sql-databases/
  *
- *@bugs
+ * @requires
+ * - ns.helpers.utils
+ * 
+ * @bugs
  * -
  *
+ * @example
+ * 
+ *      // init storage adapter
+ *      var storage = new ns.cache.storage.adapter.webSqlDatabase(optionalParametersObject);
+ *      storage.open(function (success) {
+ *          if (!!success) {
+ *              // instance is ready to use via var storage
+ *          } else {
+ *              // storage adapter is not supported or data couldn't be written
+ *          }
+ *      });
+ *
+ *      // read data from storage (similar to storage.remove)
+ *      storage.read('key', function (data) {
+ *          if (!!data) {
+ *              // data successfully read
+ *              var jsonObject = JSON.parse(data);
+ *          } else {
+ *              // data could not be read
+ *          }
+ *      });
+ *
+ *      // create data in storage (similar to storage.update)
+ *      var data = {
+ *              custom: data
+ *          },
+ *          jsonString = JSON.stringify(data);
+ *     
+ *      storage.create('key', jsonString, function (success) {
+ *          if (!!success) {
+ *              // data successfully created
+ *          } else {
+ *              // data could not be created
+ *          }
+ *      });
+ *
+ *      
  */
-(function (window, ns, undefined) {
+(function (window, undefined) {
 
     'use strict';
 
@@ -3259,8 +3318,8 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window, document and ns are passed through as local
-     * variables rather than as globals, because this (slightly)
+     * window is passed through as local variable rather
+     * than as global, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
@@ -3269,6 +3328,7 @@
 
     // create the global vars once
     var storageType = 'webSqlDatabase',                         // @type {string} The storage type string
+        ns = (window.getNs && window.getNs()) || window,        // @type {object} The current javascript namespace object
         utils = ns.helpers.utils,                               // @type {object} Shortcut for utils functions
         log = utils.log,                                        // @type {function} Shortcut for utils.log function
         boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
@@ -3342,7 +3402,7 @@
     function handleStorageEvents(e) {
 
         // init local vars
-        var msg = 'Errorcode: ' + e.code + ', Message: ' + e.message;
+        var msg = 'Errorcode: ' + (e.code || 'Code not present') + ', Message: ' + (e.message || 'Message not present');
 
         if (e.info) {
             msg = msg + ' - ' + e.info;
@@ -3369,7 +3429,7 @@
         // adapter vars
         self.adapter = null;
         self.type = storageType;
-        self.dbName = 'merkel';
+        self.dbName = 'cache';
 
         /**
          * be careful with switching the database number
@@ -3377,11 +3437,11 @@
          */
         self.dbVersion = '1.0';
         self.dbDescription = 'resource cache';
-        self.dbTable = 'cache';
+        self.dbTable = 'websql';
 
         /**
-         * only Safari prompts the user if you try to create a database over the size of the default database size (5MB),
-         * for ios we define less due to meta data it prompts greater for databases greater than 4MB.
+         * only Safari prompts the user if you try to create a database over the size of the default database size (5MB).
+         * for ios we define less, due to meta data it prompts for databases greater than 4MB.
          */
         self.dbSize = 4 * 1024 * 1024;
 
@@ -3719,20 +3779,23 @@
 
 
     /**
-     * make the storage constructor available for
-     * ns.cache.storage.adapter.webSqlDatabase() calls under the
-     * ns.cache namespace
-     *
+     * make the storage constructor available for ns.cache.storage.adapter.webSqlDatabase()
+     * calls under the ns.cache namespace, alternativly save it to window object
+     * 
      * @export
      */
-    ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (!!ns.namespace && typeof ns.namespace === 'function') {
+        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    } else {
+        ns[storageType] = Adapter;
+    }
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window)); // immediatly invoke function
 
-/*jslint unparam: false, browser: true, devel: true, ass: true, plusplus: true, regexp: true */
+/*jslint unparam: false, browser: true, devel: true, ass: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false */
-/*global undefined */
+/*global window, undefined */
 
 
 /**
@@ -3757,12 +3820,13 @@
  *      - Seamonkey 2.15 +
  *      - Sunrise 2.2 +
  * 
- * @version 0.1.6
+ * @version 0.1.7
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
- *
+ * 
  * @changelog
+ * - 0.1.7 example doc added, synchronous interface added
  * - 0.1.6 improved namespacing
  * - 0.1.5 improved namespacing
  * - 0.1.4 polyfill moved to separate function
@@ -3775,11 +3839,84 @@
  * - http://www.w3.org/TR/webstorage/
  * - http://diveintohtml5.info/storage.html
  *
+ * @requires
+ * - ns.helpers.utils
+ * 
  * @bugs
  * -
  * 
+ * @example
+ * 
+ *      // init storage adapter
+ *      var storage = new ns.cache.storage.adapter.webStorage(optionalParametersObject);
+ *      storage.open(function (success) {
+ *          if (!!success) {
+ *              // instance is ready to use via var storage
+ *          } else {
+ *              // storage adapter is not supported or data couldn't be written
+ *          }
+ *      });
+ *
+ *      // read data from storage (similar to storage.remove)
+ *      // there is a asynchronous and synchronous interface
+ *      // available
+ *
+ *      // asynchronous way
+ *      storage.read('key', function (data) {
+ *          if (!!data) {
+ *              // data successfully read
+ *              var jsonObject = JSON.parse(data);
+ *          } else {
+ *              // data could not be read
+ *          }
+ *      });
+ *      
+ *      // synchronous way
+ *      var data = storage.read('key'),
+ *          jsonObject;
+ *          
+ *      if (!!data) {
+ *          // data successfully read
+ *          jsonObject = JSON.parse(data);
+ *      } else {
+ *          // data could not be read
+ *      }
+ *
+ *      // create data in storage (similar to storage.update)
+ *      // there is a asynchronous and synchronous interface
+ *      // available
+ *
+ *      // asynchronous way
+ *      var data = {
+ *              custom: data
+ *          },
+ *          jsonString = JSON.stringify(data);
+ *     
+ *      storage.create('key', jsonString, function (success) {
+ *          if (!!success) {
+ *              // data successfully created
+ *          } else {
+ *              // data could not be created
+ *          }
+ *      });
+ *
+ *      // synchronous way
+ *      var data = {
+ *              custom: data
+ *          },
+ *          jsonString = JSON.stringify(data),
+ *          success;
+ *     
+ *      success = storage.create('key', jsonString);
+ *      if (!!success) {
+ *          // data successfully created
+ *      } else {
+ *          // data could not be created
+ *      }
+ *      
  */
-(function (window, ns, undefined) {
+(function (window, undefined) {
+
     'use strict';
 
     /**
@@ -3790,19 +3927,21 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window and ns are passed through as local
-     * variables rather than as globals, because this (slightly)
+     * window is passed through as local variable rather
+     * than as global, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
      */
 
     // create the global vars once
-    var storageType = 'webStorage',                             // @type {string} The storage type string
-        utils = ns.helpers.utils,                               // @type {object} Shortcut for utils functions
-        on = utils.on,                                          // @type {function} Shortcut for utils.on function
-        log = utils.log,                                        // @type {function} Shortcut for utils.log function
-        boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
+    var storageType = 'webStorage',                                 // @type {string} The storage type string
+        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
+        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
+        on = utils.on,                                              // @type {function} Shortcut for utils.on function
+        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
+        boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not
 
 
     /**
@@ -3846,11 +3985,8 @@
             e = window.event;
         }
 
-        // init local vars
-        var msg = 'Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event');
-
         // log event
-        moduleLog(msg);
+        moduleLog('Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event'));
     }
 
 
@@ -3863,8 +3999,8 @@
      */
     function getStorageType(type) {
 
-        // init default
-        var result = 'localStorage';
+        // init local vars
+        var result;
 
         // get type string
         switch (type) {
@@ -3875,6 +4011,7 @@
             result = 'sessionStorage';
             break;
         default:
+            result = 'localStorage';
             break;
         }
 
@@ -3888,7 +4025,7 @@
      * directly called after new Adapter()
      *
      * @constructor
-     * @param {object} parameters The instance parameters
+     * @param {object} parameters The optional instance parameters
      */
     function Adapter(parameters) {
 
@@ -3930,6 +4067,7 @@
             // check for global var
             if (null === boolIsSupported) {
                 try {
+                    // additionally test for getItem method
                     boolIsSupported = !!window[type] && !!window[type].getItem;
                 } catch (e) {
                     moduleLog(storageType + ' is not supported');
@@ -3946,23 +4084,38 @@
         /**
          * create a new resource in storage
          * 
-         * @param {object} key The resource object
-         * @param {string} content The content string
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource object
+         * @param {string} content The required content string
+         * @param {function} callback The optional function called on success
+         *
+         * @returns {boolean} The functions success state
          */
         create: function (key, content, callback) {
 
+            // init local vars
+            var self = this,
+                result = true;
+
+            // check params
+            callback = checkCallback(callback);
+
             try {
+
                 // save data and call callback
-                this.adapter.setItem(key, content);
-                callback(true);
+                self.adapter.setItem(key, content);
+                callback(result);
 
             } catch (e) {
+
                 // handle errors
                 handleStorageEvents(e);
-                callback(false, e);
+                result = !result;
+                callback(result, e);
 
             }
+
+            // return synchron result
+            return result;
 
         },
 
@@ -3970,20 +4123,25 @@
         /**
          * read storage item
          *
-         * @param {object} key The resource object
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource object
+         * @param {function} callback The optional function called on success
+         *
+         * @returns {(boolean|string)} The resource data string if found
          */
         read: function (key, callback) {
 
             var self = this,
                 data;
 
+            // check params
+            callback = checkCallback(callback);
+
             try {
                 // try to load data
                 data = self.adapter.getItem(key);
 
                 // return data
-                if (data) {
+                if (!!data) {
                     callback(data);
                 } else {
                     callback(false);
@@ -3997,6 +4155,8 @@
 
             }
 
+            // return synchron result
+            return data;
 
         },
 
@@ -4004,14 +4164,16 @@
         /**
          * update a resource in storage
          * 
-         * @param {object} key The resource object
-         * @param {string} content The content string
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource object
+         * @param {string} content The required content string
+         * @param {function} callback The optional function called on success
+         *
+         * @returns {boolean} The functions success state
          */
         update: function (key, content, callback) {
 
             // same logic as this.create
-            this.create(key, content, callback);
+            return this.create(key, content, callback);
 
         },
 
@@ -4019,22 +4181,37 @@
         /**
          * delete a resource from storage
          * 
-         * @param {object} key The resource object
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource object
+         * @param {function} callback The optional function called on success
+         *
+         * @returns {boolean} The functions success state
          */
         remove: function (key, callback) {
 
+            // init local vars
+            var self = this,
+                result = true;
+
+            // check params
+            callback = checkCallback(callback);
+
             try {
+
                 // delete data and call callback
-                this.adapter.removeItem(key);
-                callback(true);
+                self.adapter.removeItem(key);
+                callback(result);
 
             } catch (e) {
+
                 // handle errors
                 handleStorageEvents(e);
-                callback(false, e);
+                result = !result;
+                callback(result, e);
 
             }
+
+            // return synchron result
+            return result;
 
         },
 
@@ -4042,7 +4219,7 @@
         /**
          * open and initialize storage if not already done
          * 
-         * @param {function} callback The function called on success
+         * @param {function} callback The optional function called on success
          */
         open: function (callback) {
 
@@ -4051,7 +4228,10 @@
                 adapter = self.adapter,
                 type = getStorageType(self.lifetime);
 
-            // check for database
+            // check params
+            callback = checkCallback(callback);
+
+            // check for adapter already initiliazed
             if (null === adapter) {
                 try {
 
@@ -4091,10 +4271,10 @@
         /**
          * init storage
          *
-         * @param {object} parameters The instance parameters
+         * @param {object} parameters The optional instance parameters
          * @param {string} [parameters.lifetime=localStorage] Set storage type to localStorage or sessionStorage
          *
-         * @return {this} The instance if supported or false
+         * @return {(this|false)} The instance if supported or false
          */
         init: function (parameters) {
 
@@ -4123,16 +4303,19 @@
 
 
     /**
-     * make the storage constructor available for
-     * ns.cache.storage.adapter.webStorage() calls under the
-     * ns.cache namespace
-     *
+     * make the storage constructor available for ns.cache.storage.adapter.webStorage()
+     * calls under the ns.cache namespace, alternativly save it to window object
+     * 
      * @export
      */
-    ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (!!ns.namespace && typeof ns.namespace === 'function') {
+        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    } else {
+        ns[storageType] = Adapter;
+    }
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window)); // immediatly invoke function
 
 /*global window, document, confirm*/
 
@@ -4888,7 +5071,9 @@
             /**
              * check if image is cached, trigger load manually
              *
-             * @see http://github.com/desandro/imagesloaded
+             * @see
+             * - http://github.com/desandro/imagesloaded
+             * - http://www.html5rocks.com/en/tutorials/es6/promises/?redirect_from_locale=de
              */
             if (!!image.complete && image.naturalWidth !== undefined) {
                 image.onload();
@@ -5498,6 +5683,8 @@
             var self = this,
                 storageType = false;
 
+            // check basic params
+            callback = checkCallback(callback);
             if (parameters && parameters.isEnabled !== undefined) {
                 self.isEnabled = !!parameters.isEnabled;
             }
@@ -5552,7 +5739,6 @@
 
                 getStorageAdapter(function (adapter) {
                     self.adapter = adapter;
-                    callback = checkCallback(callback);
                     callback(self);
                 }, storageType);
 

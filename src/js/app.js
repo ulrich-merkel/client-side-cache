@@ -508,7 +508,7 @@
  * @description
  * - init javascript plugins and functions after dom is ready
  *
- * @author
+ * @author Ulrich Merkel, 2013
  * @version 0.1
  *
  * @namespace app

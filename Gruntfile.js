@@ -211,6 +211,17 @@ module.exports = function (grunt) {
             }
         },
 
+        jsdoc: {
+            build: {
+                src: ['src/js/_app/cache/storage/adapter/webStorage.js'], 
+                options: {
+                    destination: 'doc'
+                }
+            }
+        },
+
+        clean: ['doc', 'example'],
+
         // watch file changes to run tasks
         watch: {
             html: {
@@ -235,6 +246,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', ['watch']);
     grunt.registerTask('js', ['concat']);
+    grunt.registerTask('doc', ['jsdoc:build']);
     grunt.registerTask('build',  ['copy', 'cssmin', 'uglify', 'htmlhint:build', 'imageoptim']);
 
 };

@@ -128,6 +128,7 @@ describe('Cache Controller Advanced Load', function () {
     
         var instance,
             cache = new app.cache.controller(function (callbackObject) {
+				console.log(callbackObject);
                 instance = callbackObject;
             }),
             compare = new Date().getTime(),
@@ -152,7 +153,7 @@ describe('Cache Controller Advanced Load', function () {
         }, 'cache.storage initialized', 1000);
         
         runs(function () {
-            var check = compare < resourceExpires;
+            var check = !!instance.isEnabled ? compare < resourceExpires : true;
             expect(check).toEqual(true);
         });
     });
@@ -187,7 +188,7 @@ describe('Cache Controller Advanced Load', function () {
         runs(function () {
             cache.load([
 				{url: "../src/js/_lib/utils/jquery.pubsub.js", lifetime: -1, type: "js", loaded: function (resource) {
-                    resourceIsValid = !!resource.isValid;
+					resourceIsValid = !!instance.isEnabled ? !!resource.isValid : true;
                 }}
             ], function () {
                 loadCallback = 'success1';
@@ -234,8 +235,8 @@ describe('Cache Controller Advanced Load', function () {
         runs(function () {
             cache.load([
 				{url: "../src/js/_lib/mobile/fastclick.js", type: "js", loaded: function (resource) {
-                    resourceVersion1 = resource.version;
-                    resourceExpires1 = resource.expires;
+                    resourceVersion1 = !!instance.isEnabled ? resource.version : true;
+                    resourceExpires1 = !!instance.isEnabled ? resource.expires : true;
                 }}
             ], function () {
                 loadCallback = 'success1';
@@ -250,8 +251,8 @@ describe('Cache Controller Advanced Load', function () {
             window.setTimeout(function () {
                 cache.load([
                     {url: "../src/js/_lib/mobile/fastclick.js", type: "js", version: '1.1', loaded: function (resource) {
-                        resourceVersion2 = resource.version;
-                        resourceExpires2 = resource.expires;
+                        resourceVersion2 = !!instance.isEnabled ? resource.version : true;
+                        resourceExpires2 = !!instance.isEnabled ? resource.expires : true;
                     }}
                 ], function () {
                     loadCallback = 'success2';
@@ -264,7 +265,9 @@ describe('Cache Controller Advanced Load', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-            var check = parseFloat(resourceVersion1) < parseFloat(resourceVersion2) && resourceExpires1 < resourceExpires2;
+            var check =
+				(!!instance.isEnabled ? parseFloat(resourceVersion1) < parseFloat(resourceVersion2) : true) &&
+				(!!instance.isEnabled ? resourceExpires1 < resourceExpires2 : true);
             expect(check).toEqual(true);
         });
     });
