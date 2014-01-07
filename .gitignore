@@ -14,3 +14,8 @@ Thumbs.db
 ############################
 
 _bkp
+node_modules
+docs
+doc
+*/.sass-cache/*
+.sass-cache

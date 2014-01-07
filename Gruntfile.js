@@ -66,7 +66,8 @@ module.exports = function (grunt) {
         copy: {
             html: {
                 files: [
-                    { expand: true, flatten: true, src: ["src/index.html"], dest: "example/" }
+                    { expand: true, flatten: true, src: ["src/index.html"], dest: "example/" },
+                    { expand: true, flatten: true, src: ["src/ajax.html"], dest: "example/" }
                 ]
             },
             css: {
@@ -138,7 +139,7 @@ module.exports = function (grunt) {
             }
         },
 
-        // uglify js files
+        // uglify and minify js files
         uglify: {
             cache: {
                 files: {
@@ -211,16 +212,18 @@ module.exports = function (grunt) {
             }
         },
 
+        // generate js documentation
         jsdoc: {
             build: {
-                src: ['src/js/_app/cache/storage/adapter/webStorage.js'], 
+                src: ['src/js/_app/*.js'], 
                 options: {
                     destination: 'doc'
                 }
             }
         },
 
-        clean: ['doc', 'example'],
+        // clean folders
+        clean: ['doc'],
 
         // watch file changes to run tasks
         watch: {
@@ -246,7 +249,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', ['watch']);
     grunt.registerTask('js', ['concat']);
-    grunt.registerTask('doc', ['jsdoc:build']);
+    grunt.registerTask('jsdoc', ['clean', 'jsdoc']);
     grunt.registerTask('build',  ['copy', 'cssmin', 'uglify', 'htmlhint:build', 'imageoptim']);
 
 };

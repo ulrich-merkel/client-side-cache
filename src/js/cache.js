@@ -3274,7 +3274,7 @@
  *      var storage = new ns.cache.storage.adapter.webSqlDatabase(optionalParametersObject);
  *      storage.open(function (success) {
  *          if (!!success) {
- *              // instance is ready to use via var storage
+ *              // instance is ready to use via e.g. storage.read()
  *          } else {
  *              // storage adapter is not supported or data couldn't be written
  *          }
@@ -3327,11 +3327,12 @@
 
 
     // create the global vars once
-    var storageType = 'webSqlDatabase',                         // @type {string} The storage type string
-        ns = (window.getNs && window.getNs()) || window,        // @type {object} The current javascript namespace object
-        utils = ns.helpers.utils,                               // @type {object} Shortcut for utils functions
-        log = utils.log,                                        // @type {function} Shortcut for utils.log function
-        boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
+    var storageType = 'webSqlDatabase',                             // @type {string} The storage type string
+        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
+        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
+        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
+        boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not
 
 
     /**
@@ -3343,7 +3344,7 @@
     /**
      * console log helper
      *
-     * @param {string} message The message to log
+     * @param {string} message The required message to log
      */
     function moduleLog(message) {
         log('[' + storageType + ' Adapter] ' + message);
@@ -3359,11 +3360,12 @@
     /**
      * execute sql statement
      *
-     * @param {object} adapter The current storage object interface
-     * @param {string} sqlStatement The sql statement
-     * @param {array} parameters The statement parameters
-     * @param {function} callback The callback function on success
-     * @param {function} transaction The optinional transaction if available
+     * @param {object} adapter The required current storage object interface
+     * @param {string} sqlStatement The required sql statement
+     * @param {array} parameters The required statement parameters
+     * @param {function} successCallback The required callback function on success
+     * @param {function} errorCallback The required callback function on error
+     * @param {function} transaction The optional transaction if available
      */
     function executeSql(adapter, sqlStatement, parameters, successCallback, errorCallback, transaction) {
 
@@ -3419,7 +3421,7 @@
      * directly called after new Adapter()
      *
      * @constructor
-     * @param {object} parameters The instance parameters
+     * @param {object} parameters The optional instance parameters
      */
     function Adapter(parameters) {
 
@@ -3484,11 +3486,14 @@
         /**
          * create a new resource in storage
          * 
-         * @param {object} key The resource object
-         * @param {string} content The content string
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource key
+         * @param {string} content The required content string
+         * @param {function} callback The optional function called on success
          */
         create: function (key, content, callback) {
+
+            // check params
+            callback = checkCallback(callback);
 
             // init vars and create success callback
             var self = this,
@@ -3518,10 +3523,13 @@
         /**
          * read storage item
          *
-         * @param {object} key The resource object
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource key
+         * @param {function} callback The optional function called on success
          */
         read: function (key, callback) {
+
+            // check params
+            callback = checkCallback(callback);
 
             // init vars and create success callback
             var self = this,
@@ -3555,11 +3563,14 @@
         /**
          * update a resource in storage
          * 
-         * @param {object} key The resource object
-         * @param {string} content The content string
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource key
+         * @param {string} content The required content string
+         * @param {function} callback The optional function called on success
          */
         update: function (key, content, callback) {
+
+            // check params
+            callback = checkCallback(callback);
 
             // init vars and update success callback
             var self = this,
@@ -3587,10 +3598,13 @@
         /**
          * delete a resource from storage
          * 
-         * @param {object} key The resource object
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource key
+         * @param {function} callback The optional function called on success
          */
         remove: function (key, callback) {
+
+            // check params
+            callback = checkCallback(callback);
 
             // init vars and delete success callback
             var self = this,
@@ -3617,9 +3631,12 @@
         /**
          * open and initialize storage if not already done
          * 
-         * @param {function} callback The function called on success
+         * @param {function} callback The optional function called on success
          */
         open: function (callback) {
+
+            // check params
+            callback = checkCallback(callback);
 
             // init local function vars
             var self = this,
@@ -3730,7 +3747,7 @@
         /**
          * init storage
          *
-         * @param {object} parameters The instance parameters
+         * @param {object} parameters The optional instance parameters
          * @param {string} [parameters.description] Set db description
          * @param {string} [parameters.name] Set db name
          * @param {string} [parameters.size] Set db size
@@ -3851,7 +3868,7 @@
  *      var storage = new ns.cache.storage.adapter.webStorage(optionalParametersObject);
  *      storage.open(function (success) {
  *          if (!!success) {
- *              // instance is ready to use via var storage
+ *              // instance is ready to use via e.g. storage.read()
  *          } else {
  *              // storage adapter is not supported or data couldn't be written
  *          }
@@ -3953,7 +3970,7 @@
     /**
      * console log helper
      *
-     * @param {string} message The message to log
+     * @param {string} message The required message to log
      */
     function moduleLog(message) {
         log('[' + storageType + ' Adapter] ' + message);

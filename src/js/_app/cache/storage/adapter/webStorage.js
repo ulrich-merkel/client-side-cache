@@ -56,7 +56,7 @@
  *      var storage = new ns.cache.storage.adapter.webStorage(optionalParametersObject);
  *      storage.open(function (success) {
  *          if (!!success) {
- *              // instance is ready to use via var storage
+ *              // instance is ready to use via e.g. storage.read()
  *          } else {
  *              // storage adapter is not supported or data couldn't be written
  *          }
@@ -158,7 +158,7 @@
     /**
      * console log helper
      *
-     * @param {string} message The message to log
+     * @param {string} message The required message to log
      */
     function moduleLog(message) {
         log('[' + storageType + ' Adapter] ' + message);
