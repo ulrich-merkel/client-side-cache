@@ -1,9 +1,25 @@
 {
-    "name": "Pacman",
-    "version": "0.1.1",
-    "author": "Ulrich Merkel",
-    "private": true,
-
+    "name": "client-side-cache",
+    "description": "Client side caching for javascript, css, images and html files via javascript - using file system, indexed database, web sql database or local storage, including a wrapper for application cache",
+    "version": "0.1",
+    "homepage": "https://github.com/ulrich-merkel/client-side-cache",
+    "author": {
+        "name": "Ulrich Merkel",
+        "url": "http://www.ulrichmerkel.com"
+    },
+    "contributors": [
+        
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ulrich-merkel/client-side-cache.git"
+    },
+    "bugs": {
+        "url": "https://github.com/ulrich-merkel/client-side-cache/issues"
+    },
+    "engines": {
+        "node": ">=0.8"
+    },
     "devDependencies": {
 
         "grunt": "~0.4.0",
@@ -16,14 +32,31 @@
         "grunt-contrib-sass": "*",
         "grunt-contrib-uglify": "*",
         "grunt-contrib-watch": "*",
-        
 
         "grunt-cssc": "*",
         "grunt-imageoptim": "*",
         "grunt-jsdoc": "*",
         "grunt-htmlhint": "*",
 
+        "assemble": "~0.4.4",
         "matchdep": "*"
 
-    }
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/ulrich-merkel/client-side-cache/LICENSE-MIT"
+        }
+    ],
+    "keywords": [
+        "cache",
+        "client side storage",
+        "local storage",
+        "javascript",
+        "web storage",
+        "web sql database",
+        "indexed database",
+        "file system",
+        "application cache"
+    ]
 }
