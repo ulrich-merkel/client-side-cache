@@ -491,8 +491,10 @@
                     try {
                         html.innerHTML = data;
                         if (node.id && client.isMsie()) {
+
                             // force ie 8 to render (or update) the html content
                             document.styleSheets[0].addRule("#" + node.id + ":after", "content: ' ';");
+
                         }
                     } catch (e) {
                         html.innerText = data;
@@ -518,4 +520,4 @@
     ns.namespace('helpers.dom', dom);
 
 
-}(document, window.getNamespace())); // immediatly invoke function
+}(document, window.getNs())); // immediatly invoke function

@@ -1,6 +1,4 @@
-/*global window*/
-/*global document*/
-/*global navigator*/
+/*global window, document, navigator*/
 
 /**
  * ns.helpers.client
@@ -9,11 +7,12 @@
  * - provide information about the client and device
  * 
  * @author Ulrich Merkel, 2013
- * @version 0.4
+ * @version 0.4.1
  *
  * @namespace ns
  * 
  * @changelog
+ * - 0.4.1 example added
  * - 0.4 improved detectOrientation function calls
  * - 0.3.9 improved namespacing
  * - 0.3.8 improved module vars (uaToLowercase added for better compression)
@@ -27,7 +26,29 @@
  * - 0.3 isTouchDevice, hasMatrix added
  * - 0.2 Safari, Chrome, Opera Check added, global var useragent
  * - 0.1 basic functions and plugin structur
- * 
+ *
+ * @see
+ * -
+ *
+ * @requires
+ * - ns.helpers.namespace
+ * - ns.helpers.utils
+ *
+ * @bugs
+ * -
+ *
+ * @example
+ *
+ *		// check for isiOS devices
+ *		var isIOS = app.helpers.client.isiOS();
+ *
+ *		// check for isiOS devices
+ * 		var browserVersion = app.helpers.client.getBrowserVersion();
+ *
+ * 		// for the complete list of available methods
+ *		// please take a look at the @interface below
+ *
+ *
  */
 (function (window, navigator, ns, undefined) {
 
@@ -79,8 +100,8 @@
             privateIOSVersion,                                              // @type {string} The ios version of this browser or undefined
             privateIsOnline,                                                // @type {boolean} Whether this device has network connection or not
             privateNetworkConnection,                                       // @type {object} The navigator.connection object if available
-            privateLandscapeMode = "landscapeMode",                         // @type {string} The landscape mode string
-            privatePortraitMode = "portraitMode",                           // @type {string} The portrait mode string
+            privateLandscapeMode = 'landscapeMode',                         // @type {string} The landscape mode string
+            privatePortraitMode = 'portraitMode',                           // @type {string} The portrait mode string
             privateOrientationMode,                                         // @type {boolean} The current view mode (landscape/portrait)
             privateHasCanvas,                                               // @type {boolean} Whether the browser has canvas support or not
             privateHideStatusbarTimeout,                                    // @type {integer} Storage placeholder for window.setTimeout
@@ -122,7 +143,7 @@
 		 */
 		function bindOrientationChange() {
 			 if (!privateDetectOrientationBound) {
-                on(window, "orientationchange", detectOrientation);
+                on(window, 'orientationchange', detectOrientation);
                 privateDetectOrientationBound = true;
             }
 		}
@@ -303,8 +324,8 @@
          */
         function checkIfIsOnline() {
             if (privateIsOnline === undefined) {
-                on(window, "online", checkIfIsOnline);
-                on(window, "offline", checkIfIsOnline);
+                on(window, 'online', checkIfIsOnline);
+                on(window, 'offline', checkIfIsOnline);
             }
 
             privateIsOnline = navigator.onLine !== undefined ? !!navigator.onLine : true;
@@ -566,4 +587,4 @@
     ns.namespace('helpers.client', client);
 
 
-}(window, window.navigator, window.getNamespace()));
+}(window, window.navigator, window.getNs()));

@@ -14,6 +14,7 @@
  * @namespace ns
  * 
  * @changelog
+ * - 0.2.1 examples added
  * - 0.2 improved console.log wrapper, console.warn added
  * - 0.1.9 improved namespacing
  * - 0.1.8 inArray function improved
@@ -26,8 +27,40 @@
  * - 0.1.1 bug fix xhr when trying to read binary data on ie
  * - 0.1 basic functions and structur
  *
+ * @see
+ * -
+ *
+ * @requires
+ * - ns.helpers.namespace
+ * - ns.helpers.utils
+ *
+ * @bugs
+ * -
+ *
+ * @example
+ *
+ *      // add event handler
+ *      app.helpers.utils.on(window, 'scroll', function () {
+ *          // do something while window scrolling
+ *      });
+ *
+ *      // make ajax request
+ *      app.helpers.utils.xhr('ajax.html', function (data) {
+ *          if (data) {
+ *              // ajax data is ready to use
+ *          }
+ *      });
+ *
+ *      // check for array type
+ *      var isArray = app.helpers.utils.isArray(array);
+ *
+ *      // for the complete list of available methods
+ *      // please take a look at the @interface below
+ *
+ *
  */
 (function (window, document, ns, undefined) {
+
     'use strict';
 
     /**
@@ -72,107 +105,133 @@
         return {
 
             /**
-             * function to write logging message to screen
-             * 
-             * @param {string} message The message to log
+             * check if value is string
+             *
+             * @param {string} value The value to check
+             *
+             * @return {boolean} Whether the given value is a string or not
              */
-            logToScreen: function (message) {
-
-                // init local vars
-                var log = document.getElementById('log'),
-                    p = document.createElement("p"),
-                    text = document.createTextNode(message);
-
-                // append message
-                if (log) {
-                    p.appendChild(text);
-                    log.appendChild(p);
-                }
+            isString: function (string) {
+                return typeof string === 'string' || string instanceof String;
             },
 
 
             /**
-             * wrapper for console.log due to some browsers lack of this functions
-             * 
-             * @param {arguments} The messages to log
+             * check if value is function
+             *
+             * @param {function} fn The value to check
+             *
+             * @return {boolean} Whether the given value is a function or not
              */
-            log: function () {
-
-                var args = arguments,
-                    length = args.length,
-                    message;
-
-                if (!length) {
-                    return;
-                }
-
-                // check for support
-                if (hasConsoleLog) {
-                    console.log.apply(console, args);
-                }
-
-                // log messages to dom element
-                message = args[0];
-                utils.logToScreen(message);
-
+            isFunction: function (fn) {
+                return typeof fn === 'function' || fn instanceof Function;
             },
 
 
             /**
-             * wrapper for console.warn due to some browsers lack of this functions
-             * 
-             * @param {arguments} The warnings to log
+             * check if value is array
+             *
+             * following the lazy loading design pattern, the isArray function will be
+             * overridden with the correct browser implemation the first time it will be
+             * called. after that all consequent calls deliver the correct one without
+             * conditions for different browsers.
+             *
+             * @see nicolas c. zakas - maintainable javascript, writing readable code (o'reilly s.88)
+             *
+             * @param {array} value The value to check
+             *
+             * @return {boolean} Whether the given value is an array or not
              */
-            warn: function () {
+            isArray: function (value) {
 
-                var args = arguments,
-                    length = args.length,
-                    message;
+                // local vars for better compression and faster access
+                var arrayIsArray = Array.isArray,
+                    objectProtoypeToString = Object.prototype.toString;
 
-                if (!length) {
-                    return;
-                }
-                message = args[0];
+                /**
+                 * override existing function based on
+                 * browser capabilities
+                 */
 
-                // check for support
-                if (hasConsoleWarn) {
-                    console.warn.apply(console, args);
+                if (!!arrayIsArray && typeof arrayIsArray === 'function') {
+                    // ECMA Script 5
+                    utils.isArray = function (value) {
+                        return arrayIsArray(value);
+                    };
+                } else if (!!objectProtoypeToString && objectProtoypeToString === 'function') {
+                    // Juriy Zaytsev (aka Kangax)
+                    utils.isArray = function (value) {
+                        return objectProtoypeToString.call(value) === '[object Array]';
+                    };
                 } else {
-                    // try to log normal message
-                    utils.log(message);
+                    // Duck-Typing arrays (by Douglas Crockford), asume sort function is only available for arrays
+                    // Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array"
+                    utils.isArray = function (value) {
+                        return (!!value.sort && typeof value.sort === 'function');
+                    };
                 }
 
-                // log messages to dom element
-                utils.logToScreen(message);
-            },
-
-
-            /**
-             * log timer start
-             * 
-             * @param {string} key The timer key
-             */
-            logTimerStart: function (key) {
-
-                // check for support
-                if (hasConsoleTime) {
-                    window.console.time(key);
-                }
+                // call the new function
+                return utils.isArray(value);
 
             },
 
 
             /**
-             * log timer end
-             * 
-             * @param {string} key The timer key
+             * check if value is in array
+             *
+             * following the lazy loading design pattern, the inArray function will be
+             * overridden with the correct browser implemation the first time it will be
+             * called. after that all consequent calls deliver the correct one without
+             * conditions for different browsers.
+             *
+             * @param {string} elem The value to check
+             * @param {array} array The array to check
+             * @param {number|undefined} index The optional index in array
+             *
+             * @returns {integer} Whether the value is in (return index) or not (return -1)
              */
-            logTimerEnd: function (key) {
+            inArray: function (value, array, index) {
 
-                // check for support
-                if (hasConsoleTime) {
-                    window.console.timeEnd(key);
+                /**
+                 * override existing function based on
+                 * browser capabilities
+                 */
+
+                if (!!Array.prototype.indexOf) {
+                    // ECMA Script 5
+                    utils.inArray = function (value, array, index) {
+                        return emptyArray.indexOf.call(array, value, index);
+                    };
+                } else {
+                    // fallback for old browsers
+                    utils.inArray = function (value, array, index) {
+
+                        var arrayLength = array.length,
+                            j = 0;
+
+                        // check for index value if set
+                        if (!!index) {
+                            if (!!array[index] && array[index] === value) {
+                                return index;
+                            }
+                            return -1;
+                        }
+
+                        // toggle through array
+                        for (j = 0; j < arrayLength; j = j + 1) {
+                            if (array[j] === value) {
+                                return j;
+                            }
+                        }
+
+                        // value not found
+                        return -1;
+                    };
                 }
+
+                // call the new function
+                return utils.inArray(value, array, index);
 
             },
 
@@ -186,7 +245,7 @@
              */
             callback: function (callback) {
                 // check if param is function, if not set it to empty function
-                if (!callback || typeof callback !== 'function') {
+                if (!utils.isFunction(callback)) {
                     callback = function () {};
                 }
 
@@ -236,6 +295,7 @@
 
                 // call the new function
                 utils.on(target, eventType, handler);
+
             },
 
 
@@ -517,6 +577,113 @@
 
 
             /**
+             * function to write logging message to screen
+             *
+             * @param {string} message The message to log
+             */
+            logToScreen: function (message) {
+
+                // init local vars
+                var log = document.getElementById('log'),
+                    p = document.createElement("p"),
+                    text = document.createTextNode(message);
+
+                // append message
+                if (log) {
+                    p.appendChild(text);
+                    log.appendChild(p);
+                }
+            },
+
+
+            /**
+             * wrapper for console.log due to some browsers lack of this functions
+             *
+             * @param {arguments} The messages to log
+             */
+            log: function () {
+
+                var args = arguments,
+                    length = args.length,
+                    message;
+
+                if (!length) {
+                    return;
+                }
+
+                // check for support
+                if (hasConsoleLog) {
+                    console.log.apply(console, args);
+                }
+
+                // log messages to dom element
+                message = args[0];
+                utils.logToScreen(message);
+
+            },
+
+
+            /**
+             * wrapper for console.warn due to some browsers lack of this functions
+             *
+             * @param {arguments} The warnings to log
+             */
+            warn: function () {
+
+                var args = arguments,
+                    length = args.length,
+                    message;
+
+                if (!length) {
+                    return;
+                }
+                message = args[0];
+
+                // check for support
+                if (hasConsoleWarn) {
+                    console.warn.apply(console, args);
+                } else {
+                    // try to log normal message
+                    utils.log(message);
+                }
+
+                // log messages to dom element
+                utils.logToScreen(message);
+            },
+
+
+            /**
+             * log timer start
+             *
+             * @param {string} key The timer key
+             */
+            logTimerStart: function (key) {
+
+                // check for support
+                if (hasConsoleTime) {
+                    window.console.time(key);
+                }
+
+            },
+
+
+            /**
+             * log timer end
+             *
+             * @param {string} key The timer key
+             */
+            logTimerEnd: function (key) {
+
+                // check for support
+                if (hasConsoleTime) {
+                    window.console.timeEnd(key);
+                }
+
+            },
+
+
+
+            /**
              * get url information
              * 
              * @param {string} url The url to extract
@@ -568,14 +735,11 @@
             queryString: (function (url) {
 
                 var query_string = {},
-                    //query = this.isString(url) ? this.url(url).query : window.location.search.substring(1),
                     query = window.location.search.substring(1),
                     vars = query.split('&'),
                     varsLength = vars.length,
                     i = 0,
                     pair,
-                    pair0,
-                    pair1,
                     arr;
 
                 for (i = 0; i < varsLength; i = i + 1) {
@@ -650,124 +814,8 @@
                 // return trimmed string
                 return string.trim();
 
-            },
-
-
-            /**
-             *
-             *
-             */
-            isString: function (string) {
-                return typeof string == 'string' || string instanceof String;
-            },
-
-
-            /**
-             * check if value is array
-             *
-             * following the lazy loading design pattern, the isArray function will be
-             * overridden with the correct browser implemation the first time it will be
-             * called. after that all consequent calls deliver the correct one without
-             * conditions for different browsers.
-             *
-             * @see nicolas c. zakas - maintainable javascript, writing readable code (o'reilly s.88)
-             * 
-             * @param {array} value The value to check
-             *
-             * @return {boolean} Whether the given value is an array or not
-             */
-            isArray: function (value) {
-
-                // local vars for better compression and faster access
-                var arrayIsArray = Array.isArray,
-                    objectProtoypeToString = Object.prototype.toString;
-
-                /**
-                 * override existing function based on
-                 * browser capabilities
-                 */
-
-                if (!!arrayIsArray && typeof arrayIsArray === 'function') {
-                    // ECMA Script 5
-                    utils.isArray = function (value) {
-                        return arrayIsArray(value);
-                    };
-                } else if (!!objectProtoypeToString && objectProtoypeToString === 'function') {
-                    // Juriy Zaytsev (aka Kangax)
-                    utils.isArray = function (value) {
-                        return objectProtoypeToString.call(value) === '[object Array]';
-                    };
-                } else {
-                    // Duck-Typing arrays (by Douglas Crockford), asume sort function is only available for arrays
-                    // Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array" 
-                    utils.isArray = function (value) {
-                        return (!!value.sort && typeof value.sort === 'function');
-                    };
-                }
-
-                // call the new function
-                return utils.isArray(value);
-
-            },
-
-
-            /**
-             * check if value is in array
-             *
-             * following the lazy loading design pattern, the inArray function will be
-             * overridden with the correct browser implemation the first time it will be
-             * called. after that all consequent calls deliver the correct one without
-             * conditions for different browsers.
-             * 
-             * @param {string} elem The value to check
-             * @param {array} array The array to check
-             * @param {number|undefined} index The optional index in array
-             *
-             * @returns {integer} Whether the value is in (return index) or not (return -1)
-             */
-            inArray: function (value, array, index) {
-
-                /**
-                 * override existing function based on
-                 * browser capabilities
-                 */
-
-                if (!!Array.prototype.indexOf) {
-                    // ECMA Script 5
-                    utils.inArray = function (value, array, index) {
-                        return emptyArray.indexOf.call(array, value, index);
-                    };
-                } else {
-                    // fallback for old browsers
-                    utils.inArray = function (value, array, index) {
-
-                        var arrayLength = array.length,
-                            j = 0;
-
-                        // check for index value if set
-                        if (!!index) {
-                            if (!!array[index] && array[index] === value) {
-                                return index;
-                            }
-                            return -1;
-                        }
-
-                        // toggle through array
-                        for (j = 0; j < arrayLength; j = j + 1) {
-                            if (array[j] === value) {
-                                return j;
-                            }
-                        }
-
-                        // value not found
-                        return -1;
-                    };
-                }
-
-                // call the new function
-                return utils.inArray(value, array, index);
-
             }
+
 
         };
 
@@ -782,4 +830,4 @@
     ns.namespace('helpers.utils', utils);
 
 
-}(window, document, window.getNamespace())); // immediatly invoke function
+}(window, document, window.getNs())); // immediatly invoke function

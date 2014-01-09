@@ -249,7 +249,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', ['watch']);
     grunt.registerTask('js', ['concat']);
-    grunt.registerTask('jsdoc', ['clean', 'jsdoc']);
+    grunt.registerTask('jsdoc', ['jsdoc']);
     grunt.registerTask('build',  ['copy', 'cssmin', 'uglify', 'htmlhint:build', 'imageoptim']);
 
 };

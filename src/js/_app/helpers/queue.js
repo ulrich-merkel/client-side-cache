@@ -4,20 +4,42 @@
  * ns.helpers.queue
  * 
  * @description
- * - handle async interfaces
+ * - handle async interfaces with queues
  * 
  * @author Ulrich Merkel, 2013
- * @version 0.1.1
+ * @version 0.1.2
  *
  * @namespace ns
  *
- * @see
- * - http://www.dustindiaz.com/async-method-queues/
- 
  * @changelog
+ * - 0.1.2 refactoring, examples added
  * - 0.1.1 improved namespacing
  * - 0.1 basic functions and plugin structur
- * 
+ *
+ * @see
+ * - http://www.dustindiaz.com/async-method-queues/
+ *
+ * @requires
+ * - ns.helpers.namespace
+ *
+ * @bugs
+ * -
+ *
+ * @example
+ *
+ *      // init queue
+ *      var queue = new app.helpers.queue();
+ *
+ *      // add functions to queue
+ *      queue.add(function1);
+ *      queue.add(function2);
+ *      queue.add(function3);
+ *      ....
+ *
+ *      // start queued functions
+ *      queue.flush();
+ *
+ *      
  */
 (function (ns, undefined) {
 
@@ -46,22 +68,30 @@
      */
     function Queue() {
 
+        var self = this;
+
+        // ensure Queue was called as a constructor
+        if (!(self instanceof Queue)) {
+            return new Queue();
+        }
+
         /**
          * @type {array} [this.methods=[]] Store your callbacks
          */
-        this.methods = [];
+        self.methods = [];
 
         /**
          * @type {object} [this.response=null] Keep a reference to your response
          */
-        this.response = null;
+        self.response = null;
 
         /**
          * @type {boolean} [this.flushed=false] All queues start off unflushed
          */
-        this.flushed = false;
+        self.flushed = false;
 
     }
+
 
     /**
      * queue methods
@@ -77,13 +107,15 @@
          */
         add: function (fn) {
 
+            var self = this;
+
             // if the queue had been flushed, return immediately
-            if (this.flushed) {
-                fn(this.response);
+            if (self.flushed) {
+                fn(self.response);
 
             // otherwise push it on the queue
             } else {
-                this.methods.push(fn);
+                self.methods.push(fn);
             }
 
         },
@@ -96,20 +128,22 @@
          */
         flush: function (response) {
 
+            var self = this;
+
             // note: flush only ever happens once
-            if (this.flushed) {
+            if (self.flushed) {
                 return;
             }
 
             // store your response for subsequent calls after flush()
-            this.response = response;
+            self.response = response;
 
             // mark that it's been flushed
-            this.flushed = true;
+            self.flushed = true;
 
             // shift 'em out and call 'em back
-            while (this.methods[0]) {
-                this.methods.shift()(response);
+            while (self.methods[0]) {
+                self.methods.shift()(response);
             }
 
         }
@@ -125,4 +159,4 @@
     ns.namespace('helpers.queue', Queue);
 
 
-}(window.getNamespace()));  // immediatly invoke function
+}(window.getNs()));  // immediatly invoke function
