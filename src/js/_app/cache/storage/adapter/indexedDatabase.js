@@ -16,12 +16,13 @@
  *      - Maxthon 4.0.5 +
  *      - Seamonkey 2.15 +
  * 
- * @version 0.1.3
+ * @version 0.1.4
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.4 example doc added
  * - 0.1.3 improved namespacing
  * - 0.1.2 several fixes for indexedDB.open for non-standard browsers
  * - 0.1.1 bug fixes delete, js lint
@@ -31,12 +32,53 @@
  * - http://www.w3.org/TR/IndexedDB/
  * - https://developer.mozilla.org/de/docs/IndexedDB
  * - https://developer.mozilla.org/en-US/docs/IndexedDB/Using_IndexedDB
+ * - https://github.com/brianleroux/lawnchair/blob/master/src/adapters/indexed-db.js
  *
- *
+ * @requires
+ * - ns.helpers.utils
+ * 
  * @bugs
  * -
+ *
+ * @example
+ * 
+ *      // init storage adapter
+ *      var storage = new app.cache.storage.adapter.indexedDatabase(optionalParametersObject);
+ *      storage.open(function (success) {
+ *          if (!!success) {
+ *              // instance is ready to use via e.g. storage.read()
+ *          } else {
+ *              // storage adapter is not supported or data couldn't be written
+ *          }
+ *      });
+ *
+ *      // read data from storage (similar to storage.remove)
+ *      storage.read('key', function (data) {
+ *          if (!!data) {
+ *              // data successfully read
+ *              var jsonObject = JSON.parse(data);
+ *          } else {
+ *              // data could not be read
+ *          }
+ *      });
+ *
+ *      // create data in storage (similar to storage.update)
+ *      var data = {
+ *              custom: data
+ *          },
+ *          jsonString = JSON.stringify(data);
+ *     
+ *      storage.create('key', jsonString, function (success) {
+ *          if (!!success) {
+ *              // data successfully created
+ *          } else {
+ *              // data could not be created
+ *          }
+ *      });
+ *
+ *      
  */
-(function (window, ns, undefined) {
+(function (window, undefined) {
 
     'use strict';
 
@@ -48,18 +90,20 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window and ns are passed through as local
-     * variables rather than as globals, because this (slightly)
+     * window is passed through as local variable rather
+     * than as global, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
      */
 
     // create the global vars once
-    var storageType = 'indexedDatabase',                        // @type {string} The storage type string
-        utils = ns.helpers.utils,                               // @type {object} Shortcut for utils functions
-        log = utils.log,                                        // @type {function} Shortcut for utils.log function
-        boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
+    var storageType = 'indexedDatabase',                            // @type {string} The storage type string
+        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
+        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
+        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
+        boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not
 
 
     /**
@@ -71,7 +115,7 @@
     /**
      * console log helper
      *
-     * @param {string} message The message to log
+     * @param {string} message The required message to log
      */
     function moduleLog(message) {
         log('[' + storageType + ' Adapter] ' + message);
@@ -95,6 +139,11 @@
 
         // init vars
         var self = this;
+
+        // ensure Adapter was called as a constructor
+        if (!(self instanceof Adapter)) {
+            return new Adapter(parameters);
+        }
 
         // adapter vars
         self.adapter = null;
@@ -145,9 +194,9 @@
         /**
          * create a new resource in storage
          * 
-         * @param {object} key The resource object
-         * @param {string} content The content string
-         * @param {function} callback Function called on success
+         * @param {string} key The required resource key
+         * @param {string} content The required content string
+         * @param {function} callback The optional function called on success
          */
         create: function (key, content, callback) {
 
@@ -160,6 +209,9 @@
                     key: key,
                     content: content
                 });
+
+            // check params
+            callback = checkCallback(callback);
 
             // check for transaction error
             transaction.onerror = function (e) {
@@ -184,8 +236,8 @@
         /**
          * read storage item
          *
-         * @param {string} key The url from the resource to get
-         * @param {function} callback Function called on success
+         * @param {string} key The required key from the resource to get
+         * @param {function} callback The required function called on success
          */
         read: function (key, callback) {
 
@@ -230,8 +282,8 @@
         /**
          * update a resource in storage
          * 
-         * @param {object} key The resource object
-         * @param {string} content The content string
+         * @param {string} key The required resource key
+         * @param {string} content The required content string
          * @param {function} callback Function called on success
          */
         update: function (key, content, callback) {
@@ -245,13 +297,16 @@
         /**
         * delete a resource from storage
         * 
-        * @param {string} key Url of the resource to delete
-        * @param {function} callback Function called on success
+        * @param {string} key The required key of the resource to delete
+        * @param {function} callback The optional function called on success
         */
         remove: function (key, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+
             /**
-             * objectStore.delete(url) fails while parsing the js code on older
+             * hack: objectStore.delete(url) fails while parsing the js code on older
              * devices due to the reserved word 'delete',
              * so we just set the values empty here to avoid errors.
              */
@@ -290,7 +345,7 @@
         /**
          * open and initialize storage if not already done
          * 
-         * @param {function} callback The function called on success
+         * @param {function} callback The optional function called on success
          * @param {boolean} setVersion The optional parameter to set the db version on indexeddb.open(), used for recursiv self.open() call if first option failed
          */
         open: function (callback, setVersion) {
@@ -312,6 +367,7 @@
             if (!setVersion) {
                 setVersion = false;
             }
+            callback = checkCallback(callback);
 
             // check for database
             if (null === self.adapter) {
@@ -448,14 +504,14 @@
         /**
          * init storage
          *
-         * @param {object} parameters The instance parameters
+         * @param {object} parameters The optional instance parameters
          * @param {string} [parameters.dbName=merkel] The database name
          * @param {string} [parameters.dbVersion=1.0] The database version
          * @param {string} [parameters.dbTable=offline] The database table name
          * @param {string} [parameters.dbDescription=Local cache] The database description
          * @param {string} [parameters.dbKeyPath=url] The database key
          *
-         * @return {this} The instance if supported or false
+         * @return {(this|false)} The instance if supported or false
          */
         init: function (parameters) {
             // init local vars
@@ -495,13 +551,16 @@
 
 
     /**
-     * make the storage constructor available for
-     * ns.cache.storage.adapter.indexedDatabase() calls under the
-     * ns.cache namespace
-     *
+     * make the storage constructor available for ns.cache.storage.adapter.indexedDatabase()
+     * calls under the ns.cache namespace, alternativly save it to window object
+     * 
      * @export
      */
-    ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (!!ns.namespace && typeof ns.namespace === 'function') {
+        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    } else {
+        ns[storageType] = Adapter;
+    }
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window)); // immediatly invoke function

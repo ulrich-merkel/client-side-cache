@@ -12,12 +12,13 @@
  *      - Google Crome 26.0 +
  *      - Maxthon 4.0.5 +
  *
- * @version 0.1.4
+ * @version 0.1.5
  * @author Ulrich Merkel, 2013
  *
  * @namespace ns
  *
  * @changelog
+ * - 0.1.5 example doc added
  * - 0.1.4 improved logging
  * - 0.1.3 improved namespacing, handleStorageEvents adjusted to for current browser updates (event object error)
  * - 0.1.2 creating test item while open added, bug fixes for chrome 17
@@ -29,12 +30,52 @@
  * - http://www.w3.org/TR/FileAPI/
  * - http://www.html5rocks.com/de/tutorials/file/filesystem/
  * - http://updates.html5rocks.com/2011/08/Debugging-the-Filesystem-API
+ * - https://github.com/brianleroux/lawnchair/blob/master/src/adapters/html5-filesystem.js
  *
+ * @requires
+ * - ns.helpers.utils
+ * 
  * @bugs
  * -
  *
+ * @example
+ * 
+ *      // init storage adapter
+ *      var storage = new app.cache.storage.adapter.fileSystem(optionalParametersObject);
+ *      storage.open(function (success) {
+ *          if (!!success) {
+ *              // instance is ready to use via e.g. storage.read()
+ *          } else {
+ *              // storage adapter is not supported or data couldn't be written
+ *          }
+ *      });
+ *
+ *      // read data from storage (similar to storage.remove)
+ *      storage.read('key', function (data) {
+ *          if (!!data) {
+ *              // data successfully read
+ *              var jsonObject = JSON.parse(data);
+ *          } else {
+ *              // data could not be read
+ *          }
+ *      });
+ *
+ *      // create data in storage (similar to storage.update)
+ *      var data = {
+ *              custom: data
+ *          },
+ *          jsonString = JSON.stringify(data);
+ *     
+ *      storage.create('key', jsonString, function (success) {
+ *          if (!!success) {
+ *              // data successfully created
+ *          } else {
+ *              // data could not be created
+ *          }
+ *
+ *          
  */
-(function (window, ns, undefined) {
+(function (window, undefined) {
 
     'use strict';
 
@@ -46,19 +87,20 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window and ns are passed through as local
-     * variables rather than as globals, because this (slightly)
+     * window is passed through as local variable rather
+     * than as global, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
      */
 
     // create the global vars once
-    var storageType = 'fileSystem',                             // @type {string} The storage type string
-        utils = ns.helpers.utils,                               // @type {object} Shortcut for utils functions
-        log = utils.log,                                        // @type {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // @type {function} Shortcut for utils.callback function
-        boolIsSupported = null;                                 // @type {boolean} Bool if this type of storage is supported or not
+    var storageType = 'fileSystem',                                 // @type {string} The storage type string
+        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
+        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
+        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
+        boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not
 
 
     /**
@@ -70,7 +112,7 @@
     /**
      * console log helper
      *
-     * @param {string} message The message to log
+     * @param {string} message The required message to log
      */
     function moduleLog(message) {
         log('[' + storageType + ' Adapter] ' + message);
@@ -101,22 +143,22 @@
 
         switch (code) {
         case FileError.QUOTA_EXCEEDED_ERR:
-            msg = 'File System Event: QUOTA_EXCEEDED_ERR';
+            msg = 'Event: QUOTA_EXCEEDED_ERR';
             break;
         case FileError.NOT_FOUND_ERR:
-            msg = 'File System Event: NOT_FOUND_ERR, file does not exist';
+            msg = 'Event: NOT_FOUND_ERR, file does not exist';
             break;
         case FileError.SECURITY_ERR:
-            msg = 'File System Event: SECURITY_ERR';
+            msg = 'Event: SECURITY_ERR';
             break;
         case FileError.INVALID_MODIFICATION_ERR:
-            msg = 'File System Event: INVALID_MODIFICATION_ERR';
+            msg = 'Event: INVALID_MODIFICATION_ERR';
             break;
         case FileError.INVALID_STATE_ERR:
-            msg = 'File System Event: INVALID_STATE_ERR';
+            msg = 'Event: INVALID_STATE_ERR';
             break;
         default:
-            msg = 'File System Event: Unknown Error';
+            msg = 'Event: Unknown Error';
             break;
         }
 
@@ -129,9 +171,9 @@
     /**
      * create directory recursiv
      *
-     * @param {object} root The storage root
-     * @param {array} folders The value string from database
-     * @param {function} callback The callback after success
+     * @param {object} root The required storage root
+     * @param {array} folders The required value string from database
+     * @param {function} callback The callback required after success
      */
     function createDirectory(root, folders, callback) {
 
@@ -164,9 +206,9 @@
     /**
      * check directory path
      *
-     * @param {object} fileSystem The fileSystem to check
-     * @param {srting} url The url string to check
-     * @param {function} callback The callback after success
+     * @param {object} fileSystem The required fileSystem to check
+     * @param {srting} url The required url string to check
+     * @param {function} callback The optional callback after success
      */
     function checkDirectory(fileSystem, url, callback) {
 
@@ -206,6 +248,11 @@
         // init local vars
         var self = this;
 
+        // ensure Adapter was called as a constructor
+        if (!(self instanceof Adapter)) {
+            return new Adapter(parameters);
+        }
+
         // adapter vars
         self.adapter = null;
         self.type = storageType;
@@ -237,7 +284,7 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                boolIsSupported = (!!window.requestFileSystem || !!window.webkitRequestFileSystem) && !!window.Blob;
+                boolIsSupported = (!!window.requestFileSystem || !!window.webkitRequestFileSystem || !!window.moz_requestFileSystem) && (!!window.Blob || !!window.BlobBuilder);
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported');
                 }
@@ -252,7 +299,7 @@
         /**
          * open and initialize storage if not already done
          * 
-         * @param {function} callback The function called on success
+         * @param {function} callback The optional function called on success
          */
         open: function (callback) {
 
@@ -260,11 +307,14 @@
             var self = this,
                 adapter = self.adapter;
 
+            // check params
+            callback = checkCallback(callback);
+
             // check for database
             if (null === adapter) {
 
-                // note: the file system has been prefixed as of google chrome 12:
-                window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+                // note: the file system has been prefixed as of google chrome 12
+                window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem || window.moz_requestFileSystem;
 
                 // open filesystem
                 window.requestFileSystem(window.TEMPORARY, self.size, function (filesystem) {
@@ -301,11 +351,14 @@
         /**
          * create a new resource in storage
          * 
-         * @param {object} key The resource object
-         * @param {string} content The content string
-         * @param {function} callback Function called on success
+         * @param {object} key The required resource object
+         * @param {string} content The required content string
+         * @param {function} callback The optional function called on success
          */
         create: function (key, content, callback) {
+
+            // check params
+            callback = checkCallback(callback);
 
             // init local function vars
             var adapter = this.adapter,
@@ -323,6 +376,8 @@
                     // create a fileWriter object for our fileEntry
                     fileEntry.createWriter(function (fileWriter) {
 
+                        var blob;
+
                         // success callback
                         fileWriter.onwriteend = function () {
                             callback(true);
@@ -338,14 +393,25 @@
                         try {
 
                             /**
-                             * create transparent binary file copy via blobs
+                             * create transparent binary file copy via blobs and write data
                              *
                              * @see https://developer.mozilla.org/de/docs/Web/API/Blob
                              */
-                            var blob = new Blob([content], {type: 'text/plain'});
 
-                            // write data
-                            fileWriter.write(blob);
+                            if (Blob) {
+
+                                // new blob binaries
+                                blob = new Blob([content], {type: 'text/plain'});
+                                fileWriter.write(blob);
+
+                            } else if (BlobBuilder) {
+    
+                                // old and depricated blobs
+                                blob = new BlobBuilder();
+                                blob.append(content);
+                                fileWriter.write(blob.getBlob('application/json'));
+
+                            }
 
                         } catch (e) {
                             errorHandler(e);
@@ -363,8 +429,8 @@
         /**
          * read storage item
          *
-         * @param {object} key The resource object
-         * @param {function} callback Function called on success
+         * @param {object} key The required resource object
+         * @param {function} callback The required function called on success
          */
         read: function (key, callback) {
 
@@ -408,12 +474,13 @@
         /**
          * update a resource in storage
          * 
-         * @param {object} key The resource object
-         * @param {string} content The content string
-         * @param {function} callback Function called on success
+         * @param {object} key The required resource object
+         * @param {string} content The required content string
+         * @param {function} callback The optional function called on success
          */
         update: function (key, content, callback) {
 
+            // same logic as this.create()
             this.create(key, content, callback);
 
         },
@@ -422,8 +489,8 @@
         /**
          * delete a resource from storage
          * 
-         * @param {object} key The resource object
-         * @param {function} callback Function called on success
+         * @param {object} key The required resource object
+         * @param {function} callback The optional function called on success
          */
         remove: function (key, callback) {
 
@@ -433,6 +500,9 @@
                     handleStorageEvents(e);
                     callback(false, e);
                 };
+
+            // check params
+            callback = checkCallback(callback);
 
             // check directory exists
             checkDirectory(adapter, key, function () {
@@ -455,7 +525,7 @@
         /**
          * init storage
          *
-         * @param {object} parameters The instance parameters
+         * @param {object} parameters The optional instance parameters
          * @param {integer} [parameters.size] Set storage size
          *
          * @return {this} The instance if supported or false
@@ -486,13 +556,16 @@
 
 
     /**
-     * make the storage constructor available for
-     * ns.cache.storage.adapter.fileSystem() calls under the
-     * ns.cache namespace
-     *
+     * make the storage constructor available for ns.cache.storage.adapter.fileSystem()
+     * calls under the ns.cache namespace, alternativly save it to window object
+     * 
      * @export
      */
-    ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (!!ns.namespace && typeof ns.namespace === 'function') {
+        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    } else {
+        ns[storageType] = Adapter;
+    }
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window)); // immediatly invoke function

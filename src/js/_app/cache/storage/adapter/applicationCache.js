@@ -15,12 +15,13 @@
  *      - Maxthon 4.0.5 +
  *      - iOs 3.2 +
  * 
- * @version 0.1.6
+ * @version 0.1.7
  * @author Ulrich Merkel, 2013
  *
  * @namespace app
  *
  * @changelog
+ * - 0.1.7 example doc added
  * - 0.1.6 improved logging
  * - 0.1.5 improved namespacing
  * - 0.1.4 renamed addEventListener to adapterEvent, bug fixes progress event
@@ -33,11 +34,31 @@
  * - http://www.w3.org/TR/offline-webapps/
  * - http://www.html5rocks.com/de/tutorials/appcache/beginner/
  *
+ * @requires
+ * - ns.helpers.utils
+ * 
  * @bugs
  * -
  *
+ * @example
+ * 
+ *      // init storage adapter
+ *      var storage = new app.cache.storage.adapter.applicationCache(optionalParametersObject),
+ *          loaded = function () {
+ *              // application cache loaded
+ *          },
+ *          progress = function () {
+ *              // single application file is loaded
+ *          };
+ *
+ *      // define event listeners
+ *      storage.open(loaded, {
+ *          progress: progress
+ *      });
+ *
+ *      
  */
-(function (window, document, ns, undefined) {
+(function (window, document, undefined) {
 
     'use strict';
 
@@ -49,7 +70,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      *
-     * window, document and ns are passed through as local
+     * window and document are passed through as local
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -70,15 +91,16 @@
 
 
     // create the global vars once
-    var storageType = 'applicationCache',                       // @type {string} The storage type string
-        helpers = ns.helpers,                                  // @type {object} Shortcut for helper functions
-        utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
-        dom = helpers.dom,                                      // @type {object} Shortcut for dom functions
-        on = utils.on,                                          // @type {object} Shortcut for on function
-        log = utils.log,                                        // @type {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                         // @type {function} Shortcur for utils.callback function
-        boolIsSupported = null,                                 // @type {boolean} Bool if this type of storage is supported or not
-        htmlNode = document.getElementsByTagName('html')[0];    // @type {object} The dom html element
+    var storageType = 'applicationCache',                           // @type {string} The storage type string
+        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
+        helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
+        utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        dom = helpers.dom,                                          // @type {object} Shortcut for dom functions
+        on = utils.on,                                              // @type {object} Shortcut for on function
+        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        checkCallback = utils.callback,                             // @type {function} Shortcur for utils.callback function
+        boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
+        htmlNode = document.getElementsByTagName('html')[0];        // @type {object} The dom html element
 
 
     /**
@@ -96,6 +118,29 @@
         log('[' + storageType + ' Adapter] ' + message);
     }
 
+    /**
+     * adapter files loaded
+     * 
+     * invoke a callback function and make shure it's
+     * only called once.
+     *
+     * @param {function} callback The function to be called on loaded
+     */
+    function loaded(callback, self) {
+
+        if (!self.isLoaded) {
+
+            self.isLoaded = true;
+
+            // set progress to 100% if not already done and wait for optional animations
+            self.progressCallback(100);
+            window.setTimeout(function () {
+                callback();
+                moduleLog('Event loaded');
+            }, self.delay);
+        }
+
+    }
 
     /**
      * -------------------------------------------
@@ -114,7 +159,12 @@
         // init local vars
         var self = this;
 
-        // adapter vars
+        // ensure Adapter was called as a constructor
+        if (!(self instanceof Adapter)) {
+            return new Adapter(parameters);
+        }
+
+        // adapter default vars
         self.adapter = null;
         self.type = storageType;
         self.isLoaded = false;
@@ -157,29 +207,6 @@
 
 
         /**
-         * adapter files loaded
-         * 
-         * invoke a callback function and make shure it's
-         * only called once.
-         *
-         * @param {function} callback The function to be called on loaded
-         */
-        loaded: function (callback) {
-
-            var self = this;
-
-            if (!self.isLoaded) {
-                self.isLoaded = true;
-                window.setTimeout(function () {
-                    callback();
-                    moduleLog('Event loaded');
-                }, self.delay);
-            }
-
-        },
-
-
-        /**
          * open adapter
          * 
          * open and initialize storage if not already done.
@@ -203,7 +230,7 @@
                     progressCallback = parameters.progress;
                 }
             }
-            progressCallback = checkCallback(progressCallback);
+            progressCallback = self.progressCallback = checkCallback(progressCallback);
 
             // check for application cache support
             if (self.isSupported() && null !== adapter) {
@@ -225,7 +252,7 @@
                     if (confirm('A new version of this website is available. Do you want to an update?')) {
                         window.location.reload(true);
                     } else {
-                        self.loaded(callback);
+                        loaded(callback, self);
                     }
 
                     return false;
@@ -253,7 +280,7 @@
                  */
                 on(adapter, 'noupdate', function () {
                     moduleLog('Event noupdate');
-                    self.loaded(callback);
+                    loaded(callback, self);
 
                     return false;
                 });
@@ -314,7 +341,7 @@
                  */
                 on(adapter, 'cached', function () {
                     moduleLog('Event cached');
-                    self.loaded(callback);
+                    loaded(callback, self);
 
                     return false;
                 });
@@ -335,7 +362,7 @@
                 /**
                  * cache is obsolete event
                  *
-                 * if a cached application references a manifest file that does not exist,
+                 * if a cached application references a manifest file that does not exist (http code 404),
                  * an obsolete event is fired and the application is removed from the cache.
                  * subsequent loads are done from the network rather than from the cache.
                  */
@@ -355,7 +382,7 @@
                  */
                 on(adapter, 'error', function () {
                     moduleLog('Event error');
-                    self.loaded(callback);
+                    loaded(callback, self);
 
                     return false;
                 });
@@ -370,12 +397,11 @@
                 switch (adapter.status) {
                 case adapter.UNCACHED:
                     // UNCACHED == 0, occurs when there is a bug while downloading files
-                    self.loaded(callback);
+                    loaded(callback, self);
                     break;
                 case adapter.IDLE:
                     // IDLE == 1, files are already loaded
-                    progressCallback(100);
-                    self.loaded(callback);
+                    loaded(callback, self);
                     break;
                 case adapter.UPDATEREADY:
                     // UPDATEREADY == 4, update is available
@@ -383,7 +409,7 @@
                     break;
                 case adapter.OBSOLETE:
                     // OBSOLETE == 5, cache isn't valid anymore
-                    self.loaded(callback);
+                    loaded(callback, self);
                     break;
                 default:
                     break;
@@ -413,14 +439,14 @@
                  */
                 window.setTimeout(function () {
                     if (!self.isLoaded) {
-                        self.loaded(callback);
+                        loaded(callback, self);
                     }
                 }, 12000);
 
 
             } else {
 
-                self.loaded(callback);
+                loaded(callback, self);
 
             }
         },
@@ -464,4 +490,4 @@
     ns.namespace('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, document, window.getNs())); // immediatly invoke function
+}(window, document)); // immediatly invoke function

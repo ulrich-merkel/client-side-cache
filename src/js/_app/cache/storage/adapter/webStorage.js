@@ -43,6 +43,7 @@
  * @see
  * - http://www.w3.org/TR/webstorage/
  * - http://diveintohtml5.info/storage.html
+ * - https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Storage
  *
  * @requires
  * - ns.helpers.utils
@@ -53,7 +54,7 @@
  * @example
  * 
  *      // init storage adapter
- *      var storage = new ns.cache.storage.adapter.webStorage(optionalParametersObject);
+ *      var storage = new app.cache.storage.adapter.webStorage(optionalParametersObject);
  *      storage.open(function (success) {
  *          if (!!success) {
  *              // instance is ready to use via e.g. storage.read()
@@ -236,6 +237,11 @@
 
         // init local vars
         var self = this;
+
+        // ensure Adapter was called as a constructor
+        if (!(self instanceof Adapter)) {
+            return new Adapter(parameters);
+        }
 
         // adapter vars
         self.adapter = null;

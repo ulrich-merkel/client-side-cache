@@ -41,7 +41,7 @@
  * @example
  * 
  *      // init storage adapter
- *      var storage = new ns.cache.storage.adapter.webSqlDatabase(optionalParametersObject);
+ *      var storage = new app.cache.storage.adapter.webSqlDatabase(optionalParametersObject);
  *      storage.open(function (success) {
  *          if (!!success) {
  *              // instance is ready to use via e.g. storage.read()
@@ -198,6 +198,11 @@
         // init local vars
         var self = this;
 
+        // ensure Adapter was called as a constructor
+        if (!(self instanceof Adapter)) {
+            return new Adapter(parameters);
+        }
+
         // adapter vars
         self.adapter = null;
         self.type = storageType;
@@ -294,12 +299,9 @@
          * read storage item
          *
          * @param {string} key The required resource key
-         * @param {function} callback The optional function called on success
+         * @param {function} callback The required function called on success
          */
         read: function (key, callback) {
-
-            // check params
-            callback = checkCallback(callback);
 
             // init vars and read success callback
             var self = this,
