@@ -16,9 +16,9 @@ There are five storage adapters available. These are **File System**, **Indexed 
 The offline application cache differs from the usage of the other four. Due to it's different javascript api and idea of how to store data, you are just able to listen to the events this kind of storage fires.
 
 ### Demo ####
-If you just want to see a working demo, open the generated index.html **/example/index.html** file in your browser. You need to run this file in a webserver to make shure the ajax calls are working.
+If you just want to see a working demo, open the generated index.html **/example/index.html** file in your browser. You need to run this file in a webserver to make shure the ajax calls are working. You will find the latest javascript caching functions in **/build/cache.js**.
 
-### Installation ####
+### Project Installation ####
 
 This project is based on Grunt.js, a [node.js](http://nodejs.org/ "Node Js") build tool. For more and deeper information please visit the [ofifficial website](http://gruntjs.com/ "Grunt Js") or just do some [googling](http://google.com/?q=grunt "Google"). Some basic terminal commands are listed for your convenience below.
 
@@ -227,7 +227,7 @@ There are several options you can use to specify a resource. This can be useful 
  
         }
  
-
+    
 ### Javascript source files ####
 There is no external library neccessary for the code to work. The logic is split into several functions and files under the global javascript namespace `window.app`. If you want to modify the source code, the files you will need are listed in **src/js/_app/cache/** and  **src/js/_app/helpers/**. The underscore within the _app folder just indicates that this folder won't be generated during the build process. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (make sure you include the **helpers first**). The correspondig javascript namespace is handled by the namespace.js helper functions.
 
