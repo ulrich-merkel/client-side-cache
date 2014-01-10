@@ -69,6 +69,7 @@
      * regularly referenced in this module).
      */
 
+
     /**
      * client functions
      *
@@ -579,9 +580,10 @@
     }());
 
 
-    /**
-     * global export
-     *
+	/**
+     * make the helper available for ns.helpers.client calls under
+     * the ns.helper namespace
+     * 
      * @export
      */
     ns.namespace('helpers.client', client);

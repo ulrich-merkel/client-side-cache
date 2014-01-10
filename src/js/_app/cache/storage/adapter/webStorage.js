@@ -8,6 +8,7 @@
  *
  * @description
  * - provide a storage api for web storage
+ * - enable sychronous and asynchronous interface calls
  * - support:
  *      - Internet Explorer 8.0 +
  *      - Firefox 3.5 +
@@ -24,9 +25,9 @@
  *      - Stainless 0.8 +
  *      - Seamonkey 2.15 +
  *      - Sunrise 2.2 +
- * 
- * @version 0.1.7
+ *
  * @author Ulrich Merkel, 2013
+ * @version 0.1.7
  * 
  * @namespace ns
  * 
@@ -519,7 +520,7 @@
      * 
      * @export
      */
-    if (!!ns.namespace && typeof ns.namespace === 'function') {
+    if (utils.isFunction(ns.namespace)) {
         ns.namespace('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;

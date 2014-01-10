@@ -35,7 +35,7 @@
  * - 
  * 
  */
-(function (document, ns, undefined) {
+(function (window, document, undefined) {
 
     'use strict';
 
@@ -47,7 +47,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * document and ns are passed through as local
+     * window and document are passed through as local
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -56,6 +56,7 @@
 
     // module vars
     var controllerType = 'storage',                                 // @type {string} The controller type string
+        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
         client = helpers.client,                                    // @type {object} Shortcut for client functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
@@ -558,6 +559,11 @@
 
         var self = this;
 
+        // ensure Storage was called as a constructor
+        if (!(self instanceof Storage)) {
+            return new Storage(callback, parameters);
+        }
+
         /**
          * @type {boolean} Enable or disable client side storage
          *
@@ -865,6 +871,7 @@
 
             // try to remove resource from storage
             if (null !== self.adapter && isRessourceStorable(type)) {
+                // TODO: convertObjectToString(url) for key value?
                 self.adapter.remove(convertObjectToString(url), function (success) {
 
                     if (!success) {
@@ -978,11 +985,16 @@
 
 
     /**
-     * make storage controller available under app namespace
-     *
+     * make the storage controller constructor available for ns.cache.storage.controller()
+     * calls under the ns.cache namespace, alternativly save it to window object
+     * 
      * @export
      */
-    ns.namespace('cache.storage.controller', Storage);
+    if (utils.isFunction(ns.namespace)) {
+        ns.namespace('cache.' + controllerType + '.controller', Storage);
+    } else {
+        ns[controllerType] = Storage;
+    }
 
 
-}(document, window.getNs())); // immediatly invoke function
+}(window, document)); // immediatly invoke function

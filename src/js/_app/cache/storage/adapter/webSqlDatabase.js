@@ -573,7 +573,7 @@
      * 
      * @export
      */
-    if (!!ns.namespace && typeof ns.namespace === 'function') {
+    if (utils.isFunction(ns.namespace)) {
         ns.namespace('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;

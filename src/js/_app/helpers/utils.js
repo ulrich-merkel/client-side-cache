@@ -9,12 +9,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2013
- * @version 0.2
+ * @version 0.2.1
  * 
  * @namespace ns
  * 
  * @changelog
- * - 0.2.1 examples added
+ * - 0.2.1 examples added, isFunction added, refactoring
  * - 0.2 improved console.log wrapper, console.warn added
  * - 0.1.9 improved namespacing
  * - 0.1.8 inArray function improved
@@ -32,7 +32,6 @@
  *
  * @requires
  * - ns.helpers.namespace
- * - ns.helpers.utils
  *
  * @bugs
  * -
@@ -89,13 +88,14 @@
     var utils = (function () {
 
         // init global vars
-        var jsonObject = null,
-            hasConsole = window.console !== undefined,
-            console = hasConsole ? window.console : null,
-            hasConsoleLog = (hasConsole && console.log !== undefined),
-            hasConsoleWarn = (hasConsole && console.warn !== undefined),
-            hasConsoleTime = (hasConsole && console.time !== undefined && console.timeEnd !== undefined),
-            emptyArray = [];
+        var jsonObject = null,                                                                              // @type {object} The current json object
+            hasConsole = window.console !== undefined,                                                      // @type {boolean} If window.console is available
+            console = hasConsole ? window.console : null,                                                   // @type {object} The window.console object
+            hasConsoleLog = (hasConsole && console.log !== undefined),                                      // @type {boolean} If console.log is available
+            hasConsoleWarn = (hasConsole && console.warn !== undefined),                                    // @type {boolean} If console.warn is available
+            hasConsoleTime = (hasConsole && console.time !== undefined && console.timeEnd !== undefined),   // @type {boolean} If console.time/console.timeEnd is available
+            emptyArray = [];                                                                                // @type {array} Placeholder for array testing
+
 
         /**
          * public functions
@@ -805,7 +805,7 @@
                  * check fo native string trim function, otherwise
                  * initialize it
                  */
-                if (typeof String.prototype.trim !== 'function') {
+                if (!utils.isFunction(String.prototype.trim)) {
                     String.prototype.trim = function () {
                         return this.replace(/^\s+|\s+$/g, '');
                     };
@@ -823,8 +823,9 @@
 
 
     /**
-     * global export
-     *
+     * make the helper available for ns.helpers.utils calls under
+     * the ns.helpers namespace
+     * 
      * @export
      */
     ns.namespace('helpers.utils', utils);

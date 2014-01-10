@@ -222,14 +222,14 @@
     window.onerror = function (msg, url, line) {
     
         // log error message
-        ns.helpers.utils.warn(msg + "\nurl: " + url + "\nline: " + line);
-    
-        // return true keeps the browser running instead of stopping execution
-        return true;
+        //ns.helpers.utils.warn(msg + "\nurl: " + url + "\nline: " + line);
+        //
+        //// return true keeps the browser running instead of stopping execution
+        //return true;
 
     };
 
-}(window, window.getNs()));
+}(window, window.getNamespace()));
 
 /*global window*/
 
@@ -405,12 +405,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2013
- * @version 0.2
+ * @version 0.2.1
  * 
  * @namespace ns
  * 
  * @changelog
- * - 0.2.1 examples added
+ * - 0.2.1 examples added, isFunction added, refactoring
  * - 0.2 improved console.log wrapper, console.warn added
  * - 0.1.9 improved namespacing
  * - 0.1.8 inArray function improved
@@ -428,7 +428,6 @@
  *
  * @requires
  * - ns.helpers.namespace
- * - ns.helpers.utils
  *
  * @bugs
  * -
@@ -485,13 +484,14 @@
     var utils = (function () {
 
         // init global vars
-        var jsonObject = null,
-            hasConsole = window.console !== undefined,
-            console = hasConsole ? window.console : null,
-            hasConsoleLog = (hasConsole && console.log !== undefined),
-            hasConsoleWarn = (hasConsole && console.warn !== undefined),
-            hasConsoleTime = (hasConsole && console.time !== undefined && console.timeEnd !== undefined),
-            emptyArray = [];
+        var jsonObject = null,                                                                              // @type {object} The current json object
+            hasConsole = window.console !== undefined,                                                      // @type {boolean} If window.console is available
+            console = hasConsole ? window.console : null,                                                   // @type {object} The window.console object
+            hasConsoleLog = (hasConsole && console.log !== undefined),                                      // @type {boolean} If console.log is available
+            hasConsoleWarn = (hasConsole && console.warn !== undefined),                                    // @type {boolean} If console.warn is available
+            hasConsoleTime = (hasConsole && console.time !== undefined && console.timeEnd !== undefined),   // @type {boolean} If console.time/console.timeEnd is available
+            emptyArray = [];                                                                                // @type {array} Placeholder for array testing
+
 
         /**
          * public functions
@@ -1201,7 +1201,7 @@
                  * check fo native string trim function, otherwise
                  * initialize it
                  */
-                if (typeof String.prototype.trim !== 'function') {
+                if (!utils.isFunction(String.prototype.trim)) {
                     String.prototype.trim = function () {
                         return this.replace(/^\s+|\s+$/g, '');
                     };
@@ -1219,8 +1219,9 @@
 
 
     /**
-     * global export
-     *
+     * make the helper available for ns.helpers.utils calls under
+     * the ns.helpers namespace
+     * 
      * @export
      */
     ns.namespace('helpers.utils', utils);
@@ -1298,6 +1299,7 @@
      * efficiently minified (especially when both are
      * regularly referenced in this module).
      */
+
 
     /**
      * client functions
@@ -1809,9 +1811,10 @@
     }());
 
 
-    /**
-     * global export
-     *
+	/**
+     * make the helper available for ns.helpers.client calls under
+     * the ns.helper namespace
+     * 
      * @export
      */
     ns.namespace('helpers.client', client);
@@ -2905,7 +2908,7 @@
      * 
      * @export
      */
-    if (!!ns.namespace && typeof ns.namespace === 'function') {
+    if (utils.isFunction(ns.namespace)) {
         ns.namespace('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
@@ -3472,7 +3475,7 @@
      * 
      * @export
      */
-    if (!!ns.namespace && typeof ns.namespace === 'function') {
+    if (utils.isFunction(ns.namespace)) {
         ns.namespace('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
@@ -4056,7 +4059,7 @@
      * 
      * @export
      */
-    if (!!ns.namespace && typeof ns.namespace === 'function') {
+    if (utils.isFunction(ns.namespace)) {
         ns.namespace('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
@@ -4075,6 +4078,7 @@
  *
  * @description
  * - provide a storage api for web storage
+ * - enable sychronous and asynchronous interface calls
  * - support:
  *      - Internet Explorer 8.0 +
  *      - Firefox 3.5 +
@@ -4091,9 +4095,9 @@
  *      - Stainless 0.8 +
  *      - Seamonkey 2.15 +
  *      - Sunrise 2.2 +
- * 
- * @version 0.1.7
+ *
  * @author Ulrich Merkel, 2013
+ * @version 0.1.7
  * 
  * @namespace ns
  * 
@@ -4586,7 +4590,7 @@
      * 
      * @export
      */
-    if (!!ns.namespace && typeof ns.namespace === 'function') {
+    if (utils.isFunction(ns.namespace)) {
         ns.namespace('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
@@ -5126,7 +5130,7 @@
  * - 
  * 
  */
-(function (document, ns, undefined) {
+(function (window, document, undefined) {
 
     'use strict';
 
@@ -5138,7 +5142,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * document and ns are passed through as local
+     * window and document are passed through as local
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -5147,6 +5151,7 @@
 
     // module vars
     var controllerType = 'storage',                                 // @type {string} The controller type string
+        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
         client = helpers.client,                                    // @type {object} Shortcut for client functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
@@ -5649,6 +5654,11 @@
 
         var self = this;
 
+        // ensure Storage was called as a constructor
+        if (!(self instanceof Storage)) {
+            return new Storage(callback, parameters);
+        }
+
         /**
          * @type {boolean} Enable or disable client side storage
          *
@@ -5956,6 +5966,7 @@
 
             // try to remove resource from storage
             if (null !== self.adapter && isRessourceStorable(type)) {
+                // TODO: convertObjectToString(url) for key value?
                 self.adapter.remove(convertObjectToString(url), function (success) {
 
                     if (!success) {
@@ -6069,14 +6080,19 @@
 
 
     /**
-     * make storage controller available under app namespace
-     *
+     * make the storage controller constructor available for ns.cache.storage.controller()
+     * calls under the ns.cache namespace, alternativly save it to window object
+     * 
      * @export
      */
-    ns.namespace('cache.storage.controller', Storage);
+    if (utils.isFunction(ns.namespace)) {
+        ns.namespace('cache.' + controllerType + '.controller', Storage);
+    } else {
+        ns[controllerType] = Storage;
+    }
 
 
-}(document, window.getNs())); // immediatly invoke function
+}(window, document)); // immediatly invoke function
 
 /*jslint unparam: true */
 /*global window, document*/
@@ -6090,11 +6106,12 @@
  * - handle logic to check for outdated data
  * 
  * @author Ulrich Merkel (hello@ulrichmerkel.com)
- * @version 0.1.7
+ * @version 0.1.9
  *
  * @namespace ns
  *
  * @changelog
+ * - 0.1.9 example added, refactoring
  * - 0.1.8 improved logging
  * - 0.1.7 bug fix isResourceValid, remove added, improvements for testing
  * - 0.1.6 improved namespacing
@@ -6109,13 +6126,49 @@
  * - http://www.winktoolkit.org/
  * - http://www.winktoolkit.org/documentation/symbols/wink.cache.html
  *
- * 
+ * @requires
+ * - ns.helpers.namespace
+ * - ns.helpers.utils
+ * - ns.helpers.dom
+ * - ns.helpers.client
  * 
  * @bugs
  * - 
  *
+ * @example
+ *
+ *      // init cache controller, this is also
+ *      // possible without the new operator
+ *      var cache = new app.cache.controller(function () 
+ *          // cache is ready to use        
+ *      });
+ *
+ *      // load resources
+ *      cache.load(
+ *          [
+ *              {url: "css/app.css", type: "css"},
+ *              {url: "js/lib.js", type: "js"},
+ *              {url: "js/plugin.js", type: "js", group: 1}
+ *          ],
+ *          function () {
+ *              // all resources loaded
+ *          }
+ *      );
+ *
+ *      // remove resources
+ *      cache.remove(
+ *          [
+ *              {url: "css/app.css", type: "css"},
+ *              {url: "js/lib.js", type: "js"}
+ *          ],
+ *          function () {
+ *              // all resources removed
+ *          }
+ *      );
+ *
+ *
  **/
-(function (window, document, ns, undefined) {
+(function (window, document, undefined) {
 
     'use strict';
 
@@ -6127,7 +6180,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * document and app are passed through as local
+     * window and document are passed through as local
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -6135,13 +6188,15 @@
      */
 
     // module vars
-    var controllerType = 'cache',                               // @type {string} The controller type string
-        helpers = ns.helpers,                                   // @type {object} Shortcut for ns.helper functions
-        dom = helpers.dom,                                      // @type {object} Shortcut for dom functions
-        utils = helpers.utils,                                  // @type {object} Shortcut for utils functions
-        client = helpers.client,                                // @type {object} Shortcut for client functions
-        log = utils.log,                                        // @type {function} Shortcut for utils.log function
-        checkCallback = utils.callback;                         // @type {function} Shortcut for utils.callback function
+    var controllerType = 'cache',                                   // @type {string} The controller type string
+        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
+        helpers = ns.helpers,                                       // @type {object} Shortcut for ns.helper functions
+        dom = helpers.dom,                                          // @type {object} Shortcut for dom functions
+        utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        client = helpers.client,                                    // @type {object} Shortcut for client functions
+        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        isArray = utils.isArray,                                    // @type {function} Shortcut for utils.isArray function
+        checkCallback = utils.callback;                             // @type {function} Shortcut for utils.callback function
 
 
     /**
@@ -6578,10 +6633,10 @@
                  * @param {array} resources All the given resources
                  * @param {function} callback The main callback function
                  */
-                init = function (resources, callback) {
+                start = function (resources, callback) {
 
                     // check load parameters
-                    if (!resources || !utils.isArray(resources)) {
+                    if (!resources || !isArray(resources)) {
                         resources = [];
                     }
                     resources = groupResources(resources);
@@ -6595,23 +6650,29 @@
 
 
             // start routine
-            init(resources, mainCallback);
+            start(resources, mainCallback);
 
 
         },
 
 
         /**
-         * load multiple resources
+         * remove multiple resources
          *
          * @param {array} resources The array with resource objects
-         * @param {function} mainCallback The callback after all resources are loaded
+         * @param {function} mainCallback The callback after all resources are removed
          */
         remove: function (resources, mainCallback) {
 
-            // init local vars
+            // declare remove vars and functions
             var self = this,
                 storage = self.storage,
+
+                 /**
+                 * remove functions are also saved in local vars rather than
+                 * saving them as controller instance functions (via this) for
+                 * faster access and better compression results.
+                 */
 
                 /**
                  * main remove function
@@ -6649,16 +6710,17 @@
 
                 },
 
+
                 /**
                  * init remove, check parameters
                  *
                  * @param {array} resources All the given resources
                  * @param {function} callback The main callback function
                  */
-                init = function (resources, callback) {
+                start = function (resources, callback) {
 
                     // check function parameters
-                    if (!resources || !utils.isArray(resources)) {
+                    if (!resources || !isArray(resources)) {
                         resources = [];
                     }
                     callback = checkCallback(mainCallback);
@@ -6671,7 +6733,7 @@
 
 
             // start routine
-            init(resources, mainCallback);
+            start(resources, mainCallback);
 
 
         },
@@ -6686,15 +6748,14 @@
         init: function (callback, parameters) {
 
             // init local vars
-            var self = this,
-                storage;
+            var self = this;
 
             // check callback function
             callback = checkCallback(callback);
 
             // init storage
             moduleLog('Cache initializing and checking for storage adapters');
-            storage = new ns.cache.storage.controller(function (storage) {
+            ns.cache.storage.controller(function (storage) {
 
                 self.storage = storage;
                 callback(storage);
@@ -6706,14 +6767,19 @@
 
 
     /**
-     * make cache controller globally available under app namespace
-     *
+     * make the storage constructor available for ns.cache.storage.adapter.webStorage()
+     * calls under the ns.cache namespace, alternativly save it to window object
+     * 
      * @export
      */
-    ns.namespace('cache.controller', Controller);
+    if (utils.isFunction(ns.namespace)) {
+        ns.namespace(controllerType + '.controller', Controller);
+    } else {
+        ns[controllerType] = Controller;
+    }
 
 
-}(window, document, window.getNs())); // immediatly invoke function
+}(window, document)); // immediatly invoke function
 
 /*jslint unparam: true */
 /*global window*/
