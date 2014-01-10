@@ -1,5 +1,4 @@
 //= require "_app/helpers/namespace.js"
-//= require "_app/helpers/error.js"
 //= require "_app/helpers/queue.js"
 //= require "_app/helpers/utils.js"
 //= require "_app/helpers/client.js"

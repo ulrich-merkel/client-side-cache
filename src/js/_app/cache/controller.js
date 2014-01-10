@@ -1,5 +1,4 @@
-/*jslint unparam: true */
-/*global window, document*/
+/*global window */
 
 /**
  * ns.cache.controller
@@ -72,7 +71,7 @@
  *
  *
  **/
-(function (window, document, undefined) {
+(function (window, undefined) {
 
     'use strict';
 
@@ -84,8 +83,8 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window and document are passed through as local
-     * variables rather than as globals, because this (slightly)
+     * window is passed through as local variable
+     * rather than as global, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
@@ -135,6 +134,11 @@
     function Controller(callback, parameters) {
 
         var self = this;
+
+        // ensure Controller was called as a constructor
+        if (!(self instanceof Controller)) {
+            return new Controller(callback, parameters);
+        }
 
         /**
          * @type {object} The storage controller instance
@@ -683,4 +687,4 @@
     }
 
 
-}(window, document)); // immediatly invoke function
+}(window)); // immediatly invoke function
