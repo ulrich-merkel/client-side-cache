@@ -72,7 +72,7 @@
  *
  *
  **/
-(function (window, undefined) {
+(function (window, ns, undefined) {
 
     'use strict';
 
@@ -84,7 +84,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window is passed through as local variable
+     * window and ns is passed through as local variable
      * rather than as global, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -93,7 +93,6 @@
 
     // module vars
     var controllerType = 'cache',                                   // @type {string} The controller type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         helpers = ns.helpers,                                       // @type {object} Shortcut for ns.helper functions
         dom = helpers.dom,                                          // @type {object} Shortcut for dom functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
@@ -582,7 +581,7 @@
                  * @param {array} resources All the given resources
                  * @param {function} callback The main callback function
                  */
-                start = function (resources, callback) {
+                main = function (resources, callback) {
 
                     // vars mainly for logging used
                     var resourcesLength,
@@ -605,7 +604,7 @@
 
 
             // start routine
-            start(resources, mainCallback);
+            main(resources, mainCallback);
 
 
         },
@@ -676,7 +675,7 @@
                  * @param {array} resources All the given resources
                  * @param {function} callback The main callback function
                  */
-                start = function (resources, callback) {
+                main = function (resources, callback) {
 
                     // check function parameters
                     if (!resources || !isArray(resources)) {
@@ -692,7 +691,7 @@
 
 
             // start routine
-            start(resources, mainCallback);
+            main(resources, mainCallback);
 
 
         },
@@ -738,4 +737,4 @@
     }
 
 
-}(window)); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function

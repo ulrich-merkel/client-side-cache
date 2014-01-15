@@ -1795,6 +1795,13 @@
  * - 0.1.1 bug fix xhr when trying to read binary data on ie
  * - 0.1 basic functions and structur
  *
+ * @see
+ * -
+ * 
+ * @requires
+ * - ns.helpers.utils
+ * - ns.helpers.client
+ * 
  * @bugs:
  * - append dynamic updated data when resource is already appended
  * - set media all for css, adjust createDomNode function for arguments
@@ -1871,7 +1878,7 @@
 
             /**
              * reset some private vars for testing
-             * mainly used for testing perposes
+             * mainly used for testing purposes
              *
              */
             nuke: function () {
@@ -2173,8 +2180,6 @@
              * @param {string} data The image data string (base64 encoded)
              * @param {function} callback The success function
              * @param {object} node The optional dom node element information object to append the data to
-             *
-             * @todo: check loaded, see imagesLoaded Remy Sharp
              */
             appendImg: function (url, data, callback, node) {
 
@@ -5167,11 +5172,16 @@
  * - http://www.html5rocks.com/en/tutorials/offline/storage/
  * - http://www.html5rocks.com/de/features/storage
  *
+ * @requires
+ * - ns.helpers.namespace
+ * - ns.helpers.utils
+ * - ns.helpers.client
+ * 
  * @bugs
  * - 
  * 
  */
-(function (window, document, undefined) {
+(function (window, document, ns, undefined) {
 
     'use strict';
 
@@ -5186,13 +5196,12 @@
      * window and document are passed through as local
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
-     * efficiently minified (especially when both are
-     * regularly referenced in this module).
+     * efficiently minified (especially regularly
+     * referenced in this module).
      */
 
     // module vars
     var controllerType = 'storage',                                 // @type {string} The controller type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
         client = helpers.client,                                    // @type {object} Shortcut for client functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
@@ -6133,7 +6142,7 @@
     }
 
 
-}(window, document)); // immediatly invoke function
+}(window, document, window.getNs())); // immediatly invoke function
 
 /*global window */
 
@@ -6209,7 +6218,7 @@
  *
  *
  **/
-(function (window, undefined) {
+(function (window, ns, undefined) {
 
     'use strict';
 
@@ -6221,7 +6230,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window is passed through as local variable
+     * window and ns is passed through as local variable
      * rather than as global, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -6230,7 +6239,6 @@
 
     // module vars
     var controllerType = 'cache',                                   // @type {string} The controller type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         helpers = ns.helpers,                                       // @type {object} Shortcut for ns.helper functions
         dom = helpers.dom,                                          // @type {object} Shortcut for dom functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
@@ -6719,7 +6727,7 @@
                  * @param {array} resources All the given resources
                  * @param {function} callback The main callback function
                  */
-                start = function (resources, callback) {
+                main = function (resources, callback) {
 
                     // vars mainly for logging used
                     var resourcesLength,
@@ -6742,7 +6750,7 @@
 
 
             // start routine
-            start(resources, mainCallback);
+            main(resources, mainCallback);
 
 
         },
@@ -6813,7 +6821,7 @@
                  * @param {array} resources All the given resources
                  * @param {function} callback The main callback function
                  */
-                start = function (resources, callback) {
+                main = function (resources, callback) {
 
                     // check function parameters
                     if (!resources || !isArray(resources)) {
@@ -6829,7 +6837,7 @@
 
 
             // start routine
-            start(resources, mainCallback);
+            main(resources, mainCallback);
 
 
         },
@@ -6875,7 +6883,7 @@
     }
 
 
-}(window)); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function
 
 /*jslint unparam: true */
 /*global window*/

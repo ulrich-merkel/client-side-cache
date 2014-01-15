@@ -21,6 +21,13 @@
  * - 0.1.1 bug fix xhr when trying to read binary data on ie
  * - 0.1 basic functions and structur
  *
+ * @see
+ * -
+ * 
+ * @requires
+ * - ns.helpers.utils
+ * - ns.helpers.client
+ * 
  * @bugs:
  * - append dynamic updated data when resource is already appended
  * - set media all for css, adjust createDomNode function for arguments
@@ -97,7 +104,7 @@
 
             /**
              * reset some private vars for testing
-             * mainly used for testing perposes
+             * mainly used for testing purposes
              *
              */
             nuke: function () {
@@ -399,8 +406,6 @@
              * @param {string} data The image data string (base64 encoded)
              * @param {function} callback The success function
              * @param {object} node The optional dom node element information object to append the data to
-             *
-             * @todo: check loaded, see imagesLoaded Remy Sharp
              */
             appendImg: function (url, data, callback, node) {
 

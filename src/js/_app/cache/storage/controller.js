@@ -31,11 +31,16 @@
  * - http://www.html5rocks.com/en/tutorials/offline/storage/
  * - http://www.html5rocks.com/de/features/storage
  *
+ * @requires
+ * - ns.helpers.namespace
+ * - ns.helpers.utils
+ * - ns.helpers.client
+ * 
  * @bugs
  * - 
  * 
  */
-(function (window, document, undefined) {
+(function (window, document, ns, undefined) {
 
     'use strict';
 
@@ -50,13 +55,12 @@
      * window and document are passed through as local
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
-     * efficiently minified (especially when both are
-     * regularly referenced in this module).
+     * efficiently minified (especially regularly
+     * referenced in this module).
      */
 
     // module vars
     var controllerType = 'storage',                                 // @type {string} The controller type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
         client = helpers.client,                                    // @type {object} Shortcut for client functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
@@ -997,4 +1001,4 @@
     }
 
 
-}(window, document)); // immediatly invoke function
+}(window, document, window.getNs())); // immediatly invoke function
