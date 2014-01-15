@@ -16,12 +16,13 @@
  *      - Maxthon 4.0.5 +
  *      - Seamonkey 2.15 +
  * 
- * @version 0.1.4
+ * @version 0.1.5
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.5 bug fix remove function
  * - 0.1.4 example doc added
  * - 0.1.3 improved namespacing
  * - 0.1.2 several fixes for indexedDB.open for non-standard browsers
@@ -241,6 +242,9 @@
          */
         read: function (key, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+
             // init local vars
             var self = this,
                 dbTable = self.dbTable,
@@ -316,8 +320,7 @@
                 dbTable = self.dbTable,
                 dbName = self.dbName,
                 transaction = self.adapter.transaction([dbTable], 'readwrite'),
-                objectStore = transaction.objectStore(dbTable),
-                request = objectStore(dbTable).put({
+                request = transaction.objectStore(dbTable).put({
                     key: key,
                     content: ''
                 });
@@ -358,6 +361,27 @@
                 dbName = self.dbName,
                 dbTable = self.dbTable,
 
+                createTestResource = function (currentAdapter) {
+
+                    if (!currentAdapter) {
+                        callback(false);
+                    }
+
+                    // create test item
+                    moduleLog('Try to create test resource');
+                    self.create('test-item', '{test: "test-content"}', function (success) {
+                        if (!!success) {
+                            self.remove('test-item', function () {
+                                moduleLog('Test resource created and successfully deleted');
+                                callback(currentAdapter);
+                                return;
+                            });
+                        } else {
+                            callback(false);
+                        }
+
+                    });
+                },
                 onsuccess,
                 onupgradeneeded,
                 onerror,
@@ -431,7 +455,11 @@
                         };
 
                     } else {
-                        callback(db);
+
+                        // hack: self.adapter isn't initialized above with empty callback due to async behaviour
+                        self.adapter = db;
+
+                        createTestResource(db);
                     }
                 };
 
@@ -496,7 +524,7 @@
                 request.onblocked = onblocked;
 
             } else {
-                callback(self.adapter);
+                createTestResource(self.adapter);
             }
         },
 

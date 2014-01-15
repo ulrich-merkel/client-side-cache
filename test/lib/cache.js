@@ -1041,8 +1041,7 @@
                     },
                     getExtension = function (urlString) {
                         var extension = urlString.split('.');
-
-                        return extension.length ? extension[extension.length - 1] : false;
+                        return extension[extension.length - 1];
                     },
                     pathname;
 
@@ -1089,21 +1088,15 @@
                     pair = vars[i].split('=');
 
                     if (query_string[pair[0]] === undefined) {
-
                         // if first entry with this name
                         query_string[pair[0]] = pair[1];
-
                     } else if (typeof query_string[pair[0]] === 'string') {
-
                         // if second entry with this name
                         arr = [query_string[pair[0]], pair[1]];
                         query_string[pair[0]] = arr;
-
                     } else {
-
                         // if third or later entry with this name
                         query_string[pair[0]].push(pair[1]);
-
                     }
 
                 }

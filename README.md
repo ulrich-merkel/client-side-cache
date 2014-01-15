@@ -16,7 +16,12 @@ There are five storage adapters available. These are **File System**, **Indexed 
 The offline application cache differs from the usage of the other four. Due to it's different javascript api and idea of how to store data, you are just able to listen to the events this kind of storage fires.
 
 ### Demo ####
+
 If you just want to see a working demo, open the generated index.html **/example/index.html** file in your browser. You need to run this file in a webserver to make shure the ajax calls are working. You will find the latest javascript caching functions in **/build/cache.js**.
+
+### Tests ###
+
+I've included some basic jasmine tests **/test/jasmine.html**. You need to run this file in a webserver to make shure the ajax calls are working.
 
 ### Project Installation ####
 
@@ -53,18 +58,23 @@ Below you will find a combined example of how you can initialize local caching i
         	<title>Client side caching</title>
     	</head>
    	 	<body>
-			...
+   
+			<!-- some html content ... -->
+
 			<script src="js/cache.js" type="text/javascript"></script>
 			<script>
 				// load additional resources on window load
         		window.addEventListener('load', function () {
+        		
             		app.cache.load([
             			{url: "css/app.css", type: "css"},
             			{url: "js/lib.js", type: "js"},
             			{url: "js/plugin.js", type: "js", group: 1}
         			]);
+        			
         		});
 			</script>
+	
     	</body>
 		</html>
 	

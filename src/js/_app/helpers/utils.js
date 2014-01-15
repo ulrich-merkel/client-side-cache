@@ -704,6 +704,11 @@
                             result = url.substr(0, index + 1);
                         return result;
                     },
+                    getExtension = function (urlString) {
+                        var extension = urlString.split('.');
+
+                        return extension.length ? extension[extension.length - 1] : false;
+                    },
                     pathname;
 
                 // set props
@@ -720,6 +725,7 @@
                     file: pathname ? pathname[1] : '/',
                     hash: a.hash,
                     path: a.pathname.replace(/^([^\/])/, '/$1'),
+                    extension: getExtension(url),
                     folder: getFolder()
                 };
             },
@@ -748,15 +754,21 @@
                     pair = vars[i].split('=');
 
                     if (query_string[pair[0]] === undefined) {
+
                         // if first entry with this name
                         query_string[pair[0]] = pair[1];
+
                     } else if (typeof query_string[pair[0]] === 'string') {
+
                         // if second entry with this name
                         arr = [query_string[pair[0]], pair[1]];
                         query_string[pair[0]] = arr;
+
                     } else {
+
                         // if third or later entry with this name
                         query_string[pair[0]].push(pair[1]);
+
                     }
 
                 }

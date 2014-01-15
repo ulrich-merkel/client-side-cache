@@ -96,10 +96,11 @@
         return {
 
             /**
-             * access to some private vars for testing
+             * reset some private vars for testing
+             * mainly used for testing perposes
              *
              */
-            _destroy: function () {
+            nuke: function () {
                 privateAppendedCss = [];
                 privateAppendedJs = [];
                 privateAppendedImg = [];

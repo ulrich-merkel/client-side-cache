@@ -9,14 +9,15 @@
  * - handle logic to check for outdated data
  * 
  * @author Ulrich Merkel (hello@ulrichmerkel.com)
- * @version 0.1.9
+ * @version 0.2.0
  *
  * @namespace ns
  *
  * @changelog
+ * - 0.2.0 guessResourceType added
  * - 0.1.9 example added, refactoring
  * - 0.1.8 improved logging
- * - 0.1.7 bug fix isResourceValid, remove added, improvements for testing
+ * - 0.1.7 bug fix isResourceValid, remove interface added, improvements for testing
  * - 0.1.6 improved namespacing
  * - 0.1.5 separated check for outdated data in new isResourceValid function, resource loaded callback param added
  * - 0.1.4 refactoring
@@ -117,6 +118,41 @@
         log('[' + controllerType + ' controller] ' + message);
     }
 
+
+    /**
+     * try to guess file extension
+     *
+     * @param {string} url The resource url
+     *
+     * @return {string} The parsed resource type
+     */
+    function guessResourceType(url) {
+
+        var extension = utils.url(url).extension;
+
+        switch (extension) {
+        case 'js':
+            extension = 'js';
+            break;
+        case 'css':
+            extension = 'css';
+            break;
+        case 'html':
+            extension = 'html';
+            break;
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+            extension = 'img';
+            break;
+        default:
+            extension = 'custom';
+            break;
+        }
+
+        return extension;
+
+    }
 
     /**
      * -------------------------------------------
@@ -430,6 +466,10 @@
                         // check resource and load it
                         resource = group[i];
                         if (resource && resource.url) {
+                            // guess resource type if not set
+                            if (!resource.type) {
+                                resource.type = guessResourceType(resource.url);
+                            }
                             loadResource(resource);
                         }
 
@@ -475,12 +515,13 @@
                             // select according group
                             group = result[resourceGroup];
                         } else {
-                            // set new group and content to new array
+                            // create new group and content to new array
                             group = result[resourceGroup] = [];
                         }
 
                         // push resource into group
                         group.push(resource);
+
                     }
 
                     // return group sorted array
@@ -543,15 +584,21 @@
                  */
                 start = function (resources, callback) {
 
+                    // vars mainly for logging used
+                    var resourcesLength,
+                        resourcesGroupLength;
+
                     // check load parameters
                     if (!resources || !isArray(resources)) {
                         resources = [];
                     }
+                    resourcesLength = resources.length;
                     resources = groupResources(resources);
                     callback = checkCallback(mainCallback);
+                    resourcesGroupLength = resources.length;
 
                     // call main load function to start the process
-                    moduleLog('Load resource function called: resources count ' + resources.length);
+                    moduleLog('Load resource function called: ' + resourcesLength + ' resources, ' + resourcesGroupLength + ' groups');
                     load(resources, callback);
 
                 };
@@ -610,7 +657,11 @@
 
                         // remove each resource if it is a valid array entry
                         resource = resources[i];
-                        if (resource) {
+                        if (resource && resource.url) {
+                            // guess resource type if not set
+                            if (!resource.type) {
+                                resource.type = guessResourceType(resource.url);
+                            }
                             storage.remove(resource, resourceRemovedCallback(i, resource.url));
                         }
 

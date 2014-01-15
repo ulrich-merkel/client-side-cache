@@ -31,6 +31,8 @@
  * - http://www.html5rocks.com/de/tutorials/file/filesystem/
  * - http://updates.html5rocks.com/2011/08/Debugging-the-Filesystem-API
  * - https://github.com/brianleroux/lawnchair/blob/master/src/adapters/html5-filesystem.js
+ * - https://developer.mozilla.org/en-US/docs/WebGuide/API/File_System/Introduction
+ * - https://developer.mozilla.org/en-US/docs/Web/API/LocalFileSystem
  *
  * @requires
  * - ns.helpers.utils
@@ -141,25 +143,49 @@
         var msg = '',
             code = e.name || e.message || e.code;
 
-        switch (code) {
-        case FileError.QUOTA_EXCEEDED_ERR:
-            msg = 'Event: QUOTA_EXCEEDED_ERR';
-            break;
-        case FileError.NOT_FOUND_ERR:
-            msg = 'Event: NOT_FOUND_ERR, file does not exist';
-            break;
-        case FileError.SECURITY_ERR:
-            msg = 'Event: SECURITY_ERR';
-            break;
-        case FileError.INVALID_MODIFICATION_ERR:
-            msg = 'Event: INVALID_MODIFICATION_ERR';
-            break;
-        case FileError.INVALID_STATE_ERR:
-            msg = 'Event: INVALID_STATE_ERR';
-            break;
-        default:
-            msg = 'Event: Unknown Error';
-            break;
+        /**
+         * @see https://developer.mozilla.org/en-US/docs/Web/API/FileError
+         */
+        if (FileError) {
+            switch (code) {
+            case FileError.ENCODING_ERR:
+                msg = 'Error Event: ENCODING_ERR';
+                break;
+            case FileError.INVALID_MODIFICATION_ERR:
+                msg = 'Error Event: INVALID_MODIFICATION_ERR';
+                break;
+            case FileError.INVALID_STATE_ERR:
+                msg = 'Error Event: INVALID_STATE_ERR';
+                break;
+            case FileError.NO_MODIFICATION_ALLOWED_ERR:
+                msg = 'Error Event: NO_MODIFICATION_ALLOWED_ERR';
+                break;
+            case FileError.NOT_FOUND_ERR:
+            case 'NotFoundError':
+                // string error added for newest crome  31.0.1650.57
+                msg = 'Error Event: NOT_FOUND_ERR';
+                break;
+            case FileError.NOT_READABLE_ERR:
+                msg = 'Error Event: NOT_READABLE_ERR';
+                break;
+            case FileError.PATH_EXISTS_ERR:
+                msg = 'Error Event: PATH_EXISTS_ERR';
+                break;
+            case FileError.QUOTA_EXCEEDED_ERR:
+                msg = 'Error Event: QUOTA_EXCEEDED_ERR';
+                break;
+            case FileError.SECURITY_ERR:
+                msg = 'Error Event: SECURITY_ERR';
+                break;
+            case FileError.TYPE_MISMATCH_ERR:
+                msg = 'Error Event: TYPE_MISMATCH_ERR';
+                break;
+            default:
+                msg = 'Error Event: Unknown Error';
+                break;
+            }
+        } else {
+            msg = 'Error Event: Unknown Error, no FileError available';
         }
 
         // log message string
@@ -434,6 +460,9 @@
          */
         read: function (key, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+
             // init local function vars
             var adapter = this.adapter,
                 errorHandler = function (e) {
@@ -494,15 +523,15 @@
          */
         remove: function (key, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+
             // init local function vars
             var adapter = this.adapter,
                 errorHandler = function (e) {
                     handleStorageEvents(e);
                     callback(false, e);
                 };
-
-            // check params
-            callback = checkCallback(callback);
 
             // check directory exists
             checkDirectory(adapter, key, function () {
@@ -531,6 +560,7 @@
          * @return {this} The instance if supported or false
          */
         init: function (parameters) {
+    
             // init local vars
             var self = this;
 

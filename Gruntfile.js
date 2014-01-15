@@ -80,6 +80,7 @@ module.exports = function (grunt) {
                 files: [
                     { expand: true, flatten: true, src: ["src/js/cache.js"], dest: "example/js/" },
                     { expand: true, flatten: true, src: ["src/js/cache.js"], dest: "build/" },
+                    { expand: true, flatten: true, src: ["src/js/cache.js"], dest: "test/lib/" },
                     { expand: true, flatten: true, src: ["src/js/lib.js"], dest: "example/js/" },
                     { expand: true, flatten: true, src: ["src/js/app.js"], dest: "example/js/" }
                 ]

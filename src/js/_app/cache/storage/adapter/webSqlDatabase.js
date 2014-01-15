@@ -13,12 +13,13 @@
  *      - iOs 6.1 + (3.2)
  *      - Android 2.1 +
  *
- * @version 0.1.6
+ * @version 0.1.7
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.7 read bug fix with non-existing resource
  * - 0.1.6 example doc added
  * - 0.1.5 improved namespacing
  * - 0.1.4 improved namespacing
@@ -303,12 +304,15 @@
          */
         read: function (key, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+
             // init vars and read success callback
             var self = this,
                 sqlSuccess = function (transaction, data) {
 
                     // parse item data
-                    var content = null;
+                    var content = false;
                     if (data && data.rows && (data.rows.length === 1)) {
                         content = data.rows.item(0).content;
                     }
@@ -416,6 +420,33 @@
 
 
                 /**
+                 * try to create test resource
+                 *
+                 * @param {object} currentAdapter The current self.adapter via callback argument
+                 */
+                createTestResource = function (currentAdapter) {
+
+                    if (!currentAdapter) {
+                        callback(false);
+                    }
+
+                    // create test item
+                    moduleLog('Try to create test resource');
+                    self.create('test-item', '{test: "test-content"}', function (success) {
+                        if (!!success) {
+                            self.remove('test-item', function () {
+                                moduleLog('Test resource created and successfully deleted');
+                                callback(currentAdapter);
+                                return;
+                            });
+                        } else {
+                            callback(false);
+                        }
+
+                    });
+                },
+
+                /**
                  * sql helper function to create table if not exists
                  *
                  * @param {object} currentAdapter The currently initialized adapter
@@ -427,11 +458,11 @@
                         'CREATE TABLE IF NOT EXISTS ' + self.dbTable + '(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, key TEXT NOT NULL UNIQUE, content TEXT NOT NULL);',
                         [],
                         function () {
-                            callback(currentAdapter);
+                            createTestResource(currentAdapter);
                         },
                         function (e) {
                             handleStorageEvents(e);
-                            callback(false);
+                            createTestResource(false);
                         },
                         transaction
                     );
@@ -502,7 +533,7 @@
                 } else if (self.isSupported()) {
 
                     // db already initialized
-                    callback(adapter);
+                    createTestResource(adapter);
 
                 }
             } catch (e) {

@@ -1,4 +1,4 @@
-/*global describe, it, waitsFor, runs, expect, app*/
+/*global describe, it, waitsFor, runs, expect, app, afterEach, $, window, console*/
 /*jslint unparam: true */
 
 describe('Cache Controller Advanced Load', function () {
@@ -6,11 +6,11 @@ describe('Cache Controller Advanced Load', function () {
     'use strict';
 
     afterEach(function () {
-    
+
         var ready = false;
-    
+
         runs(function () {
-            app.helpers.dom._destroy();
+            app.helpers.dom.nuke();
             $('#test-node-script').empty();
             $('#test-node-style').empty();
             $('#test-node-img').removeAttr('src');
@@ -21,26 +21,26 @@ describe('Cache Controller Advanced Load', function () {
                 ready = true;
             }
         });
-    
-        waitsFor(function(){
+
+        waitsFor(function () {
             return !!ready;
         }, 'reset cache and objects', 1000);
-    
+
     });
 
 
     it('Call load with css (url, type), js (url, type), img (url, type), html (url, type) - check load callback function', function () {
-    
+
         var instance,
             cache = new app.cache.controller(function (callbackObject) {
                 instance = callbackObject;
             }),
             loadCallback;
-    
+
         waitsFor(function () {
             return instance !== undefined;
         }, 'cache.storage initialized', 1000);
-    
+
         runs(function () {
             cache.load([
                 {url: "../srccss/app.css", type: "css"},
@@ -51,32 +51,33 @@ describe('Cache Controller Advanced Load', function () {
                 loadCallback = 'success';
             });
         });
-        
+
         waitsFor(function () {
             return loadCallback !== undefined;
         }, 'cache.storage initialized', 1000);
-        
+
         runs(function () {
             expect(loadCallback).toEqual('success');
         });
+
     });
 
     it('Call load with js (url, type) - check group loading order', function () {
-    
+
         var instance,
             cache = new app.cache.controller(function (callbackObject) {
                 instance = callbackObject;
             }),
             loadCallback;
-    
+
         waitsFor(function () {
             return instance !== undefined;
         }, 'cache.storage initialized', 1000);
-    
+
         runs(function () {
             cache.load([
-				{url: "../src/js/_lib/vendor/jquery-1.8.3.js", type: "js"},
-				{url: "../src/js/_lib/utils/jquery.reveal.js", type: "js", group: 1}
+                {url: "../src/js/_lib/vendor/jquery-1.8.3.js", type: "js"},
+                {url: "../src/js/_lib/utils/jquery.reveal.js", type: "js", group: 1}
             ], function () {
                 loadCallback = 'success';
             });
@@ -85,29 +86,30 @@ describe('Cache Controller Advanced Load', function () {
         waitsFor(function () {
             return loadCallback !== undefined;
         }, 'cache.storage initialized', 1000);
-        
+
         runs(function () {
             var jquery = !!window.jQuery;
             expect(jquery).toEqual(true);
         });
+
     });
 
     it('Call load with js (url, type) - check gaps in group loading order', function () {
-    
+
         var instance,
             cache = new app.cache.controller(function (callbackObject) {
                 instance = callbackObject;
             }),
             loadCallback;
-    
+
         waitsFor(function () {
             return instance !== undefined;
         }, 'cache.storage initialized', 1000);
-    
+
         runs(function () {
             cache.load([
-				{url: "../src/js/_lib/vendor/jquery-1.8.3.js", type: "js"},
-				{url: "../src/js/_lib/utils/jquery.reveal.js", type: "js", group: 15},
+                {url: "../src/js/_lib/vendor/jquery-1.8.3.js", type: "js"},
+                {url: "../src/js/_lib/utils/jquery.reveal.js", type: "js", group: 15},
                 {url: "../src/js/_lib/polyfill/matchmedia.js", type: "js", group: 40}
             ], function () {
                 loadCallback = 'success';
@@ -117,30 +119,31 @@ describe('Cache Controller Advanced Load', function () {
         waitsFor(function () {
             return loadCallback !== undefined;
         }, 'cache.storage initialized', 1000);
-        
+
         runs(function () {
             var jquery = !!window.matchMedia;
             expect(jquery).toEqual(true);
         });
+
     });
 
     it('Call load with js (url, type) - check lifetime 0', function () {
-    
+
         var instance,
             cache = new app.cache.controller(function (callbackObject) {
-				console.log(callbackObject);
                 instance = callbackObject;
             }),
             compare = new Date().getTime(),
             resourceExpires,
             loadCallback;
-    
+
         waitsFor(function () {
             return instance !== undefined;
         }, 'cache.storage initialized', 1000);
+
         runs(function () {
             cache.load([
-				{url: "../src/js/_lib/utils/jquery.imagesLoaded.js", lifetime: 0, type: "js", loaded: function (resource) {
+                {url: "../src/js/_lib/utils/jquery.imagesLoaded.js", lifetime: 0, type: "js", loaded: function (resource) {
                     resourceExpires = resource.expires;
                 }}
             ], function () {
@@ -151,22 +154,23 @@ describe('Cache Controller Advanced Load', function () {
         waitsFor(function () {
             return loadCallback !== undefined;
         }, 'cache.storage initialized', 1000);
-        
+
         runs(function () {
             var check = !!instance.isEnabled ? compare < resourceExpires : true;
             expect(check).toEqual(true);
         });
+
     });
 
     it('Call load with js (url, type) - check lifetime -1', function () {
-    
+
         var instance,
             cache = new app.cache.controller(function (callbackObject) {
                 instance = callbackObject;
             }),
             resourceIsValid,
             loadCallback;
-    
+
         waitsFor(function () {
             return instance !== undefined;
         }, 'cache.storage initialized', 1000);
@@ -174,7 +178,7 @@ describe('Cache Controller Advanced Load', function () {
         // make sure item is in cache
         runs(function () {
             cache.load([
-				{url: "../src/js/_lib/utils/jquery.pubsub.js", lifetime: -1, type: "js"}
+                {url: "../src/js/_lib/utils/jquery.pubsub.js", lifetime: -1, type: "js"}
             ], function () {
                 loadCallback = 'success';
             });
@@ -187,8 +191,8 @@ describe('Cache Controller Advanced Load', function () {
         // check validation
         runs(function () {
             cache.load([
-				{url: "../src/js/_lib/utils/jquery.pubsub.js", lifetime: -1, type: "js", loaded: function (resource) {
-					resourceIsValid = !!instance.isEnabled ? !!resource.isValid : true;
+                {url: "../src/js/_lib/utils/jquery.pubsub.js", lifetime: -1, type: "js", loaded: function (resource) {
+                    resourceIsValid = !!instance.isEnabled ? !!resource.isValid : true;
                 }}
             ], function () {
                 loadCallback = 'success1';
@@ -198,14 +202,15 @@ describe('Cache Controller Advanced Load', function () {
         waitsFor(function () {
             return loadCallback === "success1";
         }, 'cache.storage initialized', 1000);
-        
+
         runs(function () {
             expect(resourceIsValid).toEqual(true);
         });
+
     });
 
     it('Call load with js (url, type) - check version change', function () {
-    
+
         var instance,
             cache = new app.cache.controller(function (callbackObject) {
                 instance = callbackObject;
@@ -215,14 +220,14 @@ describe('Cache Controller Advanced Load', function () {
             resourceExpires1,
             resourceExpires2,
             loadCallback;
-    
+
         waitsFor(function () {
             return instance !== undefined;
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
             cache.remove([
-				{url: "../src/js/_lib/mobile/fastclick.js", type: "js"}
+                {url: "../src/js/_lib/mobile/fastclick.js", type: "js"}
             ], function () {
                 loadCallback = 'deleted';
             });
@@ -234,7 +239,7 @@ describe('Cache Controller Advanced Load', function () {
 
         runs(function () {
             cache.load([
-				{url: "../src/js/_lib/mobile/fastclick.js", type: "js", loaded: function (resource) {
+                {url: "../src/js/_lib/mobile/fastclick.js", type: "js", loaded: function (resource) {
                     resourceVersion1 = !!instance.isEnabled ? resource.version : true;
                     resourceExpires1 = !!instance.isEnabled ? resource.expires : true;
                 }}
@@ -266,14 +271,15 @@ describe('Cache Controller Advanced Load', function () {
 
         runs(function () {
             var check =
-				(!!instance.isEnabled ? parseFloat(resourceVersion1) < parseFloat(resourceVersion2) : true) &&
-				(!!instance.isEnabled ? resourceExpires1 < resourceExpires2 : true);
+                (!!instance.isEnabled ? parseFloat(resourceVersion1) < parseFloat(resourceVersion2) : true) &&
+                (!!instance.isEnabled ? resourceExpires1 < resourceExpires2 : true);
             expect(check).toEqual(true);
         });
+
     });
 
     it('Call load with js (url, type) - check lastmod change', function () {
-    
+
         var instance,
             cache = new app.cache.controller(function (callbackObject) {
                 instance = callbackObject;
@@ -281,14 +287,14 @@ describe('Cache Controller Advanced Load', function () {
             resourceLastmod1,
             resourceLastmod2,
             loadCallback;
-    
+
         waitsFor(function () {
             return instance !== undefined;
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
             cache.remove([
-				{url: "../src/js/_lib/mobile/fastclick.js", type: "js"}
+                {url: "../src/js/_lib/mobile/fastclick.js", type: "js"}
             ], function () {
                 loadCallback = 'deleted';
             });
@@ -300,7 +306,7 @@ describe('Cache Controller Advanced Load', function () {
 
         runs(function () {
             cache.load([
-				{url: "../src/js/_lib/mobile/fastclick.js", type: "js", lastmod: 1387414672021, loaded: function (resource) {
+                {url: "../src/js/_lib/mobile/fastclick.js", type: "js", lastmod: 1387414672021, loaded: function (resource) {
                     resourceLastmod1 = resource.lastmod;
                 }}
             ], function () {
@@ -332,5 +338,6 @@ describe('Cache Controller Advanced Load', function () {
             var check = resourceLastmod1 < resourceLastmod2;
             expect(check).toEqual(true);
         });
+
     });
 });
