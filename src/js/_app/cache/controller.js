@@ -108,6 +108,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -117,6 +119,7 @@
         log('[' + controllerType + ' controller] ' + message);
     }
 
+    /* end-dev-block */
 
     /**
      * try to guess file extension
@@ -417,7 +420,9 @@
                          * created then - it just returns the data via xhr.
                          */
                         if (!item || !item.data) {
+                            /* start-dev-block */
                             moduleLog('Resource or resource data is not available in storage adapter: type ' + resource.type + ', url ' + resource.url);
+                            /* end-dev-block */
                             storage.create(resource, callback);
                             return;
                         }
@@ -425,10 +430,14 @@
                         // check for outdated data and network connection
                         resource = isResourceValid(resource, item);
                         if (resource.isValid || !client.isOnline()) {
+                            /* start-dev-block */
                             moduleLog('Resource is up to date: type ' + resource.type + ', url ' + resource.url);
+                            /* end-dev-block */
                             data = item.data;
                         } else {
+                            /* start-dev-block */
                             moduleLog('Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
+                            /* end-dev-block */
                             storage.update(resource, callback);
                             return;
                         }
@@ -597,7 +606,9 @@
                     resourcesGroupLength = resources.length;
 
                     // call main load function to start the process
+                    /* start-dev-block */
                     moduleLog('Load resource function called: ' + resourcesLength + ' resources, ' + resourcesGroupLength + ' groups');
+                    /* end-dev-block */
                     load(resources, callback);
 
                 };
@@ -640,7 +651,9 @@
                         i,
                         resource,
                         resourceRemovedCallback = function (current, url) {
+                            /* start-dev-block */
                             moduleLog('Successfully removed resource: url ' + url);
+                            /* end-dev-block */
                             if (current === length - 1) {
                                 callback();
                             }
@@ -684,7 +697,9 @@
                     callback = checkCallback(mainCallback);
 
                     // call main load function to start the process
+                    /* start-dev-block */
                     moduleLog('Remove resource function called: resources count ' + resources.length);
+                    /* end-dev-block */
                     remove(resources, callback);
 
                 };
@@ -712,7 +727,9 @@
             callback = checkCallback(callback);
 
             // init storage
+            /* start-dev-block */
             moduleLog('Cache initializing and checking for storage adapters');
+            /* end-dev-block */
             ns.cache.storage.controller(function (storage) {
 
                 self.storage = storage;

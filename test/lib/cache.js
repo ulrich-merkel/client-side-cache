@@ -68,7 +68,6 @@
     var namespaceName = 'app',                                  // @type {string} The name of the global javascript namespace (directly accessable via window)
         ns;                                                     // @type {object} The current global window namespace object
 
-
     /**
      * create global window namespace as object
      *
@@ -1221,14 +1220,14 @@
  *
  * @example
  *
- *		// check for isiOS devices
- *		var isIOS = app.helpers.client.isiOS();
+ *        // check for isiOS devices
+ *        var isIOS = app.helpers.client.isiOS();
  *
- *		// check for isiOS devices
- * 		var browserVersion = app.helpers.client.getBrowserVersion();
+ *        // check for isiOS devices
+ *         var browserVersion = app.helpers.client.getBrowserVersion();
  *
- * 		// for the complete list of available methods
- *		// please take a look at the @interface below
+ *         // for the complete list of available methods
+ *        // please take a look at the @interface below
  *
  *
  */
@@ -1320,16 +1319,16 @@
         }
 
 
-		/**
-		 * bind event to orientation change and make sure
-		 * it is bound only once
-		 */
-		function bindOrientationChange() {
-			 if (!privateDetectOrientationBound) {
+        /**
+         * bind event to orientation change and make sure
+         * it is bound only once
+         */
+        function bindOrientationChange() {
+            if (!privateDetectOrientationBound) {
                 on(window, 'orientationchange', detectOrientation);
                 privateDetectOrientationBound = true;
             }
-		}
+        }
 
 
         /**
@@ -1342,6 +1341,7 @@
             }
         }
 
+        /* start-dev-block */
 
         /**
          * check for ios browser
@@ -1357,7 +1357,7 @@
         function checkIfIsAndroid() {
             privateIsAndroid = uaLowerCase.match(/(android)/) !== null;
             if (privateIsAndroid) {
-               bindOrientationChange();
+                bindOrientationChange();
             }
         }
 
@@ -1368,10 +1368,11 @@
         function checkIfIsBlackberry() {
             privateIsBlackberry = uaLowerCase.match(/(blackberry)/) !== null;
             if (privateIsBlackberry) {
-				bindOrientationChange();
+                bindOrientationChange();
             }
         }
 
+        /* end-test-block */
 
         /**
          * check for opera browser
@@ -1380,6 +1381,7 @@
             privateIsOpera = uaLowerCase.match(/(opera)/) !== null;
         }
 
+        /* start-dev-block */
 
         /**
          * check for chrome browser
@@ -1420,6 +1422,7 @@
             privateIsCamino = uaLowerCase.match(/(camino)/) !== null;
         }
 
+        /* end-dev-block */
 
         /**
          * check for microsoft internet explorer
@@ -1428,6 +1431,7 @@
             privateIsMsie = uaLowerCase.match(/(msie)/) !== null;
         }
 
+        /* start-dev-block */
 
         /**
          * check for ios browser
@@ -1450,6 +1454,7 @@
             }
         }
 
+        /* end-dev-block */
 
         /**
          * detect mobile browsers
@@ -1459,14 +1464,15 @@
         function checkIfIsMobileBrower() {
 
             if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(uaLowerCase)
-                || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(uaLowerCase.substr(0, 4))) {
+                    || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(uaLowerCase.substr(0, 4))) {
                 privateIsMobileBrowser = true;
                 bindOrientationChange();
             } else {
-				privateIsMobileBrowser = false;
-			}
+                privateIsMobileBrowser = false;
+            }
         }
 
+        /* start-dev-block */
 
         /**
          * check for browser version
@@ -1488,19 +1494,20 @@
          * check for ios version
          */
         function checkiOSVersion() {
-			if (privateIsiOS === undefined) {
-				checkIfIsiOS();
-			}
-        	
-        	if (privateIsiOS) {
+            if (privateIsiOS === undefined) {
+                checkIfIsiOS();
+            }
 
-        		// supports iOS 2.0 and later: <http://bit.ly/TJjs1V>
-        		var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+            if (privateIsiOS) {
 
-        		privateIOSVersion = [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
-        	}
+                // supports iOS 2.0 and later: <http://bit.ly/TJjs1V>
+                var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+
+                privateIOSVersion = [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+            }
         }
 
+        /* end-dev-block */
 
         /**
          * check for browser online state
@@ -1514,6 +1521,7 @@
             privateIsOnline = navigator.onLine !== undefined ? !!navigator.onLine : true;
         }
 
+        /* start-dev-block */
 
         /**
          * check for network information
@@ -1539,6 +1547,7 @@
             detectNetwork();
         }
 
+        /* end-dev-block */
 
         /**
          * public functions
@@ -1554,6 +1563,8 @@
                 }
                 return privateIsiOS;
             },
+
+            /* start-dev-block */
 
             // is webkit
             isWebkit: function () {
@@ -1587,6 +1598,8 @@
                 return privateIsChrome;
             },
 
+            /* end-dev-block */
+
             // is opera
             isOpera: function () {
                 if (privateIsOpera === undefined) {
@@ -1594,6 +1607,8 @@
                 }
                 return privateIsOpera;
             },
+
+            /* start-dev-block */
 
             // is safari
             isSafari: function () {
@@ -1627,6 +1642,8 @@
                 return privateIsCamino;
             },
 
+            /* end-dev-block */
+
             // is microsoft internet explorer
             isMsie: function () {
                 if (privateIsMsie === undefined) {
@@ -1634,6 +1651,8 @@
                 }
                 return privateIsMsie;
             },
+
+            /* start-dev-block */
 
             // is apple ipad
             isiPad: function () {
@@ -1651,6 +1670,8 @@
                 return privateIsiPhone;
             },
 
+            /* end-dev-block */
+
             // is mobile
             isMobile: function () {
                 if (privateIsMobileBrowser === undefined) {
@@ -1658,6 +1679,8 @@
                 }
                 return privateIsMobileBrowser;
             },
+
+            /* start-dev-block */
 
             // get browser version
             getBrowserVersion: function () {
@@ -1675,6 +1698,8 @@
                 return privateIOSVersion;
             },
 
+            /* end-dev-block */
+
             // is online or offline
             isOnline: function () {
                 if (privateIsOnline === undefined) {
@@ -1682,6 +1707,8 @@
                 }
                 return privateIsOnline;
             },
+
+            /* start-dev-block */
 
             // get network connection
             getNetworkConnection: function () {
@@ -1698,8 +1725,8 @@
 
             // is touch device
             isTouchDevice: function () {
-				// ontouchstart works on most browsers, msMaxTouchPoints is for ie10
-                return !!('ontouchstart' in window) || window.navigator.msMaxTouchPoints;
+                // ontouchstart works on most browsers, msMaxTouchPoints is for ie10
+                return !!window.ontouchstart || window.navigator.msMaxTouchPoints;
             },
 
             // get orientation degree
@@ -1723,17 +1750,8 @@
                 return (window.devicePixelRatio >= 2);
             },
 
-            // has canvas support
-            hasCanvas: function () {
-                if (privateHasCanvas === undefined) {
-                    var canvas = document.createElement('canvas');
-                    privateHasCanvas = (!!(canvas.getContext && canvas.getContext('2d')));
-                }
-                return privateHasCanvas;
-            },
-
             // hide mobile status bar
-			// @ see http://remysharp.com/2010/08/05/doing-it-right-skipping-the-iphone-url-bar/
+            // @ see http://remysharp.com/2010/08/05/doing-it-right-skipping-the-iphone-url-bar/
             hideStatusbar: function (delay) {
 
                 // check params
@@ -1745,24 +1763,33 @@
                 window.clearTimeout(privateHideStatusbarTimeout);
                 privateHideStatusbarTimeout = window.setTimeout(function () {
 
-					// stop if view is already on top
+                    // stop if view is already on top
                     if (parseInt(window.pageYOffset, 10) === 0) {
-						/**
-						 * won't work in ios7 anymore
-						 * @see http://www.mobilexweb.com/blog/safari-ios7-html5-problems-apis-review
-						 */
+                        /**
+                         * won't work in ios7 anymore
+                         * @see http://www.mobilexweb.com/blog/safari-ios7-html5-problems-apis-review
+                         */
                         window.scrollTo(0, 1);
                     }
 
                 }, delay);
-            }
+            },
+            /* end-dev-block */
 
+            // has canvas support
+            hasCanvas: function () {
+                if (privateHasCanvas === undefined) {
+                    var canvas = document.createElement('canvas');
+                    privateHasCanvas = (!!(canvas.getContext && canvas.getContext('2d')));
+                }
+                return privateHasCanvas;
+            }
         };
 
     }());
 
 
-	/**
+    /**
      * make the helper available for ns.helpers.client calls under
      * the ns.helper namespace
      * 
@@ -2415,6 +2442,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -2424,6 +2453,7 @@
         log('[' + storageType + ' Adapter] ' + message);
     }
 
+    /* end-dev-block */
 
     /**
      * -------------------------------------------
@@ -2437,6 +2467,8 @@
      * @param {object} e The event object
      */
     function handleStorageEvents(e) {
+
+        /* start-dev-block */
 
         // check for corrent event object
         if (!e) {
@@ -2494,6 +2526,8 @@
 
         // log message string
         moduleLog(msg, e);
+
+        /* end-dev-block */
 
     }
 
@@ -2615,9 +2649,11 @@
             // check for global var
             if (null === boolIsSupported) {
                 boolIsSupported = (!!window.requestFileSystem || !!window.webkitRequestFileSystem || !!window.moz_requestFileSystem) && (!!window.Blob || !!window.BlobBuilder);
+                /* start-dev-block */
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported');
                 }
+                /* end-dev-block */
             }
 
             // return bool
@@ -2651,12 +2687,17 @@
                     adapter = self.adapter = filesystem;
 
                     /* create test item */
+
+                    /* start-dev-block */
                     moduleLog('Try to create test resource');
+                    /* end-dev-block */
                     try {
                         self.create('test-item', utils.jsonToString({test: "test-content"}), function (success) {
                             if (!!success) {
                                 self.remove('test-item', function () {
+                                    /* start-dev-block */
                                     moduleLog('Test resource created and successfully deleted');
+                                    /* end-dev-block */
                                     callback(adapter);
                                     //return;
                                 });
@@ -3019,6 +3060,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -3028,6 +3071,7 @@
         log('[' + storageType + ' Adapter] ' + message);
     }
 
+    /* end-dev-block */
 
     /**
      * -------------------------------------------
@@ -3087,9 +3131,11 @@
             // check for global var
             if (null === boolIsSupported) {
                 boolIsSupported =  !!window.indexedDB || !!window.webkitIndexedDB || !!window.mozIndexedDB || !!window.OIndexedDB || !!window.msIndexedDB;
+                /* start-dev-block */
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported');
                 }
+                /* end-dev-block */
             }
 
             // return bool
@@ -3122,13 +3168,17 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to init transaction while creating/updating database entry ' + dbName + ' ' + e);
+                /* end-dev-block */
                 callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to create/update database entry ' + dbName + ' ' + e);
+                /* end-dev-block */
                 callback(false, e);
             };
 
@@ -3168,12 +3218,17 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to init transaction while reading database ' + dbName + ' ' + e);
+                /* end-dev-block */
+                callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to read database entry ' + dbName + ' ' + e);
+                /* end-dev-block */
                 callback(false, e);
             };
 
@@ -3233,13 +3288,17 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to init transaction while deleting database entry ' + dbName + ' ' + e);
+                /* end-dev-block */
                 callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to delete database entry ' + dbName + ' ' + e);
+                /* end-dev-block */
                 callback(false, e);
             };
 
@@ -3274,11 +3333,16 @@
                     }
 
                     // create test item
+
+                    /* start-dev-block */
                     moduleLog('Try to create test resource');
+                    /* end-dev-block */
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
+                                /* start-dev-block */
                                 moduleLog('Test resource created and successfully deleted');
+                                /* end-dev-block */
                                 callback(currentAdapter);
                                 return;
                             });
@@ -3343,7 +3407,9 @@
 
                         // request failed
                         setVersionRequest.onfailure = function (e) {
+                            /* start-dev-block */
                             moduleLog('Failed to open database: ' + dbName + ' ' + e);
+                            /* end-dev-block */
                             callback(false);
                         };
 
@@ -3352,7 +3418,9 @@
                             dbResult = request.result;
                             store = dbResult.createObjectStore(dbTable, {keyPath: self.dbKey});
 
+                            /* start-dev-block */
                             moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
+                            /* end-dev-block */
 
                             // create new database indexes
                             store.createIndex('key',  'key',  { unique: true });
@@ -3375,7 +3443,9 @@
                     var db = request.result,
                         store = db.createObjectStore(dbTable, {keyPath: self.dbKey});
 
+                    /* start-dev-block */
                     moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
+                    /* end-dev-block */
 
                     // create new database indexes
                     store.createIndex('key',  'key',  { unique: true });
@@ -3386,7 +3456,9 @@
                 // database can't be opened
                 onerror = function (e) {
 
+                    /* start-dev-block */
                     moduleLog('Failed to open database: ' + dbName + ' ' + e);
+                    /* end-dev-block */
                     if (!setVersion) {
                         self.open(callback, true);
                     }
@@ -3397,7 +3469,9 @@
                 // database is blocked by another process
                 onblocked = function (e) {
 
+                    /* start-dev-block */
                     moduleLog('Opening database request is blocked! ' + dbName + ' ' + e);
+                    /* end-dev-block */
                     callback(false);
 
                 };
@@ -3415,7 +3489,9 @@
                     try {
                         request = windowObject.open(dbName, self.dbVersion);
                     } catch (e) {
+                        /* start-dev-block */
                         moduleLog(e);
+                        /* end-dev-block */
                         request = windowObject.open(dbName);
                     }
 
@@ -3613,6 +3689,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -3621,6 +3699,8 @@
     function moduleLog(message) {
         log('[' + storageType + ' Adapter] ' + message);
     }
+
+    /* end-dev-block */
 
 
     /**
@@ -3675,6 +3755,8 @@
      */
     function handleStorageEvents(e) {
 
+        /* start-dev-block */
+
         // init local vars
         var msg = 'Errorcode: ' + (e.code || 'Code not present') + ', Message: ' + (e.message || 'Message not present');
 
@@ -3684,6 +3766,8 @@
 
         // log message string
         moduleLog(msg);
+
+        /* end-dev-block */
 
     }
 
@@ -3749,9 +3833,11 @@
             // check for global var
             if (null === boolIsSupported) {
                 boolIsSupported = !!window.openDatabase;
+                /* start-dev-block */
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported');
                 }
+                /* end-dev-block */
             }
 
             // return bool
@@ -3932,11 +4018,16 @@
                     }
 
                     // create test item
+
+                    /* start-dev-block */
                     moduleLog('Try to create test resource');
+                    /* end-dev-block */
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
+                                /* start-dev-block */
                                 moduleLog('Test resource created and successfully deleted');
+                                /* end-dev-block */
                                 callback(currentAdapter);
                                 return;
                             });
@@ -3985,9 +4076,13 @@
                  */
                 changeVersionError = function (e) {
 
+                    /* start-dev-block */
+
                     // add more information and display error
                     e.info = 'Can\'t migrate to new database version and using localStorage instead. This may be caused by non-standard implementation of the changeVersion method. Please switch back your database version to use webSql on this device.';
                     handleStorageEvents(e);
+
+                    /* end-dev-block */
 
                     callback(false);
                 };
@@ -4273,6 +4368,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -4281,6 +4378,8 @@
     function moduleLog(message) {
         log('[' + storageType + ' Adapter] ' + message);
     }
+
+    /* end-dev-block */
 
 
     /**
@@ -4303,6 +4402,8 @@
      */
     function handleStorageEvents(e) {
 
+        /* start-dev-block */
+
         // handle Internet Explorer storage event
         if (!e && window.event) {
             e = window.event;
@@ -4310,6 +4411,9 @@
 
         // log event
         moduleLog('Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event'));
+
+        /* end-dev-block */
+
     }
 
 
@@ -4398,7 +4502,9 @@
                     // additionally test for getItem method
                     boolIsSupported = !!window[type] && !!window[type].getItem;
                 } catch (e) {
+                    /* start-dev-block */
                     moduleLog(storageType + ' is not supported');
+                    /* end-dev-block */
                     boolIsSupported = false;
                 }
             }
@@ -4568,11 +4674,17 @@
                     on(window, 'storage', handleStorageEvents);
 
                     // create test item
+
+                    /* start-dev-block */
                     moduleLog('Try to create test resource');
+                    /* end-dev-block */
+
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
+                                /* start-dev-block */
                                 moduleLog('Test resource created and successfully deleted');
+                                /* end-dev-block */
                                 callback(adapter);
                                 return;
                             });
@@ -4756,6 +4868,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -4764,6 +4878,8 @@
     function moduleLog(message) {
         log('[' + storageType + ' Adapter] ' + message);
     }
+
+    /* end-dev-block */
 
     /**
      * adapter files loaded
@@ -4783,7 +4899,9 @@
             self.progressCallback(100);
             window.setTimeout(function () {
                 callback();
+                /* start-dev-block */
                 moduleLog('Event loaded');
+                /* end-dev-block */
             }, self.delay);
         }
 
@@ -4842,9 +4960,11 @@
             // check for global var
             if (null === boolIsSupported) {
                 boolIsSupported = !!window.applicationCache && !!dom.getAttribute(htmlNode, 'manifest');
+                /* start-dev-block */
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported or there is no manifest html attribute');
                 }
+                /* end-dev-block */
             }
 
             // return bool
@@ -4886,13 +5006,17 @@
                  * handle updates
                  */
                 onUpdateReady = function () {
+                    /* start-dev-block */
                     moduleLog('Event updateready');
+                    /* end-dev-block */
 
                     // avoid errors in browsers that are not capable of swapCache
                     try {
                         adapter.swapCache();
                     } catch (e) {
+                        /* start-dev-block */
                         moduleLog('Event updateready: swapcache is not available', e);
+                        /* end-dev-block */
                     }
 
                     // ask user for refreshing the page
@@ -4906,6 +5030,8 @@
                 };
 
 
+                /* start-dev-block */
+
                 /**
                  * checking event
                  *
@@ -4918,6 +5044,7 @@
                     return false;
                 });
 
+                /* end-dev-block */
 
                 /**
                  * no update event
@@ -4926,7 +5053,9 @@
                  * the noupdate event is fired and the process ends.
                  */
                 on(adapter, 'noupdate', function () {
+                    /* start-dev-block */
                     moduleLog('Event noupdate');
+                    /* end-dev-block */
                     loaded(callback, self);
 
                     return false;
@@ -4941,7 +5070,9 @@
                  * the downloading event signals the start of this download process.
                  */
                 on(adapter, 'downloading', function () {
+                    /* start-dev-block */
                     moduleLog('Event downloading');
+                    /* end-dev-block */
                     manifestProgressCount = 0;
 
                     return false;
@@ -4957,7 +5088,9 @@
                  * @param {object} e The progress event object holding additionally information
                  */
                 on(adapter, 'progress', function (e) {
+                    /* start-dev-block */
                     moduleLog('Event progress');
+                    /* end-dev-block */
 
                     var progress = "";
 
@@ -4987,7 +5120,9 @@
                  * fires the cached event when the download is complete.
                  */
                 on(adapter, 'cached', function () {
+                    /* start-dev-block */
                     moduleLog('Event cached');
+                    /* end-dev-block */
                     loaded(callback, self);
 
                     return false;
@@ -5014,7 +5149,9 @@
                  * subsequent loads are done from the network rather than from the cache.
                  */
                 on(adapter, 'obsolete', function () {
+                    /* start-dev-block */
                     moduleLog('Event obsolete');
+                    /* end-dev-block */
                     window.location.reload(true);
 
                     return false;
@@ -5028,7 +5165,9 @@
                  * ressources can't be loaded.
                  */
                 on(adapter, 'error', function () {
+                    /* start-dev-block */
                     moduleLog('Event error');
+                    /* end-dev-block */
                     loaded(callback, self);
 
                     return false;
@@ -5071,7 +5210,9 @@
                     try {
                         adapter.update();
                     } catch (e) {
+                        /* start-dev-block */
                         moduleLog('Window event online: update cache is not available', e);
+                        /* end-dev-block */
                     }
                 });
 
@@ -5269,6 +5410,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -5277,6 +5420,8 @@
     function moduleLog(message) {
         log('[' + controllerType + ' controller] ' + message);
     }
+
+    /* end-dev-block */
 
 
     /**
@@ -5349,7 +5494,9 @@
         try {
             result = utils.jsonToObject(string);
         } catch (e) {
+            /* start-dev-block */
             moduleLog('Couldn\'t convert json string to object.' + e);
+            /* end-dev-block */
         }
 
         // return result
@@ -5365,8 +5512,6 @@
      * @param {string} imageType The optional image type (jpeg, png), standard is jpeg
      *
      * @returns {string} Returns converted data as callback parameter or false
-     *
-     * @todo: check loaded, see imagesLoaded Remy Sharp
      */
     function convertImageToBase64(url, callback, imageType) {
 
@@ -5571,7 +5716,9 @@
 
         // init storage and check support
         storageType = storageAdapters[0].type;
+        /* start-dev-block */
         moduleLog('Testing for storage adapter type: ' + storageType);
+        /* end-dev-block */
 
         // check for storage adapter
         if (!!appCacheStorageAdapter[storageType]) {
@@ -5593,7 +5740,9 @@
                     adapterAvailable = storageType;
                     adapterAvailableConfig = storageAdapters[0];
 
+                    /* start-dev-block */
                     moduleLog('Used storage adapter type: ' + adapterAvailable);
+                    /* end-dev-block */
                     callback(adapter);
 
                 } else {
@@ -5630,7 +5779,9 @@
 
             try {
                 // init storage and check support
+                /* start-dev-block */
                 moduleLog('Testing for storage adapter type: ' + storageType);
+                /* end-dev-block */
                 if (appCacheStorageAdapter[storageType]) {
                     adapter = new appCacheStorageAdapter[storageType](adapterDefaults);
                 } else {
@@ -5653,13 +5804,17 @@
                                 }
                             }
                             if (adapterAvailableConfig) {
+                                /* start-dev-block */
                                 moduleLog('Used storage type: ' + adapterAvailable);
+                                /* end-dev-block */
                                 callback(adapter);
                                 return;
                             }
 
                             // if there is no config, test the next adapter type
+                            /* start-dev-block */
                             moduleLog('Storage config not found: ' + adapterAvailable);
+                            /* end-dev-block */
                             getStorageAdapter(callback);
 
                         } else {
@@ -5675,7 +5830,9 @@
                 }
             } catch (e) {
                 // javascript api is not (or mayby in a different standard way implemented and) supported, recursiv call
+                /* start-dev-block */
                 moduleLog('Storage adapter could not be initialized: type ' + storageType, e);
+                /* end-dev-block */
                 getStorageAdapter(callback);
             }
 
@@ -5773,7 +5930,9 @@
                 createCallback = function (data) {
 
                     if (!data) {
+                        /* start-dev-block */
                         moduleLog('Couldn\'t get data via network');
+                        /* end-dev-block */
                         callback(resource);
                         return;
                     }
@@ -5802,10 +5961,14 @@
                             // create storage entry
                             self.adapter.create(key, content, function (success) {
                                 if (success) {
+                                    /* start-dev-block */
                                     moduleLog('Create new resource in storage adapter: type ' + type + ', url ' + url);
+                                    /* end-dev-block */
                                     callback(resource);
                                 } else {
+                                    /* start-dev-block */
                                     moduleLog('Create new resource in storage adapter failed');
+                                    /* end-dev-block */
                                     callback(false);
                                 }
                             });
@@ -5815,7 +5978,9 @@
                         }
 
                     } else {
+                        /* start-dev-block */
                         moduleLog('Trying to create new resource, but resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
+                        /* end-dev-block */
                         callback(resource);
                     }
 
@@ -5859,7 +6024,9 @@
             // try to read from storage
             if (null !== this.adapter && isRessourceStorable(type)) {
 
+                /* start-dev-block */
                 moduleLog('Trying to read resource from storage: type ' + type + ', url ' + url);
+                /* end-dev-block */
 
                 /**
                  * there is a bug in older browser versions (seamonkey)
@@ -5886,17 +6053,23 @@
                             }
 
                             resource.url = url;
+                            /* start-dev-block */
                             moduleLog('Successfully read resource from storage: type ' + type + ', url ' + url);
+                            /* end-dev-block */
                             callback(resource, true);
                         } else {
+                            /* start-dev-block */
                             moduleLog('There is no data coming back from storage while reading: type ' + type + ', url ' + url);
+                            /* end-dev-block */
                             callback(false);
                         }
                     });
                 } catch (e) {
                     handleXhrRequests(url, function (data) {
                         resource.data = data;
+                        /* start-dev-block */
                         moduleLog('Try to read resource from storage, but storage adapter is not available: type ' + type + ', url ' + url);
+                        /* end-dev-block */
                         callback(resource, true);
                     }, resource);
                 }
@@ -5924,7 +6097,9 @@
 
                     // try to use stored data if resource couldn't be updated via network
                     if (!data) {
+                        /* start-dev-block */
                         moduleLog('Couldn\'t get data via network, trying to used stored version');
+                        /* end-dev-block */
                         self.read(resource, function (item) {
                             if (item && item.data) {
                                 resource.data = item.data;
@@ -5961,10 +6136,14 @@
                             // create storage entry
                             self.adapter.update(key, content, function (success) {
                                 if (!!success) {
+                                    /* start-dev-block */
                                     moduleLog('Update existing resource in storage adapter: type ' + type + ', url ' + url);
+                                    /* end-dev-block */
                                     callback(resource);
                                 } else {
+                                    /* start-dev-block */
                                     moduleLog('Updating resource in storage failed.');
+                                    /* end-dev-block */
                                     callback(false);
                                 }
                             });
@@ -5974,7 +6153,9 @@
                         }
 
                     } else {
+                        /* start-dev-block */
                         moduleLog('Resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
+                        /* end-dev-block */
                         callback(resource);
                     }
                 };
@@ -6020,16 +6201,22 @@
                 self.adapter.remove(convertObjectToString(url), function (success) {
 
                     if (!success) {
+                        /* start-dev-block */
                         moduleLog('Deleting resource form storage failed: type ' + type + ', url ' + url);
+                        /* end-dev-block */
                         callback(false);
                         return;
                     }
 
+                    /* start-dev-block */
                     moduleLog('Delete resource form storage: type ' + type + ', url ' + url);
+                    /* end-dev-block */
                     callback(resource);
                 });
             } else {
+                /* start-dev-block */
                 moduleLog('Delete resource from storage failed, resource type is not cachable or there is no storage adapter: type ' + type + ', url ' + url);
+                /* end-dev-block */
                 callback(resource);
             }
 
@@ -6115,12 +6302,14 @@
                  * available.
                  */
 
+                /* start-dev-block */
                 if (!json) {
                     moduleLog('There is no json support');
                 }
                 if (!self.isEnabled) {
                     moduleLog('Caching data is disabled');
                 }
+                /* end-dev-block */
 
                 callback(self);
             }
@@ -6254,6 +6443,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -6263,6 +6454,7 @@
         log('[' + controllerType + ' controller] ' + message);
     }
 
+    /* end-dev-block */
 
     /**
      * try to guess file extension
@@ -6563,7 +6755,9 @@
                          * created then - it just returns the data via xhr.
                          */
                         if (!item || !item.data) {
+                            /* start-dev-block */
                             moduleLog('Resource or resource data is not available in storage adapter: type ' + resource.type + ', url ' + resource.url);
+                            /* end-dev-block */
                             storage.create(resource, callback);
                             return;
                         }
@@ -6571,10 +6765,14 @@
                         // check for outdated data and network connection
                         resource = isResourceValid(resource, item);
                         if (resource.isValid || !client.isOnline()) {
+                            /* start-dev-block */
                             moduleLog('Resource is up to date: type ' + resource.type + ', url ' + resource.url);
+                            /* end-dev-block */
                             data = item.data;
                         } else {
+                            /* start-dev-block */
                             moduleLog('Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
+                            /* end-dev-block */
                             storage.update(resource, callback);
                             return;
                         }
@@ -6743,7 +6941,9 @@
                     resourcesGroupLength = resources.length;
 
                     // call main load function to start the process
+                    /* start-dev-block */
                     moduleLog('Load resource function called: ' + resourcesLength + ' resources, ' + resourcesGroupLength + ' groups');
+                    /* end-dev-block */
                     load(resources, callback);
 
                 };
@@ -6786,7 +6986,9 @@
                         i,
                         resource,
                         resourceRemovedCallback = function (current, url) {
+                            /* start-dev-block */
                             moduleLog('Successfully removed resource: url ' + url);
+                            /* end-dev-block */
                             if (current === length - 1) {
                                 callback();
                             }
@@ -6830,7 +7032,9 @@
                     callback = checkCallback(mainCallback);
 
                     // call main load function to start the process
+                    /* start-dev-block */
                     moduleLog('Remove resource function called: resources count ' + resources.length);
+                    /* end-dev-block */
                     remove(resources, callback);
 
                 };
@@ -6858,7 +7062,9 @@
             callback = checkCallback(callback);
 
             // init storage
+            /* start-dev-block */
             moduleLog('Cache initializing and checking for storage adapters');
+            /* end-dev-block */
             ns.cache.storage.controller(function (storage) {
 
                 self.storage = storage;

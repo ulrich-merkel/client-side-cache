@@ -39,6 +39,8 @@
         "grunt-imageoptim": "*",
         "grunt-jsdoc": "*",
         "grunt-htmlhint": "*",
+        "grunt-shell": "*",
+        "grunt-strip-code": "*",
 
         "assemble": "*",
         "matchdep": "*"

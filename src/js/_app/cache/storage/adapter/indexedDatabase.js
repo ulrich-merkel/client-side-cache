@@ -113,6 +113,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -122,6 +124,7 @@
         log('[' + storageType + ' Adapter] ' + message);
     }
 
+    /* end-dev-block */
 
     /**
      * -------------------------------------------
@@ -181,9 +184,11 @@
             // check for global var
             if (null === boolIsSupported) {
                 boolIsSupported =  !!window.indexedDB || !!window.webkitIndexedDB || !!window.mozIndexedDB || !!window.OIndexedDB || !!window.msIndexedDB;
+                /* start-dev-block */
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported');
                 }
+                /* end-dev-block */
             }
 
             // return bool
@@ -216,13 +221,17 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to init transaction while creating/updating database entry ' + dbName + ' ' + e);
+                /* end-dev-block */
                 callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to create/update database entry ' + dbName + ' ' + e);
+                /* end-dev-block */
                 callback(false, e);
             };
 
@@ -262,12 +271,17 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to init transaction while reading database ' + dbName + ' ' + e);
+                /* end-dev-block */
+                callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to read database entry ' + dbName + ' ' + e);
+                /* end-dev-block */
                 callback(false, e);
             };
 
@@ -327,13 +341,17 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to init transaction while deleting database entry ' + dbName + ' ' + e);
+                /* end-dev-block */
                 callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
+                /* start-dev-block */
                 moduleLog('Failed to delete database entry ' + dbName + ' ' + e);
+                /* end-dev-block */
                 callback(false, e);
             };
 
@@ -368,11 +386,16 @@
                     }
 
                     // create test item
+
+                    /* start-dev-block */
                     moduleLog('Try to create test resource');
+                    /* end-dev-block */
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
+                                /* start-dev-block */
                                 moduleLog('Test resource created and successfully deleted');
+                                /* end-dev-block */
                                 callback(currentAdapter);
                                 return;
                             });
@@ -437,7 +460,9 @@
 
                         // request failed
                         setVersionRequest.onfailure = function (e) {
+                            /* start-dev-block */
                             moduleLog('Failed to open database: ' + dbName + ' ' + e);
+                            /* end-dev-block */
                             callback(false);
                         };
 
@@ -446,7 +471,9 @@
                             dbResult = request.result;
                             store = dbResult.createObjectStore(dbTable, {keyPath: self.dbKey});
 
+                            /* start-dev-block */
                             moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
+                            /* end-dev-block */
 
                             // create new database indexes
                             store.createIndex('key',  'key',  { unique: true });
@@ -469,7 +496,9 @@
                     var db = request.result,
                         store = db.createObjectStore(dbTable, {keyPath: self.dbKey});
 
+                    /* start-dev-block */
                     moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
+                    /* end-dev-block */
 
                     // create new database indexes
                     store.createIndex('key',  'key',  { unique: true });
@@ -480,7 +509,9 @@
                 // database can't be opened
                 onerror = function (e) {
 
+                    /* start-dev-block */
                     moduleLog('Failed to open database: ' + dbName + ' ' + e);
+                    /* end-dev-block */
                     if (!setVersion) {
                         self.open(callback, true);
                     }
@@ -491,7 +522,9 @@
                 // database is blocked by another process
                 onblocked = function (e) {
 
+                    /* start-dev-block */
                     moduleLog('Opening database request is blocked! ' + dbName + ' ' + e);
+                    /* end-dev-block */
                     callback(false);
 
                 };
@@ -509,7 +542,9 @@
                     try {
                         request = windowObject.open(dbName, self.dbVersion);
                     } catch (e) {
+                        /* start-dev-block */
                         moduleLog(e);
+                        /* end-dev-block */
                         request = windowObject.open(dbName);
                     }
 

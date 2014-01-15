@@ -68,7 +68,6 @@
     var namespaceName = 'app',                                  // @type {string} The name of the global javascript namespace (directly accessable via window)
         ns;                                                     // @type {object} The current global window namespace object
 
-
     /**
      * create global window namespace as object
      *

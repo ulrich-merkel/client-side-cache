@@ -111,6 +111,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -120,6 +122,7 @@
         log('[' + storageType + ' Adapter] ' + message);
     }
 
+    /* end-dev-block */
 
     /**
      * -------------------------------------------
@@ -133,6 +136,8 @@
      * @param {object} e The event object
      */
     function handleStorageEvents(e) {
+
+        /* start-dev-block */
 
         // check for corrent event object
         if (!e) {
@@ -190,6 +195,8 @@
 
         // log message string
         moduleLog(msg, e);
+
+        /* end-dev-block */
 
     }
 
@@ -311,9 +318,11 @@
             // check for global var
             if (null === boolIsSupported) {
                 boolIsSupported = (!!window.requestFileSystem || !!window.webkitRequestFileSystem || !!window.moz_requestFileSystem) && (!!window.Blob || !!window.BlobBuilder);
+                /* start-dev-block */
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported');
                 }
+                /* end-dev-block */
             }
 
             // return bool
@@ -347,12 +356,17 @@
                     adapter = self.adapter = filesystem;
 
                     /* create test item */
+
+                    /* start-dev-block */
                     moduleLog('Try to create test resource');
+                    /* end-dev-block */
                     try {
                         self.create('test-item', utils.jsonToString({test: "test-content"}), function (success) {
                             if (!!success) {
                                 self.remove('test-item', function () {
+                                    /* start-dev-block */
                                     moduleLog('Test resource created and successfully deleted');
+                                    /* end-dev-block */
                                     callback(adapter);
                                     //return;
                                 });

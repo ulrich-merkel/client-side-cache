@@ -79,7 +79,15 @@ module.exports = function (grunt) {
             js: {
                 files: [
                     { expand: true, flatten: true, src: ["src/js/cache.js"], dest: "example/js/" },
-                    { expand: true, flatten: true, src: ["src/js/cache.js"], dest: "build/" },
+                    { expand: true, flatten: true, src: ["src/js/cache.js"], dest: "build/", rename: function(dest, src) {
+                        return dest + src.substring(0, src.indexOf('/')) + 'cache.src.js';
+                    }},
+                    //{ expand: true, flatten: true, src: ["src/js/cache.js"], dest: "build/", rename: function(dest, src) {
+                    //    return dest + src.substring(0, src.indexOf('/')) + 'cache.log.js';
+                    //}},
+                    { expand: true, flatten: true, src: ["src/js/cache.js"], dest: "build/", rename: function(dest, src) {
+                        return dest + src.substring(0, src.indexOf('/')) + 'cache.js';
+                    }},
                     { expand: true, flatten: true, src: ["src/js/cache.js"], dest: "test/lib/" },
                     { expand: true, flatten: true, src: ["src/js/lib.js"], dest: "example/js/" },
                     { expand: true, flatten: true, src: ["src/js/app.js"], dest: "example/js/" }
@@ -160,6 +168,55 @@ module.exports = function (grunt) {
             }
         },
 
+        // execute shell commands
+        shell: {
+            min: {
+                command: [
+                    "cd src/assists/closure-compiler/",
+                    "java -jar compiler.jar --charset  utf-8  --js ../../../build/cache.js --js_output_file ../../../build/cache.min.js  --summary_detail_level 3 --create_source_map cache.min.js.map --source_map_format=V3 --compilation_level SIMPLE_OPTIMIZATIONS",
+                    "cd ../../../"
+                ].join("&&"),
+                options: {
+                    callback: function (error, stdout, stderr, cb) {
+                        if (!!error) {
+                            grunt.log.error("ERROR:", error, stderr);
+                            cb(false);
+                        } else {
+                            cb(true);
+                        }
+                    }
+                }
+            },
+            log: {
+                command: [
+                    "cd src/assists/closure-compiler/",
+                    "java -jar compiler.jar --charset  utf-8  --js ../../../build/cache.src.js --js_output_file ../../../build/cache.log.js  --summary_detail_level 3 --create_source_map cache.log.js.map --source_map_format=V3 --compilation_level SIMPLE_OPTIMIZATIONS",
+                    "cd ../../../"
+                ].join("&&"),
+                options: {
+                    callback: function (error, stdout, stderr, cb) {
+                        if (!!error) {
+                            grunt.log.error("ERROR:", error, stderr);
+                            cb(false);
+                        } else {
+                            cb(true);
+                        }
+                    }
+                }
+            }
+        },
+
+        // strip development code for javascript
+        strip_code: {
+            options: {
+                start_comment: 'start-dev-block',
+                end_comment: 'end-dev-block',
+            },
+            cache: {
+                src: 'build/cache.js'
+            }
+        },
+
         // combine javascript source files
         concat: {
             cache: {
@@ -224,7 +281,7 @@ module.exports = function (grunt) {
         },
 
         // clean folders
-        clean: ['doc'],
+        clean: ['build', 'doc', 'example'],
 
         // watch file changes to run tasks
         watch: {
@@ -249,8 +306,13 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('default', ['watch']);
-    grunt.registerTask('js', ['concat']);
+    grunt.registerTask('combine', ['concat']);
+    grunt.registerTask('remove', ['clean']);
     grunt.registerTask('jsdoc', ['jsdoc']);
-    grunt.registerTask('build',  ['copy', 'cssmin', 'uglify', 'htmlhint:build', 'imageoptim']);
+    grunt.registerTask('jsmin', ['strip_code']);
+    grunt.registerTask('closure', ['shell']);
+    //grunt.registerTask('build',  ['clean', 'copy', 'cssmin', 'uglify', 'htmlhint:build', 'imageoptim']);
+    grunt.registerTask('build',  ['remove', 'combine', 'copy', 'cssmin', 'strip_code', 'shell', 'htmlhint:build', 'imageoptim']);
+    //grunt.registerTask('build',  ['remove', 'combine', 'copy', 'cssmin', 'htmlhint:build', 'imageoptim']);
 
 };

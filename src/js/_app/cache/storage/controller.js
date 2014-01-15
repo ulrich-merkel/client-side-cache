@@ -128,6 +128,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -136,6 +138,8 @@
     function moduleLog(message) {
         log('[' + controllerType + ' controller] ' + message);
     }
+
+    /* end-dev-block */
 
 
     /**
@@ -208,7 +212,9 @@
         try {
             result = utils.jsonToObject(string);
         } catch (e) {
+            /* start-dev-block */
             moduleLog('Couldn\'t convert json string to object.' + e);
+            /* end-dev-block */
         }
 
         // return result
@@ -224,8 +230,6 @@
      * @param {string} imageType The optional image type (jpeg, png), standard is jpeg
      *
      * @returns {string} Returns converted data as callback parameter or false
-     *
-     * @todo: check loaded, see imagesLoaded Remy Sharp
      */
     function convertImageToBase64(url, callback, imageType) {
 
@@ -430,7 +434,9 @@
 
         // init storage and check support
         storageType = storageAdapters[0].type;
+        /* start-dev-block */
         moduleLog('Testing for storage adapter type: ' + storageType);
+        /* end-dev-block */
 
         // check for storage adapter
         if (!!appCacheStorageAdapter[storageType]) {
@@ -452,7 +458,9 @@
                     adapterAvailable = storageType;
                     adapterAvailableConfig = storageAdapters[0];
 
+                    /* start-dev-block */
                     moduleLog('Used storage adapter type: ' + adapterAvailable);
+                    /* end-dev-block */
                     callback(adapter);
 
                 } else {
@@ -489,7 +497,9 @@
 
             try {
                 // init storage and check support
+                /* start-dev-block */
                 moduleLog('Testing for storage adapter type: ' + storageType);
+                /* end-dev-block */
                 if (appCacheStorageAdapter[storageType]) {
                     adapter = new appCacheStorageAdapter[storageType](adapterDefaults);
                 } else {
@@ -512,13 +522,17 @@
                                 }
                             }
                             if (adapterAvailableConfig) {
+                                /* start-dev-block */
                                 moduleLog('Used storage type: ' + adapterAvailable);
+                                /* end-dev-block */
                                 callback(adapter);
                                 return;
                             }
 
                             // if there is no config, test the next adapter type
+                            /* start-dev-block */
                             moduleLog('Storage config not found: ' + adapterAvailable);
+                            /* end-dev-block */
                             getStorageAdapter(callback);
 
                         } else {
@@ -534,7 +548,9 @@
                 }
             } catch (e) {
                 // javascript api is not (or mayby in a different standard way implemented and) supported, recursiv call
+                /* start-dev-block */
                 moduleLog('Storage adapter could not be initialized: type ' + storageType, e);
+                /* end-dev-block */
                 getStorageAdapter(callback);
             }
 
@@ -632,7 +648,9 @@
                 createCallback = function (data) {
 
                     if (!data) {
+                        /* start-dev-block */
                         moduleLog('Couldn\'t get data via network');
+                        /* end-dev-block */
                         callback(resource);
                         return;
                     }
@@ -661,10 +679,14 @@
                             // create storage entry
                             self.adapter.create(key, content, function (success) {
                                 if (success) {
+                                    /* start-dev-block */
                                     moduleLog('Create new resource in storage adapter: type ' + type + ', url ' + url);
+                                    /* end-dev-block */
                                     callback(resource);
                                 } else {
+                                    /* start-dev-block */
                                     moduleLog('Create new resource in storage adapter failed');
+                                    /* end-dev-block */
                                     callback(false);
                                 }
                             });
@@ -674,7 +696,9 @@
                         }
 
                     } else {
+                        /* start-dev-block */
                         moduleLog('Trying to create new resource, but resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
+                        /* end-dev-block */
                         callback(resource);
                     }
 
@@ -718,7 +742,9 @@
             // try to read from storage
             if (null !== this.adapter && isRessourceStorable(type)) {
 
+                /* start-dev-block */
                 moduleLog('Trying to read resource from storage: type ' + type + ', url ' + url);
+                /* end-dev-block */
 
                 /**
                  * there is a bug in older browser versions (seamonkey)
@@ -745,17 +771,23 @@
                             }
 
                             resource.url = url;
+                            /* start-dev-block */
                             moduleLog('Successfully read resource from storage: type ' + type + ', url ' + url);
+                            /* end-dev-block */
                             callback(resource, true);
                         } else {
+                            /* start-dev-block */
                             moduleLog('There is no data coming back from storage while reading: type ' + type + ', url ' + url);
+                            /* end-dev-block */
                             callback(false);
                         }
                     });
                 } catch (e) {
                     handleXhrRequests(url, function (data) {
                         resource.data = data;
+                        /* start-dev-block */
                         moduleLog('Try to read resource from storage, but storage adapter is not available: type ' + type + ', url ' + url);
+                        /* end-dev-block */
                         callback(resource, true);
                     }, resource);
                 }
@@ -783,7 +815,9 @@
 
                     // try to use stored data if resource couldn't be updated via network
                     if (!data) {
+                        /* start-dev-block */
                         moduleLog('Couldn\'t get data via network, trying to used stored version');
+                        /* end-dev-block */
                         self.read(resource, function (item) {
                             if (item && item.data) {
                                 resource.data = item.data;
@@ -820,10 +854,14 @@
                             // create storage entry
                             self.adapter.update(key, content, function (success) {
                                 if (!!success) {
+                                    /* start-dev-block */
                                     moduleLog('Update existing resource in storage adapter: type ' + type + ', url ' + url);
+                                    /* end-dev-block */
                                     callback(resource);
                                 } else {
+                                    /* start-dev-block */
                                     moduleLog('Updating resource in storage failed.');
+                                    /* end-dev-block */
                                     callback(false);
                                 }
                             });
@@ -833,7 +871,9 @@
                         }
 
                     } else {
+                        /* start-dev-block */
                         moduleLog('Resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
+                        /* end-dev-block */
                         callback(resource);
                     }
                 };
@@ -879,16 +919,22 @@
                 self.adapter.remove(convertObjectToString(url), function (success) {
 
                     if (!success) {
+                        /* start-dev-block */
                         moduleLog('Deleting resource form storage failed: type ' + type + ', url ' + url);
+                        /* end-dev-block */
                         callback(false);
                         return;
                     }
 
+                    /* start-dev-block */
                     moduleLog('Delete resource form storage: type ' + type + ', url ' + url);
+                    /* end-dev-block */
                     callback(resource);
                 });
             } else {
+                /* start-dev-block */
                 moduleLog('Delete resource from storage failed, resource type is not cachable or there is no storage adapter: type ' + type + ', url ' + url);
+                /* end-dev-block */
                 callback(resource);
             }
 
@@ -974,12 +1020,14 @@
                  * available.
                  */
 
+                /* start-dev-block */
                 if (!json) {
                     moduleLog('There is no json support');
                 }
                 if (!self.isEnabled) {
                     moduleLog('Caching data is disabled');
                 }
+                /* end-dev-block */
 
                 callback(self);
             }

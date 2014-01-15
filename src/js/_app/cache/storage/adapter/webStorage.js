@@ -157,6 +157,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -165,6 +167,8 @@
     function moduleLog(message) {
         log('[' + storageType + ' Adapter] ' + message);
     }
+
+    /* end-dev-block */
 
 
     /**
@@ -187,6 +191,8 @@
      */
     function handleStorageEvents(e) {
 
+        /* start-dev-block */
+
         // handle Internet Explorer storage event
         if (!e && window.event) {
             e = window.event;
@@ -194,6 +200,9 @@
 
         // log event
         moduleLog('Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event'));
+
+        /* end-dev-block */
+
     }
 
 
@@ -282,7 +291,9 @@
                     // additionally test for getItem method
                     boolIsSupported = !!window[type] && !!window[type].getItem;
                 } catch (e) {
+                    /* start-dev-block */
                     moduleLog(storageType + ' is not supported');
+                    /* end-dev-block */
                     boolIsSupported = false;
                 }
             }
@@ -452,11 +463,17 @@
                     on(window, 'storage', handleStorageEvents);
 
                     // create test item
+
+                    /* start-dev-block */
                     moduleLog('Try to create test resource');
+                    /* end-dev-block */
+
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
+                                /* start-dev-block */
                                 moduleLog('Test resource created and successfully deleted');
+                                /* end-dev-block */
                                 callback(adapter);
                                 return;
                             });

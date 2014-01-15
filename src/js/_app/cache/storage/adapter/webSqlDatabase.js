@@ -112,6 +112,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * console log helper
      *
@@ -120,6 +122,8 @@
     function moduleLog(message) {
         log('[' + storageType + ' Adapter] ' + message);
     }
+
+    /* end-dev-block */
 
 
     /**
@@ -174,6 +178,8 @@
      */
     function handleStorageEvents(e) {
 
+        /* start-dev-block */
+
         // init local vars
         var msg = 'Errorcode: ' + (e.code || 'Code not present') + ', Message: ' + (e.message || 'Message not present');
 
@@ -183,6 +189,8 @@
 
         // log message string
         moduleLog(msg);
+
+        /* end-dev-block */
 
     }
 
@@ -248,9 +256,11 @@
             // check for global var
             if (null === boolIsSupported) {
                 boolIsSupported = !!window.openDatabase;
+                /* start-dev-block */
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported');
                 }
+                /* end-dev-block */
             }
 
             // return bool
@@ -431,11 +441,16 @@
                     }
 
                     // create test item
+
+                    /* start-dev-block */
                     moduleLog('Try to create test resource');
+                    /* end-dev-block */
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
+                                /* start-dev-block */
                                 moduleLog('Test resource created and successfully deleted');
+                                /* end-dev-block */
                                 callback(currentAdapter);
                                 return;
                             });
@@ -484,9 +499,13 @@
                  */
                 changeVersionError = function (e) {
 
+                    /* start-dev-block */
+
                     // add more information and display error
                     e.info = 'Can\'t migrate to new database version and using localStorage instead. This may be caused by non-standard implementation of the changeVersion method. Please switch back your database version to use webSql on this device.';
                     handleStorageEvents(e);
+
+                    /* end-dev-block */
 
                     callback(false);
                 };
