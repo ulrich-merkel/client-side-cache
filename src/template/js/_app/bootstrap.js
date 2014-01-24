@@ -23,25 +23,12 @@
     // local vars
     var $window = $(window),
 		$html = $('html');
-//        helpers = ns.helpers,
-//        client = helpers.client,
-//		utils = helpers.utils,
-//        on = utils.on,
-//		hideStatusbar = client.hideStatusbar;
 
     // document is ready
     $(document).ready(function () {
 
 		// client depending init
         $html.removeClass('no-js').addClass('js');
-		//if (client.isMobile() || client.isiOS()) {
-		//	$html.addClass('mobile');
-		//	hideStatusbar();
-		//	on(document, 'DOMContentLoaded', hideStatusbar);
-		//	on(window, 'orientationchange', hideStatusbar);
-		//} else {
-		//	$html.addClass('desktop');
-		//}
 
 		// mobile fast clicks
 		if (!!document.body) {

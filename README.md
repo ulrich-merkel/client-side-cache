@@ -21,7 +21,7 @@ If you just want to see a working demo, open the generated index.html **/example
 
 + **cache.js**: The complete and uncompressed source code for development
 + **cache.dev.js**: The minified source code, but with some logging informations to keep track of the current cache states
-+ **cache.js**: The minified and optimized javascript caching for production
++ **cache.min.js**: The minified and optimized javascript caching for production
 
 
 ## Usage ##

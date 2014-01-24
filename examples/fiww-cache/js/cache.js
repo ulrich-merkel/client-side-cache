@@ -1339,6 +1339,7 @@
             }
         }
 
+        /* start-dev-block */
 
         /**
          * check for ios browser
@@ -1350,10 +1351,9 @@
             }
         }
 
-        /* start-dev-block */
 
         /**
-         * check for ios browser
+         * check for webkit browser
          */
         function checkIfIsWebkit() {
             privateIsWebkit = uaLowerCase.match(/(webkit)/) !== null;
@@ -1461,7 +1461,6 @@
             }
         }
 
-        /* end-dev-block */
 
         /**
          * detect mobile browsers
@@ -1479,7 +1478,6 @@
             }
         }
 
-        /* start-dev-block */
 
         /**
          * check for browser version
@@ -1563,6 +1561,8 @@
          */
         return {
 
+            /* start-dev-block */
+
             // is ios
             isiOS: function () {
                 if (privateIsiOS === undefined) {
@@ -1570,8 +1570,6 @@
                 }
                 return privateIsiOS;
             },
-
-            /* start-dev-block */
 
             // is webkit
             isWebkit: function () {
@@ -1673,7 +1671,6 @@
                 return privateIsiPhone;
             },
 
-            /* end-dev-block */
 
             // is mobile
             isMobile: function () {
@@ -1683,7 +1680,6 @@
                 return privateIsMobileBrowser;
             },
 
-            /* start-dev-block */
 
             // get browser version
             getBrowserVersion: function () {

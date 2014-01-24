@@ -1461,7 +1461,6 @@
             }
         }
 
-        /* end-dev-block */
 
         /**
          * detect mobile browsers
@@ -1479,7 +1478,6 @@
             }
         }
 
-        /* start-dev-block */
 
         /**
          * check for browser version
@@ -1673,7 +1671,6 @@
                 return privateIsiPhone;
             },
 
-            /* end-dev-block */
 
             // is mobile
             isMobile: function () {
@@ -1683,7 +1680,6 @@
                 return privateIsMobileBrowser;
             },
 
-            /* start-dev-block */
 
             // get browser version
             getBrowserVersion: function () {
