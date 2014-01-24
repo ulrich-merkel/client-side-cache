@@ -15,13 +15,15 @@ The given resources will be appended to the dom automatically in case of javascr
 + Save image files via base64 and append them to dom
 + Control the application cache state 
 
-### Demo ####
-
-If you just want to see a working demo, open the generated index.html **/example/index.html** file in your browser. You need to run this file in a webserver to make shure the ajax calls are working. You will find the latest javascript caching functions in **/build/cache.min.js**.
+You will find the latest javascript caching functions in **/build/cache.min.js**.
 
 + **cache.js**: The complete and uncompressed source code for development
 + **cache.dev.js**: The minified source code, but with some logging informations to keep track of the current cache states
 + **cache.min.js**: The minified and optimized javascript caching for production
+
+### Demo ####
+
+If you just want to see a working demo, open the generated index.html **/example/full-cache/index.html** file in your browser. You need to run this file in a webserver to make shure the ajax calls are working. The other examples are just there to compare different caching methods with full html5 client side caching.
 
 
 ## Usage ##
