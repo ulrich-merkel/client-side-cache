@@ -64,10 +64,12 @@
         helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
         client = helpers.client,                                    // @type {object} Shortcut for client functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        isArray = utils.isArray,                                    // @type {function} Shortcut for utils.isArray function
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         json = utils.getJson(),                                     // @type {function} Global window.Json object if available
         xhr = utils.xhr,                                            // @type {function} Shortcut for utils.xhr function
+        trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         appCacheStorageAdapter = ns.cache.storage.adapter,          // @type {object} Shortcut for ns.cache.storage.adapter namespace
         hasCanvasSupport = client.hasCanvas(),                      // @type {boolean} Whether there is canvas support or not
 
@@ -78,7 +80,7 @@
          * adapters will be checked in which order and which resource types 
          * are stored in which adapter type.
          */
-        adapters = [
+        adapterTypes = [
             {type: 'fileSystem', css: true, js: true, html: true, img: true },
             {type: 'indexedDatabase', css: true, js: true, html: true, img: true },
             {type: 'webSqlDatabase', css: true, js: true, html: true, img: true },
@@ -103,6 +105,11 @@
             offline: true                                       // @type {boolean} [adapterDefaults.offline=true] Default switch for using application cache event handling
         },
 
+
+        /**
+         * some internal vars to keep globally track of the current adapter state
+         * 
+         */
         adapterAvailable = null,                                // @type {string} The name of the best available adapter after testing
         adapterAvailableConfig = null,                          // @type {object} The adapter config for the available type (see adapters object)
 
@@ -139,6 +146,27 @@
         log('[' + controllerType + ' controller] ' + message);
     }
 
+
+    /**
+     * handle storage error events
+     *
+     * @param {object} e The javascript error event
+     */
+    function handleStorageEvents(e) {
+
+        // init message string
+        var msg = '';
+
+        // check for object
+        if (e) {
+            msg = 'Error Event: Description ' + (e.description || 'no description available');
+        }
+
+        // log error
+        moduleLog(msg);
+
+    }
+
     /* end-dev-block */
 
 
@@ -156,17 +184,20 @@
         // set timeout if network get lost
         resource.timeout = window.setTimeout(function () {
             callback(false);
-        }, 5000);
+        }, 4000);
 
         // make xhr call and check data
         xhr(url, function (data) {
+
             window.clearTimeout(resource.timeout);
             delete resource.timeout;
-            if (data) {
+
+            if (!!data) {
                 callback(data);
             } else {
                 callback(false);
             }
+
         });
     }
 
@@ -212,9 +243,12 @@
         try {
             result = utils.jsonToObject(string);
         } catch (e) {
+
             /* start-dev-block */
-            moduleLog('Couldn\'t convert json string to object.' + e);
+            handleStorageEvents(e);
+            moduleLog('Couldn\'t convert json string to object.');
             /* end-dev-block */
+
         }
 
         // return result
@@ -367,21 +401,22 @@
      * node parameters won't be saved to append one resource to multiple elements.
      * 
      * @param {object} resource The resource object item
+     * @param {object} selfResourcesDefaults The resource defaults
      * 
      * @returns {object} Returns the copied resource data
      */
-    function copyStorageContent(resource) {
+    function copyStorageContent(resource, selfResourcesDefaults) {
 
         // set new data for storage content
         return {
             ajax: resource.ajax,
             data: resource.data,
-            expires: new Date().getTime() + (resource.lifetime || resourceDefaults.lifetime),
-            group: (resource.group !== undefined ? resource.group : resourceDefaults.group),
-            lastmod: resource.lastmod || resourceDefaults.lastmod,
-            lifetime: (resource.lifetime !== undefined ? resource.lifetime : resourceDefaults.lifetime),
-            type: resource.type || resourceDefaults.type,
-            version: resource.version || resourceDefaults.version
+            expires: new Date().getTime() + (resource.lifetime || selfResourcesDefaults.lifetime),
+            group: (resource.group !== undefined ? resource.group : selfResourcesDefaults.group),
+            lastmod: resource.lastmod || selfResourcesDefaults.lastmod,
+            lifetime: (resource.lifetime !== undefined ? resource.lifetime : selfResourcesDefaults.lifetime),
+            type: resource.type || selfResourcesDefaults.type,
+            version: resource.version || selfResourcesDefaults.version
         };
     }
 
@@ -422,7 +457,8 @@
 
         // init local vars
         var adapter = null,
-            storageType;
+            storageType,
+            storageAdaptersSliced;
 
         // end of recursive loop reached, no adapter available
         if (!storageAdapters || !storageAdapters.length) {
@@ -432,8 +468,10 @@
             return;
         }
 
-        // init storage and check support
+        // init storage, check support and save vars for better compression
         storageType = storageAdapters[0].type;
+        storageAdaptersSliced = storageAdapters.slice(1);
+
         /* start-dev-block */
         moduleLog('Testing for storage adapter type: ' + storageType);
         /* end-dev-block */
@@ -444,7 +482,7 @@
             adapter = new appCacheStorageAdapter[storageType](adapterDefaults);
         } else {
             // recursiv call
-            getAvailableStorageAdapter(storageAdapters.slice(1), callback);
+            getAvailableStorageAdapter(storageAdaptersSliced, callback);
         }
 
         // check for general javascript api support
@@ -461,12 +499,13 @@
                     /* start-dev-block */
                     moduleLog('Used storage adapter type: ' + adapterAvailable);
                     /* end-dev-block */
+
                     callback(adapter);
 
                 } else {
 
                     // recursiv call
-                    getAvailableStorageAdapter(storageAdapters.slice(1), callback);
+                    getAvailableStorageAdapter(storageAdaptersSliced, callback);
 
                 }
             });
@@ -474,7 +513,7 @@
         } else {
 
             // recursiv call
-            getAvailableStorageAdapter(storageAdapters.slice(1), callback);
+            getAvailableStorageAdapter(storageAdaptersSliced, callback);
         }
     }
 
@@ -482,10 +521,11 @@
     /**
      * get storage adapter
      *
-     * @param {function} callback The callback function
-     * @param {string} type The optional storage type to initialize
+     * @param {function} callback The required callback function
+     * @param {array} storageAdapters The required storage adapter config
+     * @param {string} preferredStorageType The optional preferred storage type
      */
-    function getStorageAdapter(callback, storageType) {
+    function getStorageAdapter(callback, storageAdapters, preferredStorageType) {
 
         // init local vars
         var adapter = null,
@@ -493,17 +533,20 @@
             length;
 
         // if storage type is set, try to initialize it
-        if (storageType) {
+        if (preferredStorageType) {
 
             try {
-                // init storage and check support
+
                 /* start-dev-block */
-                moduleLog('Testing for storage adapter type: ' + storageType);
+                moduleLog('Testing for preferred storage adapter type: ' + preferredStorageType);
                 /* end-dev-block */
-                if (appCacheStorageAdapter[storageType]) {
-                    adapter = new appCacheStorageAdapter[storageType](adapterDefaults);
+
+                // init storage and check support
+                if (appCacheStorageAdapter[preferredStorageType]) {
+                    adapter = new appCacheStorageAdapter[preferredStorageType](adapterDefaults);
                 } else {
-                    getStorageAdapter(callback);
+                    getStorageAdapter(callback, storageAdapters);
+                    return;
                 }
 
                 if (adapter && adapter.isSupported()) {
@@ -512,51 +555,58 @@
                     adapter.open(function (success) {
                         if (!!success) {
 
-                            adapterAvailable = storageType;
-                            length = adapters.length;
+                            adapterAvailable = preferredStorageType;
+                            length = storageAdapters.length;
 
                             // get adapter config from supported type
                             for (i = 0; i < length; i = i + 1) {
-                                if (adapters[i].type === storageType) {
-                                    adapterAvailableConfig = adapters[i];
+                                if (storageAdapters[i].type === preferredStorageType) {
+                                    adapterAvailableConfig = storageAdapters[i];
                                 }
                             }
+
                             if (adapterAvailableConfig) {
+
                                 /* start-dev-block */
                                 moduleLog('Used storage type: ' + adapterAvailable);
                                 /* end-dev-block */
+
                                 callback(adapter);
                                 return;
                             }
 
-                            // if there is no config, test the next adapter type
                             /* start-dev-block */
                             moduleLog('Storage config not found: ' + adapterAvailable);
                             /* end-dev-block */
-                            getStorageAdapter(callback);
+
+                            // if there is no config, test the next adapter type
+                            getStorageAdapter(callback, storageAdapters);
 
                         } else {
 
                             // recursiv call
-                            getStorageAdapter(callback);
+                            getStorageAdapter(callback, storageAdapters);
 
                         }
                     });
                 } else {
                     // javascript api is not supported, recursiv call
-                    getStorageAdapter(callback);
+                    getStorageAdapter(callback, storageAdapters);
                 }
             } catch (e) {
-                // javascript api is not (or mayby in a different standard way implemented and) supported, recursiv call
+
                 /* start-dev-block */
-                moduleLog('Storage adapter could not be initialized: type ' + storageType, e);
+                handleStorageEvents(e);
+                moduleLog('Storage adapter could not be initialized: type ' + preferredStorageType);
                 /* end-dev-block */
-                getStorageAdapter(callback);
+
+                // javascript api is not (or mayby in a different standard way implemented and) supported, recursiv call
+                getStorageAdapter(callback, storageAdapters);
             }
 
         } else {
             // automatic init with global adapters array
-            getAvailableStorageAdapter(adapters, callback);
+            getAvailableStorageAdapter(storageAdapters, callback);
         }
     }
 
@@ -592,33 +642,30 @@
          */
         self.isEnabled = true;
 
-
         /**
          * @type {object} The instance of the best (or given) available storage adapter
          */
         self.adapter = null;
-
-
-        /**
-         * @type {object} Make the adapter types and defaults available to instance calls
-         */
-        self.adapters = {
-            types: adapters,
-            defaults: adapterDefaults
-        };
-
 
         /**
          * @type {object} The instance of the application cache storage adapter
          */
         self.appCacheAdapter = null;
 
+        /**
+         * @type {object} Make the adapter types and defaults available to instance calls
+         */
+        self.adapters = {
+            types: adapterTypes,
+            defaults: adapterDefaults
+        };
 
         /**
          * @type {object} Make the resource defaults available to instance calls
          */
-        self.resourceDefaults = resourceDefaults;
-
+        self.resources = {
+            defaults: resourceDefaults
+        };
 
         // run init function
         self.init(callback, parameters);
@@ -641,6 +688,13 @@
          */
         create: function (resource, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+            if (!resource || !resource.url) {
+                callback(false);
+                return;
+            }
+
             // init local vars
             var self = this,
                 url = resource.url,
@@ -648,9 +702,11 @@
                 createCallback = function (data) {
 
                     if (!data) {
+
                         /* start-dev-block */
                         moduleLog('Couldn\'t get data via network');
                         /* end-dev-block */
+
                         callback(resource);
                         return;
                     }
@@ -663,7 +719,7 @@
 
                        // create storage content
                         var key = convertObjectToString(url),
-                            storageContent = copyStorageContent(resource),
+                            storageContent = copyStorageContent(resource, self.resources.defaults),
                             content = convertObjectToString(storageContent);
 
                         // update meta data, mainly for test suites
@@ -679,33 +735,42 @@
                             // create storage entry
                             self.adapter.create(key, content, function (success) {
                                 if (success) {
+
                                     /* start-dev-block */
                                     moduleLog('Create new resource in storage adapter: type ' + type + ', url ' + url);
                                     /* end-dev-block */
+
                                     callback(resource);
                                 } else {
+
                                     /* start-dev-block */
                                     moduleLog('Create new resource in storage adapter failed');
                                     /* end-dev-block */
+
                                     callback(false);
                                 }
                             });
                         } catch (e) {
+
+                            /* start-dev-block */
+                            handleStorageEvents(e);
+                            moduleLog('Create new resource in storage adapter failed');
+                            /* end-dev-block */
+
                             // just give back the resource to get the data
                             callback(resource);
                         }
 
                     } else {
+
                         /* start-dev-block */
                         moduleLog('Trying to create new resource, but resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
                         /* end-dev-block */
+
                         callback(resource);
                     }
 
                 };
-
-            // check callback function
-            callback = checkCallback(callback);
 
             // get resource data based on type
             if (!!resource.ajax) {
@@ -731,13 +796,17 @@
          */
         read: function (resource, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+            if (!resource || !resource.url) {
+                callback(false);
+                return;
+            }
+
             // init local vars
             var self = this,
                 url = resource.url,
                 type = resource.type;
-
-            // check callback function
-            callback = checkCallback(callback);
 
             // try to read from storage
             if (null !== this.adapter && isRessourceStorable(type)) {
@@ -771,24 +840,37 @@
                             }
 
                             resource.url = url;
+
                             /* start-dev-block */
                             moduleLog('Successfully read resource from storage: type ' + type + ', url ' + url);
                             /* end-dev-block */
+
                             callback(resource, true);
                         } else {
+
                             /* start-dev-block */
                             moduleLog('There is no data coming back from storage while reading: type ' + type + ', url ' + url);
                             /* end-dev-block */
+
                             callback(false);
                         }
                     });
                 } catch (e) {
+
+                    /* start-dev-block */
+                    handleStorageEvents(e);
+                    moduleLog('Try to read resource from storage, but storage adapter is not available: type ' + type + ', url ' + url);
+                    /* end-dev-block */
+
                     handleXhrRequests(url, function (data) {
-                        resource.data = data;
+
                         /* start-dev-block */
-                        moduleLog('Try to read resource from storage, but storage adapter is not available: type ' + type + ', url ' + url);
+                        moduleLog('Data loaded via ajax: type ' + type + ', url ' + url + ', data status ' + !!data);
                         /* end-dev-block */
+
+                        resource.data = data;
                         callback(resource, true);
+
                     }, resource);
                 }
 
@@ -807,6 +889,13 @@
          */
         update: function (resource, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+            if (!resource || !resource.url) {
+                callback(false);
+                return;
+            }
+
             // init local vars
             var self = this,
                 url = resource.url,
@@ -815,9 +904,11 @@
 
                     // try to use stored data if resource couldn't be updated via network
                     if (!data) {
+
                         /* start-dev-block */
                         moduleLog('Couldn\'t get data via network, trying to used stored version');
                         /* end-dev-block */
+
                         self.read(resource, function (item) {
                             if (item && item.data) {
                                 resource.data = item.data;
@@ -838,7 +929,7 @@
 
                         // create storage content
                         var key = convertObjectToString(url),
-                            storageContent = copyStorageContent(resource),
+                            storageContent = copyStorageContent(resource, self.resources.defaults),
                             content = convertObjectToString(storageContent);
 
                         // update meta data, mainly for test suites
@@ -854,32 +945,41 @@
                             // create storage entry
                             self.adapter.update(key, content, function (success) {
                                 if (!!success) {
+
                                     /* start-dev-block */
-                                    moduleLog('Update existing resource in storage adapter: type ' + type + ', url ' + url);
+                                    moduleLog('Updated existing resource in storage adapter: type ' + type + ', url ' + url);
                                     /* end-dev-block */
+
                                     callback(resource);
                                 } else {
+
                                     /* start-dev-block */
                                     moduleLog('Updating resource in storage failed.');
                                     /* end-dev-block */
+
                                     callback(false);
                                 }
                             });
                         } catch (e) {
+
+                            /* start-dev-block */
+                            handleStorageEvents(e);
+                            moduleLog('Updating resource in storage failed.');
+                            /* end-dev-block */
+
                             // just give back the resource to get the data
                             callback(resource);
                         }
 
                     } else {
+
                         /* start-dev-block */
                         moduleLog('Resource type is not cachable or storage adapter is not available: type ' + type + ', url ' + url);
                         /* end-dev-block */
+
                         callback(resource);
                     }
                 };
-
-            // check callback function
-            callback = checkCallback(callback);
 
             // get resource data based on type
             if (!!resource.ajax) {
@@ -905,23 +1005,28 @@
          */
         remove: function (resource, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+            if (!resource || !resource.url) {
+                callback(false);
+                return;
+            }
+
             // init local vars
             var self = this,
                 url = resource.url,
                 type = resource.type;
 
-            // check callback function
-            callback = checkCallback(callback);
-
             // try to remove resource from storage
             if (null !== self.adapter && isRessourceStorable(type)) {
-                // TODO: convertObjectToString(url) for key value?
                 self.adapter.remove(convertObjectToString(url), function (success) {
 
                     if (!success) {
+
                         /* start-dev-block */
                         moduleLog('Deleting resource form storage failed: type ' + type + ', url ' + url);
                         /* end-dev-block */
+
                         callback(false);
                         return;
                     }
@@ -929,12 +1034,15 @@
                     /* start-dev-block */
                     moduleLog('Delete resource form storage: type ' + type + ', url ' + url);
                     /* end-dev-block */
+
                     callback(resource);
                 });
             } else {
+
                 /* start-dev-block */
                 moduleLog('Delete resource from storage failed, resource type is not cachable or there is no storage adapter: type ' + type + ', url ' + url);
                 /* end-dev-block */
+
                 callback(resource);
             }
 
@@ -951,7 +1059,16 @@
 
             // init local vars
             var self = this,
-                storageType = false;
+                preferredAdapterType = false,
+                parametersAdapters,
+                parametersAdapterTypes,
+                parametersAdapterTypesLength,
+                parametersAdapterDefaults,
+                parametersResources,
+                parametersResourceDefaults,
+                selfAdapterDefaults,
+                selfResourceDefaults,
+                i;
 
             // check basic params
             callback = checkCallback(callback);
@@ -959,41 +1076,118 @@
                 self.isEnabled = !!parameters.isEnabled;
             }
 
+            // init storage and adapters
             if (self.isEnabled && json) {
 
                 // set parameters
                 if (parameters) {
-                    if (parameters.description) {
-                        adapterDefaults.description = String(parameters.description);
-                    }
-                    if (parameters.key) {
-                        adapterDefaults.key = String(parameters.key);
-                    }
-                    if (parameters.lifetime) {
-                        adapterDefaults.lifetime = String(parameters.lifetime);
-                    }
-                    if (parameters.name) {
-                        adapterDefaults.name = String(parameters.name);
-                    }
-                    if (parameters.size) {
-                        adapterDefaults.size = parseInt(parameters.size, 10);
-                    }
-                    if (parameters.table) {
-                        adapterDefaults.table = String(parameters.table);
-                    }
-                    if (parameters.type) {
-                        adapterDefaults.type = storageType = String(parameters.type);
-                    }
-                    if (parameters.offline) {
-                        adapterDefaults.offline = Boolean(parameters.offline);
-                    }
-                    if (parameters.version) {
-                        adapterDefaults.version = String(parameters.version);
-                    }
-                }
 
-                if (adapterDefaults.offline && appCacheStorageAdapter.applicationCache) {
-                    self.appCacheAdapter = new appCacheStorageAdapter.applicationCache(adapterDefaults);
+
+                    // check adapter params
+                    if (parameters.adapters) {
+
+                        parametersAdapters = parameters.adapters;
+
+                        // check adapater type params
+                        if (parametersAdapters.types && utils.isArray(parametersAdapters.types)) {
+
+                            parametersAdapterTypes = parametersAdapters.types;
+                            parametersAdapterTypesLength = parametersAdapterTypes.length;
+
+                            // set resource cachable options to defaults if not set
+                            for (i = 0; i < parametersAdapterTypesLength; i = i + 1) {
+                                if (parametersAdapterTypes[i].css === undefined) {
+                                    parametersAdapterTypes[i].css = true;
+                                }
+                                if (parametersAdapterTypes[i].js === undefined) {
+                                    parametersAdapterTypes[i].js = true;
+                                }
+                                if (parametersAdapterTypes[i].img === undefined) {
+                                    parametersAdapterTypes[i].img = true;
+                                }
+                                if (parametersAdapterTypes[i].html === undefined) {
+                                    parametersAdapterTypes[i].html = true;
+                                }
+                            }
+
+                            self.adapters.types = parametersAdapterTypes;
+
+                        }
+
+                        // check adpater defaults params
+                        if (parametersAdapters.defaults) {
+
+                            parametersAdapterDefaults = parametersAdapters.defaults;
+                            selfAdapterDefaults = self.adapters.defaults;
+
+                            // set adapter defaults
+                            if (parametersAdapterDefaults.name) {
+                                selfAdapterDefaults.name = trim(String(parametersAdapterDefaults.name));
+                            }
+                            if (parametersAdapterDefaults.table) {
+                                selfAdapterDefaults.table = trim(String(parametersAdapterDefaults.table));
+                            }
+                            if (parametersAdapterDefaults.description) {
+                                selfAdapterDefaults.description = trim(String(parametersAdapterDefaults.description));
+                            }
+                            if (parametersAdapterDefaults.size) {
+                                selfAdapterDefaults.size = parseInt(parametersAdapterDefaults.size, 10);
+                            }
+                            if (parametersAdapterDefaults.version) {
+                                selfAdapterDefaults.version = trim(String(parametersAdapterDefaults.version));
+                            }
+                            if (parametersAdapterDefaults.key) {
+                                selfAdapterDefaults.key = trim(String(parametersAdapterDefaults.key));
+                            }
+                            if (parametersAdapterDefaults.lifetime) {
+                                selfAdapterDefaults.lifetime = trim(String(parametersAdapterDefaults.lifetime));
+                            }
+                            if (parametersAdapterDefaults.offline !== undefined) {
+                                selfAdapterDefaults.offline = !!(parametersAdapterDefaults.offline);
+                            }
+
+                        }
+
+                        if (parametersAdapters.preferredType) {
+                            preferredAdapterType = trim(String(parametersAdapters.preferredType));
+                        }
+
+                    }
+
+                    // check resource params
+                    if (parameters.resources) {
+
+                        parametersResources = parameters.resources;
+
+                        if (parametersResources.defaults) {
+
+                            parametersResourceDefaults = parametersResources.defaults;
+                            selfResourceDefaults = self.resources.defaults;
+
+                            // set resources defaults
+                            if (parametersResourceDefaults.ajax !== undefined) {
+                                selfResourceDefaults.ajax = !!parametersResourceDefaults.ajax;
+                            }
+                            if (parametersResourceDefaults.lifetime !== undefined) {
+                                selfResourceDefaults.lifetime = parseInt(parametersResourceDefaults.lifetime, 10);
+                            }
+                            if (parametersResourceDefaults.group !== undefined) {
+                                selfResourceDefaults.group = parseInt(parametersResourceDefaults.group, 10);
+                            }
+                            if (parametersResourceDefaults.lastmod !== undefined) {
+                                selfResourceDefaults.lastmod = parseInt(parametersResourceDefaults.lastmod, 10);
+                            }
+                            if (parametersResourceDefaults.type) {
+                                selfResourceDefaults.type = trim(String(parametersResourceDefaults.type));
+                            }
+                            if (parametersResourceDefaults.group !== undefined) {
+                                selfResourceDefaults.version = parseFloat(parametersResourceDefaults.version);
+                            }
+                            if (parametersResourceDefaults.loaded) {
+                                selfResourceDefaults.loaded = checkCallback(parametersResourceDefaults.loaded);
+                            }
+                        }
+                    }
                 }
 
 
@@ -1010,7 +1204,11 @@
                 getStorageAdapter(function (adapter) {
                     self.adapter = adapter;
                     callback(self);
-                }, storageType);
+                }, self.adapters.types, preferredAdapterType);
+
+                if (self.adapters.defaults.offline && appCacheStorageAdapter.applicationCache && !self.appCacheAdapter) {
+                    self.appCacheAdapter = new appCacheStorageAdapter.applicationCache(adapterDefaults);
+                }
 
             } else {
 
@@ -1042,11 +1240,7 @@
      * 
      * @export
      */
-    if (utils.isFunction(ns.namespace)) {
-        ns.namespace('cache.' + controllerType + '.controller', Storage);
-    } else {
-        ns[controllerType] = Storage;
-    }
+    ns.namespace('cache.' + controllerType + '.controller', Storage);
 
 
 }(window, document, window.getNs())); // immediatly invoke function

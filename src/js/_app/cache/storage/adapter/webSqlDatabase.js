@@ -13,12 +13,13 @@
  *      - iOs 6.1 + (3.2)
  *      - Android 2.1 +
  *
- * @version 0.1.7
+ * @version 0.1.8
  * @author Ulrich Merkel, 2013
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.8 bug fix opening database first time
  * - 0.1.7 read bug fix with non-existing resource
  * - 0.1.6 example doc added
  * - 0.1.5 improved namespacing
@@ -189,7 +190,6 @@
 
         // log message string
         moduleLog(msg);
-
         /* end-dev-block */
 
     }
@@ -256,11 +256,13 @@
             // check for global var
             if (null === boolIsSupported) {
                 boolIsSupported = !!window.openDatabase;
+
                 /* start-dev-block */
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported');
                 }
                 /* end-dev-block */
+
             }
 
             // return bool
@@ -280,11 +282,13 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!key) {
+                callback(false);
+            }
 
             // init vars and create success callback
             var self = this,
                 sqlSuccess = function () {
-                    //resource.data = data;
                     callback(true);
                 },
                 sqlError = function (transaction, e) {
@@ -316,6 +320,9 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!key) {
+                callback(false);
+            }
 
             // init vars and read success callback
             var self = this,
@@ -357,6 +364,9 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!key) {
+                callback(false);
+            }
 
             // init vars and update success callback
             var self = this,
@@ -391,6 +401,9 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!key) {
+                callback(false);
+            }
 
             // init vars and delete success callback
             var self = this,
@@ -440,17 +453,19 @@
                         callback(false);
                     }
 
-                    // create test item
-
                     /* start-dev-block */
                     moduleLog('Try to create test resource');
                     /* end-dev-block */
+
+                    // create test item
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
+
                                 /* start-dev-block */
                                 moduleLog('Test resource created and successfully deleted');
                                 /* end-dev-block */
+
                                 callback(currentAdapter);
                                 return;
                             });
@@ -468,12 +483,17 @@
                  * @param {object} transaction The optinional transaction object
                  */
                 createTableIfNotExists = function (currentAdapter, transaction) {
+
+                    /* start-dev-block */
+                    moduleLog('Checking database table: name ' + self.dbTable);
+                    /* end-dev-block */
+
                     executeSql(
                         currentAdapter,
                         'CREATE TABLE IF NOT EXISTS ' + self.dbTable + '(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, key TEXT NOT NULL UNIQUE, content TEXT NOT NULL);',
                         [],
                         function () {
-                            createTestResource(currentAdapter);
+                            createTestResource(self.adapter);
                         },
                         function (e) {
                             handleStorageEvents(e);
@@ -502,7 +522,7 @@
                     /* start-dev-block */
 
                     // add more information and display error
-                    e.info = 'Can\'t migrate to new database version and using localStorage instead. This may be caused by non-standard implementation of the changeVersion method. Please switch back your database version to use webSql on this device.';
+                    e.info = 'Can\'t migrate to new database version. This may be caused by non-standard implementation of the changeVersion method. Please switch back your database version to use webSql on this device.';
                     handleStorageEvents(e);
 
                     /* end-dev-block */
@@ -514,6 +534,10 @@
             try {
 
                 if (null === adapter && self.isSupported()) {
+
+                    /* start-dev-block */
+                    moduleLog('Initializing database');
+                    /* end-dev-block */
 
                     /**
                      * obtaining the current database version, calling openDatabase without version parameter
@@ -530,6 +554,11 @@
 
                     // check for new version
                     if (String(adapter.version) !== String(self.dbVersion) && !!adapter.changeVersion && typeof adapter.changeVersion === 'function') {
+
+                        /* start-dev-block */
+                        moduleLog('Try to update version: new version ' + adapter.version + ', old version ' + self.dbVersion);
+                        /* end-dev-block */
+
                         try {
                             adapter.changeVersion(
                                 adapter.version,
@@ -543,6 +572,10 @@
                         }
                     } else {
 
+                        /* start-dev-block */
+                        moduleLog('Open database with version number: ' + self.dbVersion);
+                        /* end-dev-block */
+
                         // reopen database with the correct version number to avoid errors
                         adapter = window.openDatabase(self.dbName, self.dbVersion, self.dbDescription, self.dbSize);
                         createTableIfNotExists(adapter);
@@ -550,6 +583,10 @@
                     }
 
                 } else if (self.isSupported()) {
+
+                    /* start-dev-block */
+                    moduleLog('database already initialized');
+                    /* end-dev-block */
 
                     // db already initialized
                     createTestResource(adapter);

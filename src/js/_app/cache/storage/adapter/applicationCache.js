@@ -32,6 +32,7 @@
  *
  * @see
  * - http://www.w3.org/TR/offline-webapps/
+ * - http://www.w3.org/TR/progress-events/
  * - http://www.html5rocks.com/de/tutorials/appcache/beginner/
  *
  * @requires
@@ -140,9 +141,11 @@
             self.progressCallback(100);
             window.setTimeout(function () {
                 callback();
+
                 /* start-dev-block */
                 moduleLog('Event loaded');
                 /* end-dev-block */
+
             }, self.delay);
         }
 
@@ -174,7 +177,8 @@
         self.adapter = null;
         self.type = storageType;
         self.isLoaded = false;
-        self.delay = 25;
+        self.delay = 0;
+        self.opened = true;
 
         // run init function
         self.init(parameters);
@@ -201,11 +205,13 @@
             // check for global var
             if (null === boolIsSupported) {
                 boolIsSupported = !!window.applicationCache && !!dom.getAttribute(htmlNode, 'manifest');
+
                 /* start-dev-block */
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported or there is no manifest html attribute');
                 }
                 /* end-dev-block */
+
             }
 
             // return bool
@@ -230,6 +236,8 @@
                 progressCallback,
                 onUpdateReady;
 
+            self.opened = true;
+
             // check parameters
             callback = checkCallback(callback);
 
@@ -247,6 +255,7 @@
                  * handle updates
                  */
                 onUpdateReady = function () {
+
                     /* start-dev-block */
                     moduleLog('Event updateready');
                     /* end-dev-block */
@@ -255,9 +264,11 @@
                     try {
                         adapter.swapCache();
                     } catch (e) {
+
                         /* start-dev-block */
                         moduleLog('Event updateready: swapcache is not available', e);
                         /* end-dev-block */
+
                     }
 
                     // ask user for refreshing the page
@@ -294,9 +305,11 @@
                  * the noupdate event is fired and the process ends.
                  */
                 on(adapter, 'noupdate', function () {
+
                     /* start-dev-block */
                     moduleLog('Event noupdate');
                     /* end-dev-block */
+
                     loaded(callback, self);
 
                     return false;
@@ -311,9 +324,11 @@
                  * the downloading event signals the start of this download process.
                  */
                 on(adapter, 'downloading', function () {
+
                     /* start-dev-block */
                     moduleLog('Event downloading');
                     /* end-dev-block */
+
                     manifestProgressCount = 0;
 
                     return false;
@@ -329,11 +344,12 @@
                  * @param {object} e The progress event object holding additionally information
                  */
                 on(adapter, 'progress', function (e) {
+
                     /* start-dev-block */
                     moduleLog('Event progress');
                     /* end-dev-block */
 
-                    var progress = "";
+                    var progress = 0;
 
                     // to run the css animation smooth until end
                     self.delay = 500;
@@ -361,9 +377,11 @@
                  * fires the cached event when the download is complete.
                  */
                 on(adapter, 'cached', function () {
+
                     /* start-dev-block */
                     moduleLog('Event cached');
                     /* end-dev-block */
+
                     loaded(callback, self);
 
                     return false;
@@ -390,9 +408,11 @@
                  * subsequent loads are done from the network rather than from the cache.
                  */
                 on(adapter, 'obsolete', function () {
+
                     /* start-dev-block */
                     moduleLog('Event obsolete');
                     /* end-dev-block */
+
                     window.location.reload(true);
 
                     return false;
@@ -406,9 +426,11 @@
                  * ressources can't be loaded.
                  */
                 on(adapter, 'error', function () {
+
                     /* start-dev-block */
                     moduleLog('Event error');
                     /* end-dev-block */
+
                     loaded(callback, self);
 
                     return false;
@@ -451,9 +473,11 @@
                     try {
                         adapter.update();
                     } catch (e) {
+
                         /* start-dev-block */
                         moduleLog('Window event online: update cache is not available', e);
                         /* end-dev-block */
+
                     }
                 });
 

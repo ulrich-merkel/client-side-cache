@@ -1,6 +1,6 @@
 /*jslint browser: true, devel: true, continue: true, regexp: true, plusplus: true, unparam: true  */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
-/*global window, document, console, XMLHttpRequest, ActiveXObject*/
+/*global window, document, XMLHttpRequest, ActiveXObject*/
 
 /**
  * ns.helpers.utils
@@ -246,7 +246,9 @@
             callback: function (callback) {
                 // check if param is function, if not set it to empty function
                 if (!utils.isFunction(callback)) {
-                    callback = function () {};
+                    callback = function () {
+                        return undefined;
+                    };
                 }
 
                 // return checked callback function
@@ -360,14 +362,14 @@
                         },
                         // internet explorer (since version 5)
                         function () {
-                            return new ActiveXObject("Msxml2.XMLHTTP");
+                            return new ActiveXObject('Msxml2.XMLHTTP');
                         },
                         function () {
-                            return new ActiveXObject("Msxml3.XMLHTTP");
+                            return new ActiveXObject('Msxml3.XMLHTTP');
                         },
                         // internet explorer (since version 6)
                         function () {
-                            return new ActiveXObject("Microsoft.XMLHTTP");
+                            return new ActiveXObject('Microsoft.XMLHTTP');
                         }
                     ],
                     length = XMLHttpFactories.length,
@@ -539,7 +541,7 @@
                 }
 
                 // convert object to string
-                if (jsonObject && object) {
+                if (jsonObject && object !== undefined) {
                     result = jsonObject.stringify(object);
                 }
 
@@ -567,7 +569,7 @@
                 }
 
                 // convert object to string
-                if (jsonObject && string) {
+                if (jsonObject && string !== undefined) {
                     result = jsonObject.parse(string);
                 }
 
@@ -575,6 +577,8 @@
                 return result;
             },
 
+
+            /* start-dev-block */
 
             /**
              * function to write logging message to screen
@@ -585,7 +589,7 @@
 
                 // init local vars
                 var log = document.getElementById('log'),
-                    p = document.createElement("p"),
+                    p = document.createElement('p'),
                     text = document.createTextNode(message);
 
                 // append message
@@ -651,6 +655,8 @@
                 utils.logToScreen(message);
             },
 
+            /* end-dev-block */
+
 
             /**
              * log timer start
@@ -680,7 +686,6 @@
                 }
 
             },
-
 
 
             /**
@@ -730,6 +735,7 @@
                 };
             },
 
+            /* start-dev-block */
 
             /**
              * get url query string
@@ -740,7 +746,8 @@
              */
             queryString: (function (url) {
 
-                var query_string = {},
+                var queryString = {},
+                    //query = utils.url(url) ? utils.url(url).query : window.location.search.substring(1),
                     query = window.location.search.substring(1),
                     vars = query.split('&'),
                     varsLength = vars.length,
@@ -753,27 +760,27 @@
                     // get value pairs
                     pair = vars[i].split('=');
 
-                    if (query_string[pair[0]] === undefined) {
+                    if (queryString[pair[0]] === undefined) {
 
                         // if first entry with this name
-                        query_string[pair[0]] = pair[1];
+                        queryString[pair[0]] = pair[1];
 
-                    } else if (typeof query_string[pair[0]] === 'string') {
+                    } else if (typeof queryString[pair[0]] === 'string') {
 
                         // if second entry with this name
-                        arr = [query_string[pair[0]], pair[1]];
-                        query_string[pair[0]] = arr;
+                        arr = [queryString[pair[0]], pair[1]];
+                        queryString[pair[0]] = arr;
 
                     } else {
 
                         // if third or later entry with this name
-                        query_string[pair[0]].push(pair[1]);
+                        queryString[pair[0]].push(pair[1]);
 
                     }
 
                 }
 
-                return query_string;
+                return queryString;
 
             }()),
 
@@ -794,10 +801,12 @@
                     args = arguments;
 
                 return text.replace(/%s/g, function () {
-                    return (i < args.length) ? args[i++] : "";
+                    return (i < args.length) ? args[i++] : '';
                 });
 
             },
+
+            /* end-dev-block */
 
 
             /**

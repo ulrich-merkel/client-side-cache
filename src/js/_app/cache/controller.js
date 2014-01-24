@@ -72,7 +72,7 @@
  *
  *
  **/
-(function (window, ns, undefined) {
+(function (ns, undefined) {
 
     'use strict';
 
@@ -99,6 +99,7 @@
         client = helpers.client,                                    // @type {object} Shortcut for client functions
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         isArray = utils.isArray,                                    // @type {function} Shortcut for utils.isArray function
+        trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         checkCallback = utils.callback;                             // @type {function} Shortcut for utils.callback function
 
 
@@ -121,6 +122,7 @@
 
     /* end-dev-block */
 
+
     /**
      * try to guess file extension
      *
@@ -130,31 +132,50 @@
      */
     function guessResourceType(url) {
 
-        var extension = utils.url(url).extension;
+        var extension = utils.url(url).extension,
+            type;
 
         switch (extension) {
         case 'js':
-            extension = 'js';
+            type = 'js';
             break;
         case 'css':
-            extension = 'css';
+            type = 'css';
             break;
         case 'html':
-            extension = 'html';
+            type = 'html';
             break;
         case 'jpg':
         case 'jpeg':
         case 'png':
-            extension = 'img';
+            type = 'img';
             break;
         default:
-            extension = 'custom';
+            type = 'custom';
             break;
         }
 
-        return extension;
+        return type;
 
     }
+
+
+    /**
+     *
+     *
+     */
+    function checkResourceType(resource) {
+
+        var type = trim(resource.type);
+
+        if (type !== 'js' || type !== 'css' || type !== 'html' || type !== 'img' || type !== 'custom') {
+            type = guessResourceType(resource.url);
+        }
+
+        return type;
+
+    }
+
 
     /**
      * -------------------------------------------
@@ -200,10 +221,10 @@
         /**
          * load multiple resources
          *
-         * @param {array} resources The array with resource objects
+         * @param {array} mainResources The array with resource objects
          * @param {function} mainCallback The callback after all resources are loaded
          */
-        load: function (resources, mainCallback) {
+        load: function (mainResources, mainCallback) {
 
             // declare load vars and functions
             var self = this,
@@ -272,10 +293,9 @@
 
                     // init local vars
                     var url = resource.url,
-                        resourceLoaded = checkCallback(resource.loaded),
                         callback = function () {
+                            resource.loaded(resource);
                             loadResourceGroupQueue.loaded();
-                            resourceLoaded(resource);
                         },
                         node = resource.node || null;
 
@@ -316,7 +336,7 @@
                 isResourceValid = function (resource, item) {
 
                     // init local vars
-                    var resourceDefaults = self.storage.resourceDefaults,
+                    var resourceDefaults = self.storage.resources.defaults,
                         itemLifetime = parseInt(item.lifetime, 10),
                         itemVersion = item.version,
                         itemLastmod = !!item.lastmod ? item.lastmod : 0,
@@ -404,10 +424,11 @@
                             }
                         },
                         storage = self.storage,
-                        resourceDefaults = storage.resourceDefaults;
+                        resourceDefaults = storage.resources.defaults;
 
                     // check optional resource attributes and set defaults
                     resource.ajax = resource.ajax !== undefined ? !!resource.ajax : resourceDefaults.ajax;
+                    resource.loaded = resource.loaded !== undefined ? checkCallback(resource.loaded) : checkCallback(resourceDefaults.loaded);
 
                     // read resource via storage controller
                     storage.read(resource, function (item) {
@@ -420,9 +441,11 @@
                          * created then - it just returns the data via xhr.
                          */
                         if (!item || !item.data) {
+
                             /* start-dev-block */
-                            moduleLog('Resource or resource data is not available in storage adapter: type ' + resource.type + ', url ' + resource.url);
+                            moduleLog('Resource or resource data is not available in storage adapter, try to create it: type ' + resource.type + ', url ' + resource.url);
                             /* end-dev-block */
+
                             storage.create(resource, callback);
                             return;
                         }
@@ -430,14 +453,18 @@
                         // check for outdated data and network connection
                         resource = isResourceValid(resource, item);
                         if (resource.isValid || !client.isOnline()) {
+
                             /* start-dev-block */
                             moduleLog('Resource is up to date: type ' + resource.type + ', url ' + resource.url);
                             /* end-dev-block */
+
                             data = item.data;
                         } else {
+
                             /* start-dev-block */
                             moduleLog('Resource is outdated and needs update: type ' + resource.type + ', url ' + resource.url);
                             /* end-dev-block */
+
                             storage.update(resource, callback);
                             return;
                         }
@@ -468,16 +495,16 @@
                     // init queue manager for this group to invoke a callback when group finished loading
                     loadResourceGroupQueue.init(length, callback);
 
-                    // toggle through group
+                    // toggle through group and start loading for each resource
                     for (i = 0; i < length; i = i + 1) {
 
                         // check resource and load it
                         resource = group[i];
                         if (resource && resource.url) {
-                            // guess resource type if not set
-                            if (!resource.type) {
-                                resource.type = guessResourceType(resource.url);
-                            }
+
+                            resource.url = trim(resource.url);
+                            resource.type = checkResourceType(resource);
+
                             loadResource(resource);
                         }
 
@@ -546,7 +573,6 @@
                  * @param {integer} index The optional group index
                  */
                 load = function (resources, callback, index) {
-
                     // init local vars
                     var length = resources.length,
                         group;
@@ -569,9 +595,9 @@
                         index = index + 1;
                     }
 
-                    // end of resources array reached
+                    // end of resources array reached, call main load callback
                     if (index >= length) {
-                        callback();
+                        callback(self);
                         return;
                     }
 
@@ -605,17 +631,18 @@
                     callback = checkCallback(mainCallback);
                     resourcesGroupLength = resources.length;
 
-                    // call main load function to start the process
                     /* start-dev-block */
                     moduleLog('Load resource function called: ' + resourcesLength + ' resources, ' + resourcesGroupLength + ' groups');
                     /* end-dev-block */
+
+                    // call main load function to start the process
                     load(resources, callback);
 
                 };
 
 
             // start routine
-            main(resources, mainCallback);
+            main(mainResources, mainCallback);
 
 
         },
@@ -651,9 +678,11 @@
                         i,
                         resource,
                         resourceRemovedCallback = function (current, url) {
+
                             /* start-dev-block */
                             moduleLog('Successfully removed resource: url ' + url);
                             /* end-dev-block */
+
                             if (current === length - 1) {
                                 callback();
                             }
@@ -670,10 +699,10 @@
                         // remove each resource if it is a valid array entry
                         resource = resources[i];
                         if (resource && resource.url) {
-                            // guess resource type if not set
-                            if (!resource.type) {
-                                resource.type = guessResourceType(resource.url);
-                            }
+
+                            resource.url = trim(resource.url);
+                            resource.type = checkResourceType(resource);
+
                             storage.remove(resource, resourceRemovedCallback(i, resource.url));
                         }
 
@@ -696,10 +725,11 @@
                     }
                     callback = checkCallback(mainCallback);
 
-                    // call main load function to start the process
                     /* start-dev-block */
                     moduleLog('Remove resource function called: resources count ' + resources.length);
                     /* end-dev-block */
+
+                    // call main load function to start the process
                     remove(resources, callback);
 
                 };
@@ -726,10 +756,11 @@
             // check callback function
             callback = checkCallback(callback);
 
-            // init storage
             /* start-dev-block */
             moduleLog('Cache initializing and checking for storage adapters');
             /* end-dev-block */
+
+            // init storage
             ns.cache.storage.controller(function (storage) {
 
                 self.storage = storage;
@@ -737,21 +768,18 @@
 
             }, parameters);
 
+            return self;
         }
     };
 
 
     /**
      * make the storage constructor available for ns.cache.storage.adapter.webStorage()
-     * calls under the ns.cache namespace, alternativly save it to window object
+     * calls under the ns.cache namespace
      * 
      * @export
      */
-    if (utils.isFunction(ns.namespace)) {
-        ns.namespace(controllerType + '.controller', Controller);
-    } else {
-        ns[controllerType] = Controller;
-    }
+    ns.namespace(controllerType + '.controller', Controller);
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window.getNs())); // immediatly invoke function

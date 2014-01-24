@@ -7,36 +7,21 @@ This javascript functions are demonstrating the possibility of client side cachi
 
 The given resources will be appended to the dom automatically in case of javascript and stylesheet files. You are also able to append data to a specific element on the page, e.g. to load images from cache.
 
-### More detailed ###
-
-The logic will check your browser capabilities for storing data locally and look for an according storage type to use. If one of these adapters is available in your browser the given resources will be cached locally in your browser. On each revisite of the html page, these resources will be loaded from cache to reduce the network bandwidth. If there is no support for storing the data locally in your browser, the resources will be loaded via xhr and in case of css, js, img and html files appended to the dom. The idea for this work is based on the javascript caching component from the toolkit wink, lawnchair and some articles about javascript caching practices from google and other major companies.
-
-There are five storage adapters available. These are **File System**, **Indexed Database**, **WebSql Database**, **Web Storage** (or Local Storage) and **Application Cache**. The check will start with File System (offering 50 MB space out of the box, but is only available in chrome at the time of this writing) and going further to Indexed Database (giving you 5 - 50 MB depending on the device and browser). If these tests failed, the javascript will look for WebSql Database support and if it's not available for Web Storage support. Both adapters gave you round about 5 MB of local disc space, but this can vary on the device and browser. Web Storage is widely supported, even internet explorer 8 is supporting this javascript api (but doesn't support the session lifetime).
-
-The offline application cache differs from the usage of the other four. Due to it's different javascript api and idea of how to store data, you are just able to listen to the events this kind of storage fires.
++ Cache resources (css, js, html, img) locally in the browser to avoid http requests
++ Get best avaibale html5 client side storage api automatically
++ Control lifetime and state of your resource files
++ Append css and js data automically and dynamically to dom
++ Avoid blocking download of javascript files
++ Save image files via base64 and append them to dom
++ Control the application cache state 
 
 ### Demo ####
 
-If you just want to see a working demo, open the generated index.html **/example/index.html** file in your browser. You need to run this file in a webserver to make shure the ajax calls are working. You will find the latest javascript caching functions in **/build/cache.js**.
+If you just want to see a working demo, open the generated index.html **/example/index.html** file in your browser. You need to run this file in a webserver to make shure the ajax calls are working. You will find the latest javascript caching functions in **/build/cache.min.js**.
 
-### Tests ###
-
-I've included some basic jasmine tests **/test/jasmine.html**. You need to run this file in a webserver to make shure the ajax calls are working.
-
-### Project Installation ####
-
-This project is based on Grunt.js, a [node.js](http://nodejs.org/ "Node Js") build tool. For more and deeper information please visit the [ofifficial website](http://gruntjs.com/ "Grunt Js") or just do some [googling](http://google.com/?q=grunt "Google"). Some basic terminal commands are listed for your convenience below.
-
-#### Grunt installation ####
-
-	npm install
-	npm install -g grunt-cli
-    npm install -g grunt-init
-
-#### Example Usage ####
-        
-    grunt			// default watch task
-    grunt build		// build project
++ **cache.js**: The complete and uncompressed source code for development
++ **cache.dev.js**: The minified source code, but with some logging informations to keep track of the current cache states
++ **cache.js**: The minified and optimized javascript caching for production
 
 
 ## Usage ##
@@ -139,17 +124,12 @@ Due to the cache interface api you are allowed to call the app cache initializin
 
 		// load resources via chaining
    	    app.cache.load([
-            {url: "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
-            {url: "img/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
-            {url: "img/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
+            {url: "img/410x144/test-1.jpg", type: "img", node: {id: "image-1"}}
         ]).load([
-            {url: "img/954x600/test-1.jpg", type: "img", node: {id: "image-4"}},
-            {url: "img/954x600/test-2.jpg", type: "img", node: {id: "image-5"}},
-       	    {url: "img/954x600/test-3.jpg", type: "img", node: {id: "image-6"}}
+            {url: "img/954x600/test-2.jpg", type: "img", node: {id: "image-2"}},
+            {url: "img/954x600/test-3.jpg", type: "img", node: {id: "image-3"}}
         ]).load([
-            {url: "img/1280x220/test-1.jpg", type: "img", node: {id: "image-7"}},
-            {url: "img/1280x220/test-2.jpg", type: "img", node: {id: "image-8"}},
-            {url: "img/1280x220/test-3.jpg", type: "img", node: {id: "image-9"}}
+            {url: "img/1280x220/test-4.jpg", type: "img", node: {id: "image-4"}}
         ]);
      
 #### Resource options:  ####
@@ -236,49 +216,6 @@ There are several options you can use to specify a resource. This can be useful 
         	version: 1.0
  
         }
- 
-    
-### Javascript source files ####
-There is no external library neccessary for the code to work. The logic is split into several functions and files under the global javascript namespace `window.app`. If you want to modify the source code, the files you will need are listed in **src/js/_app/cache/** and  **src/js/_app/helpers/**. The underscore within the _app folder just indicates that this folder won't be generated during the build process. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (make sure you include the **helpers first**). The correspondig javascript namespace is handled by the namespace.js helper functions.
-
-##### Helpers #####
-- src/js/_app/helpers/namespace.js
-- src/js/_app/helpers/utils.js
-- src/js/_app/helpers/queue.js
-- src/js/_app/helpers/client.js
-- src/js/_app/helpers/dom.js
-
-The helper files are used to get some utility functions. They provide useful functions and information that will be needed to manage the caching mechanism and get some browser workarounds. The most important helper files are namespace.js and utils.js. The namespace.js will take cake of the correct javascript namespacing for the cache files and the utils.js is a kind if library for different browser functions and workarounds (e.g. event bindings).
-
-##### Caching #####
-- src/js/_app/cache/storage/controller.js
-- src/js/_app/cache/storage/adapter/fileSystem.js
-- src/js/_app/cache/storage/adapter/indexedDatabase.js
-- src/js/_app/cache/storage/adapter/webSqlDatabase.js
-- src/js/_app/cache/storage/adapter/webStorage.js
-- src/js/_app/cache/storage/adapter/applicationCache.js
-- src/js/_app/cache/controller.js
-- src/js/_app/cache/interface.js
-
-The storage controller (src/js/\_app/cache/storage/controller.js) is responsible for checking the different storage adapters. He also provides an consistent interface to store and retrieve the data from cache. The main logic for handling the cache is listed in the cache controller (src/js/\_app/cache/controller.js). This file will take care of checking outdated data and loading the data you are requesting.
-
-##### Customizing #####
-If you don't need one or some of the storage adapters src/js/\_app/cache/storage/adapter/...js, you can just delete these files to reduce the overall file size. If you just want to use the webStorage adapter to save data locally, the javascript caching files you will need to include are:
-
-- src/js/_app/helpers/namespace.js
-- src/js/_app/helpers/utils.js
-- src/js/_app/helpers/queue.js
-- src/js/_app/helpers/client.js
-- src/js/_app/helpers/dom.js
-
-- src/js/_app/cache/storage/controller.js
-- src/js/_app/cache/storage/adapter/webStorage.js
-- src/js/_app/cache/controller.js
-- src/js/_app/cache/interface.js
-
-It is recommended that you combine all the single files into one and minimize the combined file. I've included lot's of comments in the source files to make the code better readable which will be removed while minification. You will find a minified and combined version at **build/cache.js**. This file includes all storage adapters and cache files you will need.
-
-If you need to organize your code and the caching functions under if different javascript namespace rather than `window.app`, you are free to modify it. Just edit the corresponding variable (`namespaceName`) in src/js/_app/helpers/namespace.js and all the caching functions are available under your custom namespace.
 
 
 ### Tested and supported browsers:  ###

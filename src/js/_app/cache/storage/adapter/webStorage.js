@@ -1,4 +1,4 @@
-/*jslint unparam: false, browser: true, devel: true, ass: true */
+/*jslint browser: true, devel: true, ass: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false */
 /*global window, undefined */
 
@@ -27,11 +27,12 @@
  *      - Sunrise 2.2 +
  *
  * @author Ulrich Merkel, 2013
- * @version 0.1.7
+ * @version 0.1.8
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.1.8 improved synchronous interface, refactoring
  * - 0.1.7 example doc added, synchronous interface added
  * - 0.1.6 improved namespacing
  * - 0.1.5 improved namespacing
@@ -54,7 +55,7 @@
  * 
  * @example
  * 
- *      // init storage adapter
+ *      // init storage adapter asynchronous
  *      var storage = new app.cache.storage.adapter.webStorage(optionalParametersObject);
  *      storage.open(function (success) {
  *          if (!!success) {
@@ -64,6 +65,11 @@
  *          }
  *      });
  *
+ *      // init storage adapter synchronous
+ *      var storage = new app.cache.storage.adapter.webStorage(optionalParametersObject);
+ *      var success = storage.open();
+ *
+ *      
  *      // read data from storage (similar to storage.remove)
  *      // there is a asynchronous and synchronous interface
  *      // available
@@ -147,6 +153,7 @@
         utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
         on = utils.on,                                              // @type {function} Shortcut for utils.on function
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not
 
@@ -177,6 +184,8 @@
      * -------------------------------------------
      */
 
+    /* start-dev-block */
+
     /**
      * handle web storage events
      *
@@ -191,8 +200,6 @@
      */
     function handleStorageEvents(e) {
 
-        /* start-dev-block */
-
         // handle Internet Explorer storage event
         if (!e && window.event) {
             e = window.event;
@@ -201,9 +208,9 @@
         // log event
         moduleLog('Event - key: ' + (e.key || 'no e.key event') + ', url: ' + (e.url || 'no e.url event'));
 
-        /* end-dev-block */
-
     }
+
+    /* end-dev-block */
 
 
     /**
@@ -218,6 +225,8 @@
         // init local vars
         var result;
 
+        // check params
+        type = trim(type);
         // get type string
         switch (type) {
         case 'local':
@@ -260,6 +269,9 @@
         // default lifetime (session or local)
         self.lifetime = 'local';
 
+        // false = 'synchonous', true = 'asynchonous'
+        self.asynch = true;
+
         // run init function
         self.init(parameters);
 
@@ -291,9 +303,11 @@
                     // additionally test for getItem method
                     boolIsSupported = !!window[type] && !!window[type].getItem;
                 } catch (e) {
+
                     /* start-dev-block */
-                    moduleLog(storageType + ' is not supported');
+                    moduleLog(storageType + ' is not supported', e);
                     /* end-dev-block */
+
                     boolIsSupported = false;
                 }
             }
@@ -315,30 +329,42 @@
          */
         create: function (key, content, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+            if (!key) {
+                if (self.asynch) {
+                    callback(false);
+                } else {
+                    return false;
+                }
+            }
+
             // init local vars
             var self = this,
                 result = true;
-
-            // check params
-            callback = checkCallback(callback);
 
             try {
 
                 // save data and call callback
                 self.adapter.setItem(key, content);
-                callback(result);
 
             } catch (e) {
 
                 // handle errors
-                handleStorageEvents(e);
                 result = !result;
-                callback(result, e);
+
+                /* start-dev-block */
+                handleStorageEvents(e);
+                /* end-dev-block */
 
             }
 
-            // return synchron result
-            return result;
+            // return asynch or synchron result
+            if (self.asynch) {
+                callback(result);
+            } else {
+                return result;
+            }
 
         },
 
@@ -353,11 +379,19 @@
          */
         read: function (key, callback) {
 
-            var self = this,
-                data;
-
             // check params
             callback = checkCallback(callback);
+            if (!key) {
+                if (self.asynch) {
+                    callback(false);
+                } else {
+                    return false;
+                }
+            }
+
+            var self = this,
+                data,
+                result = true;
 
             try {
                 // try to load data
@@ -365,21 +399,28 @@
 
                 // return data
                 if (!!data) {
-                    callback(data);
+                    result = data;
                 } else {
-                    callback(false);
+                    result = false;
                 }
 
             } catch (e) {
 
                 // handle errors
+                result = !result;
+
+                /* start-dev-block */
                 handleStorageEvents(e);
-                callback(false, e);
+                /* end-dev-block */
 
             }
 
-            // return synchron result
-            return data;
+            // return asynch or synchron result
+            if (self.asynch) {
+                callback(result);
+            } else {
+                return result;
+            }
 
         },
 
@@ -395,8 +436,16 @@
          */
         update: function (key, content, callback) {
 
+            // init local vars
+            var self = this;
+
+            // return asynch or synchron result
             // same logic as this.create
-            return this.create(key, content, callback);
+            if (self.asynch) {
+                self.create(key, content, callback);
+            } else {
+                return self.create(key, content, callback);
+            }
 
         },
 
@@ -411,31 +460,42 @@
          */
         remove: function (key, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+            if (!key) {
+                if (self.asynch) {
+                    callback(false);
+                } else {
+                    return false;
+                }
+            }
+
             // init local vars
             var self = this,
                 result = true;
-
-            // check params
-            callback = checkCallback(callback);
 
             try {
 
                 // delete data and call callback
                 self.adapter.removeItem(key);
-                callback(result);
 
             } catch (e) {
 
                 // handle errors
-                handleStorageEvents(e);
                 result = !result;
-                callback(result, e);
+
+                /* start-dev-block */
+                handleStorageEvents(e);
+                /* end-dev-block */
 
             }
 
-            // return synchron result
-            return result;
-
+            // return asynch or synchron result
+            if (self.asynch) {
+                callback(result);
+            } else {
+                return result;
+            }
         },
 
 
@@ -449,9 +509,10 @@
             // init local function vars
             var self = this,
                 adapter = self.adapter,
-                type = getStorageType(self.lifetime);
+                type = getStorageType(self.lifetime),
+                testItemCreated,
+                testItemDeleted;
 
-            // check params
             callback = checkCallback(callback);
 
             // check for adapter already initiliazed
@@ -460,38 +521,77 @@
 
                     // init global object
                     adapter = self.adapter = window[type];
-                    on(window, 'storage', handleStorageEvents);
 
-                    // create test item
+                    /* start-dev-block */
+                    on(window, 'storage', handleStorageEvents);
+                    moduleLog('Lifetime used: ' + type);
+                    /* end-dev-block */
 
                     /* start-dev-block */
                     moduleLog('Try to create test resource');
                     /* end-dev-block */
 
-                    self.create('test-item', '{test: "test-content"}', function (success) {
-                        if (!!success) {
-                            self.remove('test-item', function () {
+                    // create test item
+                    if (self.asynch) {
+                        self.create('test-item', '{test: "test-content"}', function (success) {
+                            if (!!success) {
+                                self.remove('test-item', function () {
+
+                                    /* start-dev-block */
+                                    moduleLog('Test resource created and successfully deleted');
+                                    /* end-dev-block */
+
+                                    // return result
+                                    callback(adapter);
+
+                                });
+                            } else {
+                                // return result
+                                callback(false);
+                            }
+                        });
+                    } else {
+                        testItemCreated = self.create('test-item', '{test: "test-content"}');
+                        if (!!testItemCreated) {
+
+                            testItemDeleted = self.remove('test-item');
+                            if (testItemDeleted) {
+
                                 /* start-dev-block */
                                 moduleLog('Test resource created and successfully deleted');
                                 /* end-dev-block */
-                                callback(adapter);
-                                return;
-                            });
-                        } else {
-                            callback(false);
+
+                                // return result
+                                return adapter;
+                            }
+
                         }
 
-                    });
+                        // return result
+                        return false;
+                    }
 
                 } catch (e) {
-                    callback(false);
-                    return;
+
+                    /* start-dev-block */
+                    handleStorageEvents(e);
+                    /* end-dev-block */
+
+                    // return asynch or synchron result
+                    if (self.asynch) {
+                        callback(false);
+                    } else {
+                        return false;
+                    }
                 }
             } else if (self.isSupported()) {
 
-                // adapter already initialized
-                callback(adapter);
-
+                // return asynch or synchron result
+                if (self.asynch) {
+                    callback(adapter);
+                } else {
+                    return adapter;
+                }
             }
 
         },
@@ -516,7 +616,10 @@
                 // set parameters
                 if (parameters) {
                     if (parameters.lifetime) {
-                        self.lifetime = parameters.lifetime;
+                        self.lifetime = trim(String(parameters.lifetime));
+                    }
+                    if (parameters.asynch !== undefined) {
+                        self.asynch = !!parameters.asynch;
                     }
                 }
 

@@ -30,15 +30,17 @@
         "grunt-contrib-compass": "*",
         "grunt-contrib-concat": "*",
         "grunt-contrib-copy": "*",
+        "grunt-contrib-connect": "*",
         "grunt-contrib-cssmin": "*",
+        "grunt-contrib-jshint": "~0.7.2",
         "grunt-contrib-sass": "*",
         "grunt-contrib-uglify": "*",
         "grunt-contrib-watch": "*",
 
-        "grunt-cssc": "*",
-        "grunt-imageoptim": "*",
-        "grunt-jsdoc": "*",
+        "grunt-jslint": "*",
         "grunt-htmlhint": "*",
+        "grunt-remove": "*",
+        "grunt-rename": "*",
         "grunt-shell": "*",
         "grunt-strip-code": "*",
 
@@ -50,12 +52,13 @@
     "licenses": [
         {
             "type": "MIT",
-            "url": "https://github.com/ulrich-merkel/client-side-cache/LICENSE-MIT"
+            "url": "https://github.com/ulrich-merkel/client-side-cache/MIT.LICENSE"
         }
     ],
 
     "keywords": [
         "cache",
+        "local cache",
         "client side storage",
         "local storage",
         "javascript",

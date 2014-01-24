@@ -1,6 +1,6 @@
-/*jslint unparam: false, browser: true, devel: true */
-/*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false */
-/*global undefined, FileError, FileReader, Blob */
+/*jslint browser: true, devel: true */
+/*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false */
+/*global undefined, FileError, FileReader, Blob, BlobBuilder */
 
 
 /**
@@ -18,6 +18,7 @@
  * @namespace ns
  *
  * @changelog
+ * - 0.1.6 refactoring, added BlobBuilder support
  * - 0.1.5 example doc added
  * - 0.1.4 improved logging
  * - 0.1.3 improved namespacing, handleStorageEvents adjusted to for current browser updates (event object error)
@@ -28,13 +29,16 @@
  * @see
  * - http://www.w3.org/TR/file-system-api/
  * - http://www.w3.org/TR/FileAPI/
+ * - http://www.w3.org/TR/file-upload/
  * - http://www.html5rocks.com/de/tutorials/file/filesystem/
+ * - http://www.html5rocks.com/de/tutorials/file/dndfiles/
  * - http://updates.html5rocks.com/2011/08/Debugging-the-Filesystem-API
  * - https://github.com/brianleroux/lawnchair/blob/master/src/adapters/html5-filesystem.js
  * - https://developer.mozilla.org/en-US/docs/WebGuide/API/File_System/Introduction
  * - https://developer.mozilla.org/en-US/docs/Web/API/LocalFileSystem
  *
  * @requires
+ * - ns.helpers.namespace
  * - ns.helpers.utils
  * 
  * @bugs
@@ -145,56 +149,66 @@
         }
 
         // init local vars
-        var msg = '',
-            code = e.name || e.message || e.code;
+        var code = e.name || e.code,
+            msg = e.message || e.description || '',
+            result = msg;
 
         /**
          * @see https://developer.mozilla.org/en-US/docs/Web/API/FileError
+         * string errors added for newest crome  31.0.1650.57
          */
         if (FileError) {
             switch (code) {
             case FileError.ENCODING_ERR:
-                msg = 'Error Event: ENCODING_ERR';
+            case 'EncodingError':
+                result = 'Error Event: ENCODING_ERR ' + msg;
                 break;
             case FileError.INVALID_MODIFICATION_ERR:
-                msg = 'Error Event: INVALID_MODIFICATION_ERR';
+            case 'InvalidModificationError':
+                result = 'Error Event: INVALID_MODIFICATION_ERR';
                 break;
             case FileError.INVALID_STATE_ERR:
-                msg = 'Error Event: INVALID_STATE_ERR';
+            case 'InvalidStateError':
+                result = 'Error Event: INVALID_STATE_ERR ' + msg;
                 break;
             case FileError.NO_MODIFICATION_ALLOWED_ERR:
-                msg = 'Error Event: NO_MODIFICATION_ALLOWED_ERR';
+            case 'NoModificationAllowedError':
+                result = 'Error Event: NO_MODIFICATION_ALLOWED_ERR ' + msg;
                 break;
             case FileError.NOT_FOUND_ERR:
             case 'NotFoundError':
-                // string error added for newest crome  31.0.1650.57
-                msg = 'Error Event: NOT_FOUND_ERR';
+                result = 'Error Event: NOT_FOUND_ERR ' + msg;
                 break;
             case FileError.NOT_READABLE_ERR:
-                msg = 'Error Event: NOT_READABLE_ERR';
+            case 'NotReadableError':
+                result = 'Error Event: NOT_READABLE_ERR ' + msg;
                 break;
             case FileError.PATH_EXISTS_ERR:
-                msg = 'Error Event: PATH_EXISTS_ERR';
+            case 'PathExistsError':
+                result = 'Error Event: PATH_EXISTS_ERR ' + msg;
                 break;
             case FileError.QUOTA_EXCEEDED_ERR:
-                msg = 'Error Event: QUOTA_EXCEEDED_ERR';
+            case 'QuotaExceededError':
+                result = 'Error Event: QUOTA_EXCEEDED_ERR ' + msg;
                 break;
             case FileError.SECURITY_ERR:
-                msg = 'Error Event: SECURITY_ERR';
+            case 'SecurityError':
+                result = 'Error Event: SECURITY_ERR ' + msg;
                 break;
             case FileError.TYPE_MISMATCH_ERR:
-                msg = 'Error Event: TYPE_MISMATCH_ERR';
+            case 'TypeMismatchError':
+                result = 'Error Event: TYPE_MISMATCH_ERR ' + msg;
                 break;
             default:
-                msg = 'Error Event: Unknown Error';
+                result = 'Error Event: Unknown Error ' + msg;
                 break;
             }
         } else {
-            msg = 'Error Event: Unknown Error, no FileError available';
+            result = 'Error Event: Unknown Error, no FileError available';
         }
 
         // log message string
-        moduleLog(msg, e);
+        moduleLog(result, e);
 
         /* end-dev-block */
 
@@ -210,6 +224,15 @@
      */
     function createDirectory(root, folders, callback) {
 
+        var errorHandler = function (e) {
+
+            /* start-dev-block */
+            handleStorageEvents(e);
+            /* end-dev-block */
+
+            callback(false);
+        };
+
         // throw out './' or '/' and move on to prevent something like '/foo/.//bar'
         if (folders[0] === '.' || folders[0] === '') {
             folders = folders.slice(1);
@@ -224,13 +247,13 @@
                 if (folders.length) {
                     createDirectory(dirEntry, folders.slice(1), callback);
                 } else {
-                    callback();
+                    callback(true);
                 }
 
-            }, handleStorageEvents);
+            }, errorHandler);
 
         } else {
-            callback();
+            callback(true);
         }
 
     }
@@ -262,8 +285,9 @@
 
             // create dir if not exist
             createDirectory(fileSystem.root, result.split('/'), callback);
+
         } else {
-            callback();
+            callback(true);
         }
 
     }
@@ -317,12 +341,14 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                boolIsSupported = (!!window.requestFileSystem || !!window.webkitRequestFileSystem || !!window.moz_requestFileSystem) && (!!window.Blob || !!window.BlobBuilder);
+                boolIsSupported = (!!window.requestFileSystem || !!window.webkitRequestFileSystem || !!window.moz_requestFileSystem) && (!!window.Blob || !!window.BlobBuilder) && window.FileReader;
+
                 /* start-dev-block */
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported');
                 }
                 /* end-dev-block */
+
             }
 
             // return bool
@@ -340,7 +366,15 @@
 
             // init local function vars
             var self = this,
-                adapter = self.adapter;
+                adapter = self.adapter,
+                errorHandler = function (e) {
+
+                    /* start-dev-block */
+                    handleStorageEvents(e);
+                    /* end-dev-block */
+
+                    callback(false);
+                };
 
             // check params
             callback = checkCallback(callback);
@@ -353,35 +387,41 @@
 
                 // open filesystem
                 window.requestFileSystem(window.TEMPORARY, self.size, function (filesystem) {
-                    adapter = self.adapter = filesystem;
 
-                    /* create test item */
+                    adapter = self.adapter = filesystem;
 
                     /* start-dev-block */
                     moduleLog('Try to create test resource');
                     /* end-dev-block */
+
+                    /* create test item */
                     try {
-                        self.create('test-item', utils.jsonToString({test: "test-content"}), function (success) {
+                        self.create('test-item', utils.jsonToString({test: 'test-content'}), function (success) {
                             if (!!success) {
                                 self.remove('test-item', function () {
+
                                     /* start-dev-block */
                                     moduleLog('Test resource created and successfully deleted');
                                     /* end-dev-block */
+
                                     callback(adapter);
-                                    //return;
                                 });
                             } else {
-                                callback(false);
+                                errorHandler();
                             }
                         });
                     } catch (e) {
-                        handleStorageEvents(e);
-                        callback(false);
+                        errorHandler(e);
                     }
-                    //callback(adapter);
-                }, handleStorageEvents);
+
+                }, errorHandler);
 
             } else {
+
+                /* start-dev-block */
+                moduleLog('Adapter already opened');
+                /* end-dev-block */
+
                 callback(adapter);
             }
 
@@ -392,18 +432,25 @@
          * create a new resource in storage
          * 
          * @param {object} key The required resource object
-         * @param {string} content The required content string
+         * @param {string} content The required json content string
          * @param {function} callback The optional function called on success
          */
         create: function (key, content, callback) {
 
             // check params
             callback = checkCallback(callback);
+            if (!key) {
+                callback(false);
+            }
 
             // init local function vars
             var adapter = this.adapter,
                 errorHandler = function (e) {
+
+                    /* start-dev-block */
                     handleStorageEvents(e);
+                    /* end-dev-block */
+
                     callback(false, e);
                 };
 
@@ -420,6 +467,11 @@
 
                         // success callback
                         fileWriter.onwriteend = function () {
+
+                            /* start-dev-block */
+                            moduleLog('File successfully written: url ' + key);
+                            /* end-dev-block */
+
                             callback(true);
                         };
 
@@ -445,7 +497,7 @@
                                 fileWriter.write(blob);
 
                             } else if (BlobBuilder) {
-    
+
                                 // old and depricated blobs
                                 blob = new BlobBuilder();
                                 blob.append(content);
@@ -476,11 +528,18 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!key) {
+                callback(false);
+            }
 
             // init local function vars
             var adapter = this.adapter,
                 errorHandler = function (e) {
+
+                    /* start-dev-block */
                     handleStorageEvents(e);
+                    /* end-dev-block */
+
                     callback(false, e);
                 };
 
@@ -495,12 +554,18 @@
                      * then use FileReader to read its contents
                      */
                     fileEntry.file(function (file) {
+
+                        // read content with file api
                         var reader = new FileReader();
 
                         // success callback, get resource object
                         reader.onloadend = function () {
                             callback(this.result);
                         };
+
+                        // handle errors
+                        reader.onerror = errorHandler;
+                        reader.onabort = errorHandler;
 
                         // read file
                         reader.readAsText(file);
@@ -518,7 +583,7 @@
          * update a resource in storage
          * 
          * @param {object} key The required resource object
-         * @param {string} content The required content string
+         * @param {string} content The required content json string
          * @param {function} callback The optional function called on success
          */
         update: function (key, content, callback) {
@@ -539,11 +604,18 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!key) {
+                callback(false);
+            }
 
             // init local function vars
             var adapter = this.adapter,
                 errorHandler = function (e) {
+
+                    /* start-dev-block */
                     handleStorageEvents(e);
+                    /* end-dev-block */
+
                     callback(false, e);
                 };
 
@@ -574,7 +646,7 @@
          * @return {this} The instance if supported or false
          */
         init: function (parameters) {
-    
+
             // init local vars
             var self = this;
 

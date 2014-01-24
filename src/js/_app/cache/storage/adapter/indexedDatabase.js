@@ -1,5 +1,5 @@
 /*jslint browser: true, devel: true */
-/*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false*/
+/*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false*/
 /*global document, undefined */
 
 
@@ -124,7 +124,24 @@
         log('[' + storageType + ' Adapter] ' + message);
     }
 
+
+    /**
+     * handle storage adapter events
+     *
+     * @param {object} e The javascript error object
+     */
+    function handleStorageEvents(e) {
+
+        if (!e) {
+            return;
+        }
+
+        moduleLog('Database error: ' + (e.message || ' No message avaible'));
+
+    }
+
     /* end-dev-block */
+
 
     /**
      * -------------------------------------------
@@ -184,11 +201,13 @@
             // check for global var
             if (null === boolIsSupported) {
                 boolIsSupported =  !!window.indexedDB || !!window.webkitIndexedDB || !!window.mozIndexedDB || !!window.OIndexedDB || !!window.msIndexedDB;
+
                 /* start-dev-block */
                 if (!boolIsSupported) {
                     moduleLog(storageType + ' is not supported');
                 }
                 /* end-dev-block */
+
             }
 
             // return bool
@@ -206,8 +225,15 @@
          */
         create: function (key, content, callback) {
 
+            // check params
+            callback = checkCallback(callback);
+            if (!key) {
+                callback(false);
+            }
+
             // init local vars
             var self = this,
+                //dbKey = self.dbKey,
                 dbTable = self.dbTable,
                 dbName = self.dbName,
                 transaction = self.adapter.transaction([dbTable], 'readwrite'),
@@ -216,22 +242,25 @@
                     content: content
                 });
 
-            // check params
-            callback = checkCallback(callback);
-
             // check for transaction error
             transaction.onerror = function (e) {
+
                 /* start-dev-block */
                 moduleLog('Failed to init transaction while creating/updating database entry ' + dbName + ' ' + e);
+                handleStorageEvents(e);
                 /* end-dev-block */
+
                 callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
+
                 /* start-dev-block */
                 moduleLog('Failed to create/update database entry ' + dbName + ' ' + e);
+                handleStorageEvents(e);
                 /* end-dev-block */
+
                 callback(false, e);
             };
 
@@ -253,6 +282,9 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!key) {
+                callback(false);
+            }
 
             // init local vars
             var self = this,
@@ -271,17 +303,23 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
+
                 /* start-dev-block */
                 moduleLog('Failed to init transaction while reading database ' + dbName + ' ' + e);
+                handleStorageEvents(e);
                 /* end-dev-block */
+
                 callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
+
                 /* start-dev-block */
                 moduleLog('Failed to read database entry ' + dbName + ' ' + e);
+                handleStorageEvents(e);
                 /* end-dev-block */
+
                 callback(false, e);
             };
 
@@ -322,6 +360,9 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!key) {
+                callback(false);
+            }
 
             /**
              * hack: objectStore.delete(url) fails while parsing the js code on older
@@ -341,17 +382,23 @@
 
             // check for transaction error
             transaction.onerror = function (e) {
+
                 /* start-dev-block */
                 moduleLog('Failed to init transaction while deleting database entry ' + dbName + ' ' + e);
+                handleStorageEvents(e);
                 /* end-dev-block */
+
                 callback(false, e);
             };
 
             // check for request error
             request.onerror = function (e) {
+
                 /* start-dev-block */
                 moduleLog('Failed to delete database entry ' + dbName + ' ' + e);
+                handleStorageEvents(e);
                 /* end-dev-block */
+
                 callback(false, e);
             };
 
@@ -371,6 +418,12 @@
          */
         open: function (callback, setVersion) {
 
+            // check params
+            if (!setVersion) {
+                setVersion = false;
+            }
+            callback = checkCallback(callback);
+
             // init local function vars
             var self = this,
                 windowObject = null,
@@ -385,17 +438,19 @@
                         callback(false);
                     }
 
-                    // create test item
-
                     /* start-dev-block */
                     moduleLog('Try to create test resource');
                     /* end-dev-block */
+
+                    // create test item
                     self.create('test-item', '{test: "test-content"}', function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
+
                                 /* start-dev-block */
                                 moduleLog('Test resource created and successfully deleted');
                                 /* end-dev-block */
+
                                 callback(currentAdapter);
                                 return;
                             });
@@ -405,16 +460,13 @@
 
                     });
                 },
+
+                //createObjectStore,
+                createIndexes,
                 onsuccess,
                 onupgradeneeded,
                 onerror,
                 onblocked;
-
-            // check params
-            if (!setVersion) {
-                setVersion = false;
-            }
-            callback = checkCallback(callback);
 
             // check for database
             if (null === self.adapter) {
@@ -434,6 +486,15 @@
                     window.IDBKeyRange = window.webkitIDBKeyRange;
                 }
 
+                //createObjectStore = function () {
+                //};
+
+                createIndexes = function (store) {
+                    // create new database indexes
+                    store.createIndex(self.dbKey,  self.dbKey,  { unique: true });
+                    store.createIndex('content',  'content',  { unique: false });
+                };
+
                 // get database after it is opened
                 onsuccess = function (e) {
 
@@ -442,6 +503,10 @@
                         store;
 
                     self.adapter = db;
+
+                    /* start-dev-block */
+                    moduleLog('Database successfully opened');
+                    /* end-dev-block */
 
                     /**
                      * chrome till version 23 supports setVersion instead of onupgradeneeded
@@ -452,17 +517,19 @@
                      * - https://code.google.com/p/chromium/issues/detail?id=161114
                      * - https://groups.google.com/a/chromium.org/forum/?fromgroups#!topic/chromium-discuss/XZbKEsLQkrY
                      */
-
-                    if ((self.dbVersion !== db.version) && (!!db.setVersion || typeof db.setVersion === 'function')) {
+                    if (((self.dbVersion !== db.version) && (!!db.setVersion || typeof db.setVersion === 'function'))) {
 
                         // get db type according to bug report
                         setVersionRequest = e.currentTarget.result.setVersion(self.dbVersion);
 
                         // request failed
                         setVersionRequest.onfailure = function (e) {
+
                             /* start-dev-block */
                             moduleLog('Failed to open database: ' + dbName + ' ' + e);
+                            handleStorageEvents(e);
                             /* end-dev-block */
+
                             callback(false);
                         };
 
@@ -476,13 +543,11 @@
                             /* end-dev-block */
 
                             // create new database indexes
-                            store.createIndex('key',  'key',  { unique: true });
-                            store.createIndex('content',  'content',  { unique: false });
+                            createIndexes(store);
 
                         };
 
                     } else {
-
                         // hack: self.adapter isn't initialized above with empty callback due to async behaviour
                         self.adapter = db;
 
@@ -493,6 +558,7 @@
                 // database needs upgrade to new version or is not created
                 onupgradeneeded = function (e) {
 
+                    // create objectstore will just work while onupgradeneeded event
                     var db = request.result,
                         store = db.createObjectStore(dbTable, {keyPath: self.dbKey});
 
@@ -501,9 +567,11 @@
                     /* end-dev-block */
 
                     // create new database indexes
-                    store.createIndex('key',  'key',  { unique: true });
-                    store.createIndex('content',  'content',  { unique: false });
+                    createIndexes(store);
 
+                    //store.transaction.oncomplete = function (e) {
+                    //    console.log(e);
+                    //}
                 };
 
                 // database can't be opened
@@ -511,7 +579,9 @@
 
                     /* start-dev-block */
                     moduleLog('Failed to open database: ' + dbName + ' ' + e);
+                    handleStorageEvents(e);
                     /* end-dev-block */
+
                     if (!setVersion) {
                         self.open(callback, true);
                     }
@@ -524,10 +594,13 @@
 
                     /* start-dev-block */
                     moduleLog('Opening database request is blocked! ' + dbName + ' ' + e);
+                    handleStorageEvents(e);
                     /* end-dev-block */
+
                     callback(false);
 
                 };
+
 
                 /**
                  * open db
@@ -542,9 +615,12 @@
                     try {
                         request = windowObject.open(dbName, self.dbVersion);
                     } catch (e) {
+
                         /* start-dev-block */
-                        moduleLog(e);
+                        moduleLog('Could not set version');
+                        handleStorageEvents(e);
                         /* end-dev-block */
+
                         request = windowObject.open(dbName);
                     }
 
@@ -586,16 +662,16 @@
                 // set parameters
                 if (parameters) {
                     if (parameters.name) {
-                        self.dbName = parameters.name;
+                        self.dbName = String(parameters.name);
                     }
                     if (parameters.version) {
-                        self.dbVersion = parameters.version;
+                        self.dbVersion = parseInt(parameters.version, 10);
                     }
                     if (parameters.table) {
                         self.dbTable = parameters.table;
                     }
                     if (parameters.description) {
-                        self.dbDescription = parameters.description;
+                        self.dbDescription = String(parameters.description);
                     }
                     if (parameters.key) {
                         self.dbKey = parameters.key;

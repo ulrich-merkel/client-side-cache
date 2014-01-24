@@ -499,7 +499,7 @@
                         if (node.id && client.isMsie()) {
 
                             // force ie 8 to render (or update) the html content
-                            document.styleSheets[0].addRule("#" + node.id + ":after", "content: ' ';");
+                            document.styleSheets[0].addRule('#' + node.id + ':after', 'content: " ";');
 
                         }
                     } catch (e) {
