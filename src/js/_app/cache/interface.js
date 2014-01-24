@@ -336,6 +336,9 @@
 
             });
 
+            // return this for chaining
+            return this;
+
         }
 
 
@@ -371,6 +374,9 @@
                 callback();
 
             });
+
+            // return this for chaining
+            return this;
 
         }
 

@@ -1339,6 +1339,7 @@
             }
         }
 
+        /* start-dev-block */
 
         /**
          * check for ios browser
@@ -1350,10 +1351,9 @@
             }
         }
 
-        /* start-dev-block */
 
         /**
-         * check for ios browser
+         * check for webkit browser
          */
         function checkIfIsWebkit() {
             privateIsWebkit = uaLowerCase.match(/(webkit)/) !== null;
@@ -1561,6 +1561,8 @@
          */
         return {
 
+            /* start-dev-block */
+
             // is ios
             isiOS: function () {
                 if (privateIsiOS === undefined) {
@@ -1568,8 +1570,6 @@
                 }
                 return privateIsiOS;
             },
-
-            /* start-dev-block */
 
             // is webkit
             isWebkit: function () {
@@ -7963,6 +7963,8 @@
 
             });
 
+            // return this for chaining
+        return this;
         }
 
 
@@ -7999,6 +8001,8 @@
 
             });
 
+            // return this for chaining
+        return this;
         }
 
 

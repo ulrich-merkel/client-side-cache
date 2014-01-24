@@ -15,7 +15,7 @@ The given resources will be appended to the dom automatically in case of javascr
 + Save image files via base64 and append them to dom
 + Control the application cache state 
 
-You will find the latest javascript caching functions in **build/** folder:
+You will find the latest javascript caching functions in the **build/** folder:
 
 + **build/cache.js**: The complete and uncompressed source code for development
 + **build/cache.dev.js**: The minified source code, but with some logging informations to keep track of the current cache states

@@ -57,7 +57,15 @@
 							animateLoadingBar(data);
 					    }
 					});
-
+// load resources via chaining
+    app.cache.load([
+        {url: baseUrl + "assets/img/content/410x144/test-1.jpg", type: "img", node: {id: "image-1"}}
+    ]).load([
+        {url: baseUrl + "assets/img/content/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
+        {url: baseUrl + "assets/img/content/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
+    ]).load([
+        {url: "img/1280x220/test-4.jpg", type: "img", node: {id: "image-4"}}
+    ]);
 					// load css and js dynamically
 					ns.cache.load([
 						{url: baseUrl + "css/app.css", type: "css"},
@@ -69,13 +77,13 @@
 					});
 
 					// load images dynamically
-					ns.cache.load([
-					    {url: baseUrl + "assets/img/content/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
-					    {url: baseUrl + "assets/img/content/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
-					    {url: baseUrl + "assets/img/content/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
-					], function () {
-					    logTimerEnd('Page images loaded');
-					});
+					//ns.cache.load([
+					//    {url: baseUrl + "assets/img/content/410x144/test-1.jpg", type: "img", node: {id: "image-1"}},
+					//    {url: baseUrl + "assets/img/content/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
+					//    {url: baseUrl + "assets/img/content/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
+					//], function () {
+					//    logTimerEnd('Page images loaded');
+					//});
 
 					// load html data dynamically
 					ns.cache.load([
