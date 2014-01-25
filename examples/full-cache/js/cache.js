@@ -4725,19 +4725,22 @@
          */
         create: function (key, content, callback) {
 
+            // init local vars
+            var self = this,
+                result = true,
+                checkAsynch = function (data) {
+                    if (self.asynch) {
+                        callback(data);
+                    } else {
+                        return data;
+                    }
+                };
+
             // check params
             callback = checkCallback(callback);
             if (!key) {
-                if (self.asynch) {
-                    callback(false);
-                } else {
-                    return false;
-                }
+                return checkAsynch(false);
             }
-
-            // init local vars
-            var self = this,
-                result = true;
 
             try {
 
@@ -4756,11 +4759,7 @@
             }
 
             // return asynch or synchron result
-            if (self.asynch) {
-                callback(result);
-            } else {
-                return result;
-            }
+            return checkAsynch(result);
 
         },
 
@@ -4775,19 +4774,22 @@
          */
         read: function (key, callback) {
 
+            var self = this,
+                data,
+                result = true,
+                checkAsynch = function (data) {
+                    if (self.asynch) {
+                        callback(data);
+                    } else {
+                        return data;
+                    }
+                };
+
             // check params
             callback = checkCallback(callback);
             if (!key) {
-                if (self.asynch) {
-                    callback(false);
-                } else {
-                    return false;
-                }
+                return checkAsynch(false);
             }
-
-            var self = this,
-                data,
-                result = true;
 
             try {
                 // try to load data
@@ -4812,11 +4814,7 @@
             }
 
             // return asynch or synchron result
-            if (self.asynch) {
-                callback(result);
-            } else {
-                return result;
-            }
+            return checkAsynch(result);
 
         },
 
@@ -4856,19 +4854,22 @@
          */
         remove: function (key, callback) {
 
+            // init local vars
+            var self = this,
+                result = true,
+                checkAsynch = function (data) {
+                    if (self.asynch) {
+                        callback(data);
+                    } else {
+                        return data;
+                    }
+                };
+
             // check params
             callback = checkCallback(callback);
             if (!key) {
-                if (self.asynch) {
-                    callback(false);
-                } else {
-                    return false;
-                }
+                return checkAsynch(false);
             }
-
-            // init local vars
-            var self = this,
-                result = true;
 
             try {
 
@@ -4887,11 +4888,7 @@
             }
 
             // return asynch or synchron result
-            if (self.asynch) {
-                callback(result);
-            } else {
-                return result;
-            }
+            return checkAsynch(result);
         },
 
 
@@ -4907,7 +4904,16 @@
                 adapter = self.adapter,
                 type = getStorageType(self.lifetime),
                 testItemCreated,
-                testItemDeleted;
+                testItemDeleted,
+                testItemKey = 'test-item',
+                testItemContent = '{test: "test-content"}',
+                checkAsynch = function (data) {
+                    if (self.asynch) {
+                        callback(data);
+                    } else {
+                        return data;
+                    }
+                };
 
             callback = checkCallback(callback);
 
@@ -4929,9 +4935,9 @@
 
                     // create test item
                     if (self.asynch) {
-                        self.create('test-item', '{test: "test-content"}', function (success) {
+                        self.create(testItemKey, testItemContent, function (success) {
                             if (!!success) {
-                                self.remove('test-item', function () {
+                                self.remove(testItemKey, function () {
 
                                     /* start-dev-block */
                                     moduleLog('Test resource created and successfully deleted');
@@ -4947,10 +4953,10 @@
                             }
                         });
                     } else {
-                        testItemCreated = self.create('test-item', '{test: "test-content"}');
+                        testItemCreated = self.create(testItemKey, testItemContent);
                         if (!!testItemCreated) {
 
-                            testItemDeleted = self.remove('test-item');
+                            testItemDeleted = self.remove(testItemKey);
                             if (testItemDeleted) {
 
                                 /* start-dev-block */
@@ -4974,20 +4980,12 @@
                     /* end-dev-block */
 
                     // return asynch or synchron result
-                    if (self.asynch) {
-                        callback(false);
-                    } else {
-                        return false;
-                    }
+                    return checkAsynch(false);
                 }
             } else if (self.isSupported()) {
 
                 // return asynch or synchron result
-                if (self.asynch) {
-                    callback(adapter);
-                } else {
-                    return adapter;
-                }
+                return checkAsynch(adapter);
             }
 
         },
@@ -6676,14 +6674,13 @@
                 // set parameters
                 if (parameters) {
 
-
                     // check adapter params
                     if (parameters.adapters) {
 
                         parametersAdapters = parameters.adapters;
 
                         // check adapater type params
-                        if (parametersAdapters.types && utils.isArray(parametersAdapters.types)) {
+                        if (parametersAdapters.types && isArray(parametersAdapters.types)) {
 
                             parametersAdapterTypes = parametersAdapters.types;
                             parametersAdapterTypesLength = parametersAdapterTypes.length;
@@ -7663,24 +7660,24 @@
  *
  *      // load data from cache
  *      ns.cache.load([
- *	        {url: baseUrl + "css/app.css", type: "css"},
- *			{url: baseUrl + "js/lib.js", type: "js", loaded: function () {
+ *            {url: baseUrl + "css/app.css", type: "css"},
+ *            {url: baseUrl + "js/lib.js", type: "js", loaded: function () {
  *              // lib.js loaded
- *			}},
- *			{url: baseUrl + "js/app.js", type: "js", group: 1}
- *		], function () {
- *			// page css and js files loaded
- *		});
+ *            }},
+ *            {url: baseUrl + "js/app.js", type: "js", group: 1}
+ *        ], function () {
+ *            // page css and js files loaded
+ *        });
  *
- *		// remove data from cache
+ *        // remove data from cache
  *      ns.cache.remove([
- *	        {url: baseUrl + "css/app.css", type: "css"},
- *			{url: baseUrl + "js/lib.js", type: "js"}
- *		], function () {
- *			// page css and js files removed
- *		});
+ *            {url: baseUrl + "css/app.css", type: "css"},
+ *            {url: baseUrl + "js/lib.js", type: "js"}
+ *        ], function () {
+ *            // page css and js files removed
+ *        });
  *
- *		
+ *        
  **/
 (function (window, ns, undefined) {
 
@@ -7712,7 +7709,8 @@
         jsonToString = utils.jsonToString,                          // @type {function} Shortcut for jsonToString function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         interval = 25,                                              // @type {integer} Milliseconds for interval controller check
-        timeout = 5000;                                             // @type {integer} Maximum time in milliseconds after we will give up checking
+        timeout = 5000,                                             // @type {integer} Maximum time in milliseconds after we will give up checking
+        setupParameters = {};                                       // @type {object} Store parameters from setup call
 
     /**
      * -------------------------------------------
@@ -7774,7 +7772,7 @@
 
         // check parameters
         if (!parameters) {
-            parameters = {};
+            parameters = setupParameters;
         }
 
         // toggle through already initialized cache controller interfaces
@@ -7894,6 +7892,7 @@
                         // wait for asynchronous initializing
                         startInterval();
                     }
+                //}, setupParameters);
                 }, parameters);
 
             } else {
@@ -7964,7 +7963,8 @@
             });
 
             // return this for chaining
-        return this;
+            return this;
+
         }
 
 
@@ -8002,7 +8002,25 @@
             });
 
             // return this for chaining
-        return this;
+            return this;
+
+        }
+
+        /**
+         * setup defaults for interface
+         *
+         * @param {object} parameters The optional parameters for the init function
+         *
+         * @return {this} Return instance for chaining
+         */
+        function setup(parameters) {
+
+            if (parameters) {
+                setupParameters = parameters;
+            }
+
+            // return this for chaining
+            return this;
         }
 
 
@@ -8013,7 +8031,8 @@
          */
         return {
             load: load,
-            remove: remove
+            remove: remove,
+            setup: setup
         };
 
 
@@ -8027,6 +8046,7 @@
      */
     ns.namespace('cache.load', cacheInterface.load);
     ns.namespace('cache.remove', cacheInterface.remove);
+    ns.namespace('cache.setup', cacheInterface.setup);
 
 
 }(window, window.getNs()));

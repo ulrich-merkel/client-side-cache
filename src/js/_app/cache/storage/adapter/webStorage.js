@@ -329,19 +329,22 @@
          */
         create: function (key, content, callback) {
 
+            // init local vars
+            var self = this,
+                result = true,
+                checkAsynch = function (data) {
+                    if (self.asynch) {
+                        callback(data);
+                    } else {
+                        return data;
+                    }
+                };
+
             // check params
             callback = checkCallback(callback);
             if (!key) {
-                if (self.asynch) {
-                    callback(false);
-                } else {
-                    return false;
-                }
+                return checkAsynch(false);
             }
-
-            // init local vars
-            var self = this,
-                result = true;
 
             try {
 
@@ -360,11 +363,7 @@
             }
 
             // return asynch or synchron result
-            if (self.asynch) {
-                callback(result);
-            } else {
-                return result;
-            }
+            return checkAsynch(result);
 
         },
 
@@ -379,19 +378,22 @@
          */
         read: function (key, callback) {
 
+            var self = this,
+                data,
+                result = true,
+                checkAsynch = function (data) {
+                    if (self.asynch) {
+                        callback(data);
+                    } else {
+                        return data;
+                    }
+                };
+
             // check params
             callback = checkCallback(callback);
             if (!key) {
-                if (self.asynch) {
-                    callback(false);
-                } else {
-                    return false;
-                }
+                return checkAsynch(false);
             }
-
-            var self = this,
-                data,
-                result = true;
 
             try {
                 // try to load data
@@ -416,11 +418,7 @@
             }
 
             // return asynch or synchron result
-            if (self.asynch) {
-                callback(result);
-            } else {
-                return result;
-            }
+            return checkAsynch(result);
 
         },
 
@@ -460,19 +458,22 @@
          */
         remove: function (key, callback) {
 
+            // init local vars
+            var self = this,
+                result = true,
+                checkAsynch = function (data) {
+                    if (self.asynch) {
+                        callback(data);
+                    } else {
+                        return data;
+                    }
+                };
+
             // check params
             callback = checkCallback(callback);
             if (!key) {
-                if (self.asynch) {
-                    callback(false);
-                } else {
-                    return false;
-                }
+                return checkAsynch(false);
             }
-
-            // init local vars
-            var self = this,
-                result = true;
 
             try {
 
@@ -491,11 +492,7 @@
             }
 
             // return asynch or synchron result
-            if (self.asynch) {
-                callback(result);
-            } else {
-                return result;
-            }
+            return checkAsynch(result);
         },
 
 
@@ -511,7 +508,16 @@
                 adapter = self.adapter,
                 type = getStorageType(self.lifetime),
                 testItemCreated,
-                testItemDeleted;
+                testItemDeleted,
+                testItemKey = 'test-item',
+                testItemContent = '{test: "test-content"}',
+                checkAsynch = function (data) {
+                    if (self.asynch) {
+                        callback(data);
+                    } else {
+                        return data;
+                    }
+                };
 
             callback = checkCallback(callback);
 
@@ -533,9 +539,9 @@
 
                     // create test item
                     if (self.asynch) {
-                        self.create('test-item', '{test: "test-content"}', function (success) {
+                        self.create(testItemKey, testItemContent, function (success) {
                             if (!!success) {
-                                self.remove('test-item', function () {
+                                self.remove(testItemKey, function () {
 
                                     /* start-dev-block */
                                     moduleLog('Test resource created and successfully deleted');
@@ -551,10 +557,10 @@
                             }
                         });
                     } else {
-                        testItemCreated = self.create('test-item', '{test: "test-content"}');
+                        testItemCreated = self.create(testItemKey, testItemContent);
                         if (!!testItemCreated) {
 
-                            testItemDeleted = self.remove('test-item');
+                            testItemDeleted = self.remove(testItemKey);
                             if (testItemDeleted) {
 
                                 /* start-dev-block */
@@ -578,20 +584,12 @@
                     /* end-dev-block */
 
                     // return asynch or synchron result
-                    if (self.asynch) {
-                        callback(false);
-                    } else {
-                        return false;
-                    }
+                    return checkAsynch(false);
                 }
             } else if (self.isSupported()) {
 
                 // return asynch or synchron result
-                if (self.asynch) {
-                    callback(adapter);
-                } else {
-                    return adapter;
-                }
+                return checkAsynch(adapter);
             }
 
         },

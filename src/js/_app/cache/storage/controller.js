@@ -1082,14 +1082,13 @@
                 // set parameters
                 if (parameters) {
 
-
                     // check adapter params
                     if (parameters.adapters) {
 
                         parametersAdapters = parameters.adapters;
 
                         // check adapater type params
-                        if (parametersAdapters.types && utils.isArray(parametersAdapters.types)) {
+                        if (parametersAdapters.types && isArray(parametersAdapters.types)) {
 
                             parametersAdapterTypes = parametersAdapters.types;
                             parametersAdapterTypesLength = parametersAdapterTypes.length;

@@ -11,6 +11,7 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.helpers.dom.nuke();
+            app.cache.setup({});
             $('#test-node-script').empty();
             $('#test-node-style').empty();
             $('#test-node-img').removeAttr('src');
@@ -349,7 +350,7 @@ describe('Cache Interface', function () {
         runs(function () {
             app.cache.load([
                 {url: "js/lib.js", type: "js"}
-            ], function () {
+            ], function (storage) {
                 loadCallback = 'success';
             }, {
                 adapters: {
@@ -361,7 +362,7 @@ describe('Cache Interface', function () {
         waitsFor(function () {
             var data = window.localStorage.getItem(JSON.stringify("js/lib.js"));
             return loadCallback === 'success' && !!data === true;
-        }, 'cache.storage initialized', 1000);
+        }, 'save resource', 1000);
 
         runs(function () {
             app.cache.remove([
@@ -377,7 +378,7 @@ describe('Cache Interface', function () {
 
         waitsFor(function () {
             return loadCallback1 === 'success';
-        }, 'cache.storage initialized', 1000);
+        }, 'delete resource', 1000);
 
         runs(function () {
             var data = !!window.localStorage.getItem(JSON.stringify("js/lib.js"));
@@ -434,6 +435,67 @@ describe('Cache Interface', function () {
                 data2 = !!window.localStorage.getItem(JSON.stringify("js/lib.js"));
             expect(data1).not.toEqual(true);
             expect(data2).not.toEqual(true);
+        });
+
+    });
+
+    it('Call setup', function () {
+
+        var loadCallback,
+            loadedCallback1,
+            loadedCallback2;
+
+        runs(function () {
+            app.cache.setup({
+                adapters: {
+                    preferredType: 'webStorage'
+                }
+            });
+        });
+        runs(function () {
+            app.cache.load([
+                {url: "js/lib.js", type: "js"}
+            ], function (storage) {
+                loadedCallback1 = storage;
+            });
+        });
+
+        waitsFor(function () {
+            return loadedCallback1 !== undefined;
+        }, 'cache.storage initialized', 1000);
+
+        runs(function () {
+            console.log(loadedCallback1);
+            expect(loadedCallback1.storage.adapter.type).toEqual('webStorage');
+        });
+
+    });
+
+    it('Check chaining', function () {
+
+        var loadCallback,
+            loadedCallback1,
+            loadedCallback2;
+
+        runs(function () {
+            app.cache.load([
+                {url: "js/lib.js", type: "js"}
+            ], function (storage) {
+                loadedCallback1 = 'success';
+            }).remove([
+                {url: "js/lib.js", type: "js"}
+            ], function () {
+                loadedCallback2 = 'success';
+            });
+        });
+
+        waitsFor(function () {
+            return loadedCallback1 === 'success';
+        }, 'cache.storage initialized', 1000);
+
+        runs(function () {
+            var test = !!(loadedCallback1 === 'success' && loadedCallback2 === 'success');
+            expect(test).toEqual(true);
         });
 
     });

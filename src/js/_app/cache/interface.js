@@ -34,26 +34,40 @@
  *
  * @example
  *
- *      // load data from cache
- *      ns.cache.load([
- *	        {url: baseUrl + "css/app.css", type: "css"},
- *			{url: baseUrl + "js/lib.js", type: "js", loaded: function () {
+ *        // load data from cache
+ *        ns.cache.load([
+ *            {url: baseUrl + "css/app.css", type: "css"},
+ *            {url: baseUrl + "js/lib.js", type: "js", loaded: function () {
  *              // lib.js loaded
- *			}},
- *			{url: baseUrl + "js/app.js", type: "js", group: 1}
- *		], function () {
- *			// page css and js files loaded
- *		});
+ *            }},
+ *            {url: baseUrl + "js/app.js", type: "js", group: 1}
+ *        ], function () {
+ *            // page css and js files loaded
+ *        });
  *
- *		// remove data from cache
- *      ns.cache.remove([
- *	        {url: baseUrl + "css/app.css", type: "css"},
- *			{url: baseUrl + "js/lib.js", type: "js"}
- *		], function () {
- *			// page css and js files removed
- *		});
+ *        // remove data from cache
+ *        ns.cache.remove([
+ *            {url: baseUrl + "css/app.css", type: "css"},
+ *            {url: baseUrl + "js/lib.js", type: "js"}
+ *        ], function () {
+ *            // page css and js files removed
+ *        });
  *
- *		
+ *        // set cache defaults
+ *        ns.cache.setup({
+ *            adapters: {
+ *                // set preferred adapter type
+ *                preferredType: 'webStorage'
+ *            },
+ *            resources: {
+ *                // set resource defaults
+ *                defaults: {
+ *                    lifetime: -1
+ *                }
+ *            }
+ *        });
+ *
+ *
  **/
 (function (window, ns, undefined) {
 
@@ -85,7 +99,8 @@
         jsonToString = utils.jsonToString,                          // @type {function} Shortcut for jsonToString function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         interval = 25,                                              // @type {integer} Milliseconds for interval controller check
-        timeout = 5000;                                             // @type {integer} Maximum time in milliseconds after we will give up checking
+        timeout = 5000,                                             // @type {integer} Maximum time in milliseconds after we will give up checking
+        setupParameters = {};                                       // @type {object} Store parameters from setup call
 
     /**
      * -------------------------------------------
@@ -147,7 +162,7 @@
 
         // check parameters
         if (!parameters) {
-            parameters = {};
+            parameters = setupParameters;
         }
 
         // toggle through already initialized cache controller interfaces
@@ -197,7 +212,8 @@
 
             /**
              * wait for loaded controller via timeout
-             *
+             * callback when cache controller and storage
+             * isn't ready yet
              */
             startInterval = function () {
 
@@ -207,7 +223,7 @@
                 window.clearInterval(currentInterfaceInterval);
                 currentInterfaceInterval = window.setInterval(function () {
 
-                    // faster access
+                    // save vars for faster access
                     currentInterface.timeout = currentInterfaceTimeout = currentInterface.timeout + interval;
 
                     // if interface is completly loaded, start queue
@@ -267,6 +283,7 @@
                         // wait for asynchronous initializing
                         startInterval();
                     }
+                //}, setupParameters);
                 }, parameters);
 
             } else {
@@ -319,11 +336,11 @@
                     if (storage && storage.appCacheAdapter && !storage.appCacheAdapter.opened) {
                         storage.appCacheAdapter.open(callback, parameters);
                     } else {
-                        callback();
+                        callback(false);
                     }
 
                 } else {
-                    callback();
+                    callback(false);
                 }
 
             }, function () {
@@ -332,7 +349,7 @@
                 interfaceLog('Get interface failed!');
                 /* end-dev-block */
 
-                callback();
+                callback(false);
 
             });
 
@@ -362,7 +379,7 @@
                     currentInterface.controller.remove(resources, callback);
 
                 } else {
-                    callback();
+                    callback(false);
                 }
 
             }, function () {
@@ -371,13 +388,30 @@
                 interfaceLog('Get interface failed!');
                 /* end-dev-block */
 
-                callback();
+                callback(false);
 
             });
 
             // return this for chaining
             return this;
 
+        }
+
+        /**
+         * setup defaults for interface
+         *
+         * @param {object} parameters The optional parameters for the init function
+         *
+         * @return {this} Return instance for chaining
+         */
+        function setup(parameters) {
+
+            if (parameters) {
+                setupParameters = parameters;
+            }
+
+            // return this for chaining
+            return this;
         }
 
 
@@ -388,7 +422,8 @@
          */
         return {
             load: load,
-            remove: remove
+            remove: remove,
+            setup: setup
         };
 
 
@@ -402,6 +437,7 @@
      */
     ns.namespace('cache.load', cacheInterface.load);
     ns.namespace('cache.remove', cacheInterface.remove);
+    ns.namespace('cache.setup', cacheInterface.setup);
 
 
 }(window, window.getNs()));
