@@ -30,8 +30,19 @@
  * - ns.helpers.queue
  * 
  * @bugs
- * -
+ * - tbd new interface api
+ *      load([], {
+ *          adapters: {},
+ *          resources: {},
+ *          success: function () {},
+ *          error: function () {},
+ *      });
  *
+ *      {url: baseUrl + "js/lib.js", type: "js", success: function () {}, error: function () {} }
+ *
+ *      or done/fail
+ *      or loaded with callback data success
+ * 
  * @example
  *
  *        // load data from cache
@@ -255,6 +266,7 @@
             /* end-dev-block */
 
             error();
+            return;
         }
 
         // wait for intializing

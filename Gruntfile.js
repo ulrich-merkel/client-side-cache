@@ -265,6 +265,9 @@ module.exports = function (grunt) {
 
         // rename generated html files
         rename: {
+            options: {
+                ignore: true
+            },
             fullCache: {
                 src: 'examples/full-cache/full-cache.html',
                 dest: 'examples/full-cache/index.html'
@@ -505,8 +508,9 @@ module.exports = function (grunt) {
         'remove'
     ]);
     grunt.registerTask('lint', ['jslint', 'jshint', 'htmlhint']);
-    //grunt.registerTask('lint', ['htmlhint']);
-    grunt.registerTask('build', ['dev', 'lint', 'copy:testsMin', 'rename:buildSrc', 'rename:buildMin', 'rename:buildDev']);
+    grunt.registerTask('build-deploy', [ 'clean', 'concat', 'compass', 'assemble', 'lint', 'copy', 'rename']);
+    //grunt.registerTask('build-dev', ['lint', 'copy:testsMin', 'rename:buildSrc', 'rename:buildMin', 'rename:buildDev']);
+    grunt.registerTask('build-dev', ['concat', 'compass', 'assemble', 'lint', 'copy:testsMin']);
     grunt.registerTask('server', ['connect:server', 'watch']);
 
     // Default task

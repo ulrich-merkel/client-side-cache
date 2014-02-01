@@ -125,17 +125,13 @@
             // toggle through names array
             for (i = 0; i < length; i = i + 1) {
 
-                // if this namespace doesn't exist, create it
+                // if this namespace doesn't exist, create it with empty object
                 if (!current[names[i]]) {
-
-                    // set empty object
                     current[names[i]] = {};
-
-                    // set value if set and last namespace item reached
-                    if (i === length - 1 && !!value) {
-                        current[names[i]] = value;
-                    }
-
+                }
+                // set value if set and last namespace item reached
+                if (i === length - 1 && !!value) {
+                    current[names[i]] = value;
                 }
 
                 // set current to this checked namespace for the next loop
@@ -7654,8 +7650,19 @@
  * - ns.helpers.queue
  * 
  * @bugs
- * -
+ * - tbd new interface api
+ *      load([], {
+ *          adapters: {},
+ *          resources: {},
+ *          success: function () {},
+ *          error: function () {},
+ *      });
  *
+ *      {url: baseUrl + "js/lib.js", type: "js", success: function () {}, error: function () {} }
+ *
+ *      or done/fail
+ *      or loaded with callback data success
+ * 
  * @example
  *
  *        // load data from cache
@@ -7879,6 +7886,7 @@
             /* end-dev-block */
 
             error();
+            return;
         }
 
         // wait for intializing

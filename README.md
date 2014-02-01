@@ -25,6 +25,12 @@ You will find the latest javascript caching functions in the **build/** folder:
 
 If you just want to see a working demo, open the generated index.html **/example/full-cache/index.html** file in your browser. You need to run this file in a webserver to make shure the ajax calls are working. The other examples are just there to compare different caching methods with full html5 client side caching.
 
+If you are not in the mood to install this project, you could also visit the following links to get some demonstrations:
+
+
+[Full html5 cache ](http://www.ulrichmerkel.com/test/client-side-cache/full-cache/ "Ulrich Merkel")
+
+[Just html5 javascript cache](http://www.ulrichmerkel.com/test/client-side-cache/fiww-cache/ "Ulrich Merkel")
 
 ## Usage ##
 
