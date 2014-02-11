@@ -3,23 +3,32 @@
 
 ## Introduction ##
 
-This javascript functions are demonstrating the possibility of client side caching via javascript and html5 storage apis. Page resources like **images, javascript files, stylesheets and html content could be saved locally** in the users browser. On subsequent page views these resources will be taken from cache and won't be won't loaded via network. This could reduce the number of http request used for page loading.
+This javascript functions are demonstrating the possibility of client side caching via javascript and html5 storage apis. Page resources like **images, javascript files, stylesheets and html content could be saved locally** in the users browser. On subsequent page views these resources will be taken from cache and won't be won't loaded via network. This could reduce the number of http request used for page loading and therfore will improve page loading times.
 
-The given resources will be appended to the dom automatically in case of javascript and stylesheet files. You are also able to append data to a specific element on the page, e.g. to load images from cache.
+The given resources will be appended to the dom automatically in case of javascript and stylesheet files. You are also able to append data to a specific element on the page, e.g. to load images from cache and display them without any http requests. The idea for this project is based on the beautiful lawnchair and wink libraries, but more focussed on official html standards and reducing http request.
+
+**Key features**
 
 + Cache resources (css, js, html, img) locally in the browser to avoid http requests
-+ Get best avaibale html5 client side storage api automatically
++ Get best available html5 client side storage api automatically, choosing between:
+	+ file system
+	+ indexed database
+	+ web sql datbase
+	+ local storage
 + Control lifetime and state of your resource files
-+ Append css and js data automically and dynamically to dom
++ Append css and js data automatically to dom
 + Avoid blocking download of javascript files
 + Save image files via base64 and append them to dom
-+ Control the application cache state 
++ Control the application cache api state 
+
+**Javascript files**
 
 You will find the latest javascript caching functions in the **build/** folder:
 
 + **build/cache.js**: The complete and uncompressed source code for development
 + **build/cache.dev.js**: The minified source code, but with some logging informations to keep track of the current cache states
-+ **build/cache.min.js**: The minified and optimized javascript caching for production
++ **build/cache.min.js**: The minified and optimized javascript caching functions for production
+
 
 ### Demo ####
 
@@ -28,9 +37,8 @@ If you just want to see a working demo, open the generated index.html **/example
 If you are not in the mood to install this project, you could also visit the following links to get some demonstrations:
 
 
-[Full html5 cache ](http://www.ulrichmerkel.com/test/client-side-cache/full-cache/ "Ulrich Merkel")
+[Full featured html5 cache ](http://www.ulrichmerkel.com/test/client-side-cache/full-cache/ "Ulrich Merkel")
 
-[Just html5 javascript cache](http://www.ulrichmerkel.com/test/client-side-cache/fiww-cache/ "Ulrich Merkel")
 
 ## Usage ##
 
@@ -139,7 +147,18 @@ Due to the cache interface api you are allowed to call the app cache initializin
         ]).load([
             {url: "img/1280x220/test-4.jpg", type: "img", node: {id: "image-4"}}
         ]);
-     
+
+#### Delete resource data:  ####
+You can append data to a dom element on the page. This can be used for example to load images and html files and append the result to a given element on the page.
+
+		// remove resources from cache
+        app.cache.remove([
+        	{url: "img/410x144/test-1.jpg"},
+       	    {url: "img/410x144/test-2.jpg"},
+            {url: "img/410x144/test-3.jpg"}
+        ]);
+
+
 #### Resource options:  ####
 There are several options you can use to specify a resource. This can be useful to handle lifetimes, appending data to dom or the loading order.
 
@@ -225,6 +244,136 @@ There are several options you can use to specify a resource. This can be useful 
  
         }
 
+***
+
+## Caching process ##
+
+The logic will check your browser capabilities for storing data locally and look for an according storage type to use. If one of these adapters is available in your browser the given resources will be cached locally in your browser. On each revisite of the html page, these resources will be loaded from cache to reduce the network bandwidth. If there is no support for storing the data locally in your browser, the resources will be loaded via xhr and in case of css, js, img and html files appended to the dom. The idea for this work is based on the javascript caching component from the toolkit wink, lawnchair and some articles about javascript caching practices from google and other major companies.
+
+There are five storage adapters available. These are **File System**, **Indexed Database**, **WebSql Database**, **Web Storage** (or Local Storage) and **Application Cache**. The check will start with File System (offering 50 MB space out of the box, but is only available in chrome at the time of this writing) and going further to Indexed Database (giving you 5 - 50 MB depending on the device and browser). If these tests failed, the javascript will look for WebSql Database support and if it's not available for Web Storage support. Both adapters gave you round about 5 MB of local disc space, but this can vary on the device and browser. Web Storage is widely supported, even internet explorer 8 is supporting this javascript api (but doesn't support the session lifetime).
+
+The offline application cache differs from the usage of the other four. Due to it's different javascript api and idea of how to store data, you are just able to listen to the events this kind of storage fires.
+
+* * *
+
+
+## Project Installation ##
+
+This project is based on Grunt.js, a [node.js](http://nodejs.org/ "Node Js") build tool. For more and deeper information please visit the [ofifficial website](http://gruntjs.com/ "Grunt Js") or just do some [googling](http://google.com/?q=grunt "Google"). Some basic terminal commands are listed for your convenience below. Just navigate your command line to your correspondig project folder and paste the commands.
+
+### Grunt CLI installation ###
+
+	npm install -g grunt-cli	// sudo npm ... could be useful
+
+### Node package installation ###
+
+	npm install					// sudo npm ... could be useful
+
+### Example Usage ###
+        
+    grunt						// default watch task
+    grunt build					// build project, generate files
+
+* * *
+
+
+## Project structure ##
+
+### General ###
+
+The src folder is holding all the source files for this project. Folders with preciding underscores are just for development and won't be created during the build process. 
+
+
+
+	build/
+	docs/
+	examples/
+	Gruntfile.js
+	node_modules/
+	package.json
+	scripts/
+	src/
+	├── js/
+	└── template/
+	tests/
+
+Try to follow this structure as close a possible for general best practices. Components should be split up into separate files and placed into folders where it makes the most sense.
+
+
+#### build/ ####
+* Contains all folders and files for production.    
+
+#### docs/ ####
+* Contains all documentation files in markdown format.
+
+#### examples/ ####
+* This folder contains several generated html examples. If you just want to see a working demo, open the generated index.html **/examples/full-cache/index.html** file in your browser. You need to run this file/folder in a webserver to make shure the ajax calls are working. All the other example folders are just there to compare html5 client side caching with standard caching methods.
+
+#### scripts/ ####
+* Contains all additional scripts (like java files) which may be used during the build process.
+
+#### src/ ####
+* Contains all folders and files for development.
+
+#### src/js/ ####
+* Folder for javaScript source files. Here you will find all logic handling client side caching.
+
+#### src/template/ ####
+* This is the source folder for html examples. All static content is generated via [assemle](http://assemble.io/ "Assemble IO"), to automate as much as possible.
+
+#### tests/ ####
+* This folder contains some jasmine javaScript tests to make sure the interface is worling properly.
+
+***
+
+## Javascript source files ###
+
+
+There is no external library neccessary for the code to work. The logic is split into several functions and files under the global javascript namespace `window.app`. If you want to modify the source code, the files you will need are listed in **src/js/_app/cache/** and  **src/js/_app/helpers/**. The underscore within the _app folder just indicates that this folder won't be generated during the build process. You are free to rename and reorganize the given folder structur, as long as you include the needed files in the correct order (make sure you **include the helpers first**). The correspondig javascript namespace is handled by the namespace.js helper functions.
+
+### Helpers ###
+- src/js/_app/helpers/namespace.js
+- src/js/_app/helpers/utils.js
+- src/js/_app/helpers/queue.js
+- src/js/_app/helpers/client.js
+- src/js/_app/helpers/dom.js
+
+The helper files are used to get some utility functions. They provide useful functions and information that will be needed to manage the caching mechanism and get some browser workarounds. The most important helper files are namespace.js and utils.js. The namespace.js will take cake of the correct javascript namespacing for the cache files and the utils.js is a kind if library for different browser functions and workarounds (e.g. event bindings).
+
+### Caching ###
+- src/js/_app/cache/storage/controller.js
+- src/js/_app/cache/storage/adapter/fileSystem.js
+- src/js/_app/cache/storage/adapter/indexedDatabase.js
+- src/js/_app/cache/storage/adapter/webSqlDatabase.js
+- src/js/_app/cache/storage/adapter/webStorage.js
+- src/js/_app/cache/storage/adapter/applicationCache.js
+- src/js/_app/cache/controller.js
+- src/js/_app/cache/interface.js
+
+The storage controller (**src/js/\_app/cache/storage/controller.js**) is responsible for checking the different storage adapters. He also provides an consistent interface to store and retrieve the data from cache. The main logic for handling the cache is listed in the cache controller (**src/js/\_app/cache/controller.js**). This file will take care of checking for outdated data and loading the data you are requesting.
+
+### Customizing ###
+It is recommended that you combine all the single files into one and minimize the combined file. I've included lot's of comments in the source files to make the code better readable which will be removed while minification. You will find a minified and combined version at **build/cache.min.js**. This file includes all storage adapters and cache files you will need.
+
+If you don't need one or some of the storage adapters **src/js/\_app/cache/storage/adapter/...js**, you can just delete these files to reduce the overall file size. If you just want to use the webStorage adapter to save data locally, the javascript caching files you will need to include are:
+
+- src/js/_app/helpers/namespace.js
+- src/js/_app/helpers/utils.js
+- src/js/_app/helpers/queue.js
+- src/js/_app/helpers/client.js
+- src/js/_app/helpers/dom.js
+- src/js/_app/cache/storage/controller.js
+- src/js/_app/cache/storage/adapter/webStorage.js
+- src/js/_app/cache/controller.js
+- src/js/_app/cache/interface.js
+
+If you're using Grunt.js to build your customized version, you can edit the `cache.files` file listed in **src/js/** and start the build process via `grunt build`. Your customized version will be saved in the build folder and is already minified and optimized.
+
+If you need to organize your code and the caching functions under if different javascript namespace rather than `window.app`, you are free to modify it. Just edit the corresponding variable (`namespaceName`) in src/js/_app/helpers/namespace.js and all the caching functions are available under your custom namespace.
+
+***
+
+## Tests ###
 
 ### Tested and supported browsers:  ###
 
