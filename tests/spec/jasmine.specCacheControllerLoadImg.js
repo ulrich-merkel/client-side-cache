@@ -5,6 +5,17 @@ describe('Cache Controller Load Single Img', function () {
 
     'use strict';
 
+    var path = '';
+    if (window.__karma__ !== undefined) {
+        path += 'base/';
+    }
+
+    beforeEach(function(){
+        if (!$('#test-node-img').length) {
+            $('<img id="test-node-img" />').appendTo('body');
+        }
+    });
+
     afterEach(function () {
 
         var ready = false;
@@ -36,7 +47,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url:  "assets/img/content/410x144/test-1.jpg", type: "img"}
+                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img"}
             ], function () {
                 loadCallback = 'success';
             });
@@ -65,7 +76,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url:  "assets/img/content/410x144/test-1.jpg", type: "img", loaded: function () {
+                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img", loaded: function () {
                     loadCallback = true;
                 }}
             ]);
@@ -94,7 +105,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url:  "assets/img/content/410x144/test-1.jpg", type: "img", loaded: function (data) {
+                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img", loaded: function (data) {
                     loadCallback = !!data;
                 }}
             ]);
@@ -123,7 +134,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url:  "assets/img/content/410x144/test-1.jpg", type: "img", node: {id: 'test-node-img'}}
+                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img", node: {id: 'test-node-img'}}
             ], function () {
                 loadCallback = true;
             });
@@ -154,7 +165,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url:  "assets/img/content/410x144/test-1.jpg", type: "img", node: {dom: $('#test-node-img')[0]}}
+                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img", node: {dom: $('#test-node-img')[0]}}
             ], function () {
                 loadCallback = true;
             });
@@ -185,7 +196,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url:  "assets123/img/content/410x144/test-1.jpg", type: "img"}
+                {url: path + "assets123/img/content/410x144/test-1.jpg", type: "img"}
             ], function () {
                 loadCallback = true;
             });
@@ -214,7 +225,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url:  "assets/img/content/410x144/test-1.jpg", type: "img", node: {id: 'test-node-img123'}}
+                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img", node: {id: 'test-node-img123'}}
             ], function () {
                 loadCallback = true;
             });
@@ -243,7 +254,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url:  "assets/img/content/410x144/test-1.jpg", type: "im"}
+                {url: path + "assets/img/content/410x144/test-1.jpg", type: "im"}
             ], function () {
                 loadCallback = true;
             });
@@ -272,7 +283,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url:  "assets/img/content/410x144/test-1.jpg", node: {id: 'test-node-img'}}
+                {url: path + "assets/img/content/410x144/test-1.jpg", node: {id: 'test-node-img'}}
             ], function () {
                 loadCallback = true;
             });

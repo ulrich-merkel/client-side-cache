@@ -1,71 +1,81 @@
 {
-    "name": "client-side-cache",
-    "description": "Client side caching for javascript, css, images and html files via javascript - using file system, indexed database, web sql database or local storage, including a wrapper for application cache",
-    "version": "0.1.1",
-    "homepage": "https://github.com/ulrich-merkel/client-side-cache",
-    "author": {
-        "name": "Ulrich Merkel",
-        "url": "http://www.ulrichmerkel.com"
-    },
-    "contributors": [
-        
-    ],
-
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/ulrich-merkel/client-side-cache.git"
-    },
-    "bugs": {
-        "url": "https://github.com/ulrich-merkel/client-side-cache/issues"
-    },
-    "engines": {
-        "node": ">=0.8"
-    },
-
-    "devDependencies": {
-
-        "grunt": "~0.4.0",
-
-        "grunt-contrib-clean": "*",
-        "grunt-contrib-compass": "*",
-        "grunt-contrib-concat": "*",
-        "grunt-contrib-copy": "*",
-        "grunt-contrib-connect": "*",
-        "grunt-contrib-cssmin": "*",
-        "grunt-contrib-jshint": "~0.7.2",
-        "grunt-contrib-sass": "*",
-        "grunt-contrib-uglify": "*",
-        "grunt-contrib-watch": "*",
-
-        "grunt-jslint": "*",
-        "grunt-htmlhint": "*",
-        "grunt-remove": "*",
-        "grunt-rename": "*",
-        "grunt-shell": "*",
-        "grunt-strip-code": "*",
-
-        "assemble": "*",
-        "matchdep": "*"
-
-    },
-
-    "licenses": [
-        {
-            "type": "MIT",
-            "url": "https://github.com/ulrich-merkel/client-side-cache/MIT.LICENSE"
-        }
-    ],
-
-    "keywords": [
-        "cache",
-        "local cache",
-        "client side storage",
-        "local storage",
-        "javascript",
-        "web storage",
-        "web sql database",
-        "indexed database",
-        "file system",
-        "application cache"
-    ]
+  "name": "client-side-cache",
+  "description": "Client side caching for javascript, css, images and html files via javascript - using file system, indexed database, web sql database or local storage, including a wrapper for application cache",
+  "version": "0.1.2",
+  "homepage": "https://github.com/ulrich-merkel/client-side-cache",
+  "author": {
+    "name": "Ulrich Merkel",
+    "url": "http://www.ulrichmerkel.com"
+  },
+  "contributors": [],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/ulrich-merkel/client-side-cache/LICENSE"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ulrich-merkel/client-side-cache.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ulrich-merkel/client-side-cache/issues"
+  },
+  "engines": {
+    "node": ">=0.8"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib-clean": "*",
+    "grunt-contrib-compass": "*",
+    "grunt-contrib-concat": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-connect": "*",
+    "grunt-contrib-cssmin": "*",
+    "grunt-contrib-jshint": "~0.7.2",
+    "grunt-contrib-sass": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-jsdoc": "~0.5.0",
+    "grunt-jslint": "*",
+    "grunt-htmlhint": "*",
+    "grunt-remove": "*",
+    "grunt-rename": "*",
+    "grunt-shell": "*",
+    "grunt-strip-code": "*",
+    "assemble": "*",
+    "ink-docstrap": "~0.3.0",
+    "matchdep": "*",
+    "karma-script-launcher": "~0.1.0",
+    "karma-chrome-launcher": "~0.1.2",
+    "karma-firefox-launcher": "~0.1.3",
+    "karma-html2js-preprocessor": "~0.1.0",
+    "karma-jasmine": "~0.1.5",
+    "karma-coffee-preprocessor": "~0.1.2",
+    "requirejs": "~2.1.10",
+    "karma-requirejs": "~0.2.1",
+    "karma-phantomjs-launcher": "~0.1.2",
+    "karma": "~0.10.9",
+    "karma-safari-launcher": "~0.1.1",
+    "karma-ie-launcher": "~0.1.1",
+    "karma-opera-launcher": "~0.1.0",
+    "grunt-karma": "~0.6.2"
+  },
+  "scripts": {
+    "install": "npm install",
+    "dev": "grunt",
+    "build": "grunt build"
+  },
+  "keywords": [
+    "cache",
+    "local cache",
+    "client side storage",
+    "local storage",
+    "javascript",
+    "web storage",
+    "web sql database",
+    "indexed database",
+    "file system",
+    "application cache"
+  ]
 }

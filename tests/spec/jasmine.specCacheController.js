@@ -5,6 +5,11 @@ describe('Cache Controller', function () {
 
     'use strict';
 
+    var path = '';
+    if (window.__karma__ !== undefined) {
+        path += 'base/';
+    }
+
     it('Initialize cache controller', function () {
 
         var cache = new app.cache.controller(),
@@ -15,7 +20,7 @@ describe('Cache Controller', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-            expect(cache.storage).toEqual(storage);
+            expect(cache.storage.adapters).toEqual(storage.adapters);
         });
 
     });
@@ -33,7 +38,7 @@ describe('Cache Controller', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-            expect(storage).toEqual(storageInstance);
+            expect(storage.adapters).toEqual(storageInstance.adapters);
         });
 
     });

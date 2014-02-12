@@ -75,19 +75,13 @@
             return new Queue();
         }
 
-        /**
-         * @type {array} [this.methods=[]] Store your callbacks
-         */
+        // @type {array} [[]] Store your callbacks
         self.methods = [];
 
-        /**
-         * @type {object} [this.response=null] Keep a reference to your response
-         */
+        // @type {object} [null] Keep a reference to your response
         self.response = null;
 
-        /**
-         * @type {boolean} [this.flushed=false] All queues start off unflushed
-         */
+        // @type {boolean} [false] All queues start off unflushed
         self.flushed = false;
 
     }
@@ -156,7 +150,7 @@
      *
      * @export
      */
-    ns.namespace('helpers.queue', Queue);
+    ns.ns('helpers.queue', Queue);
 
 
 }(window.getNs()));  // immediatly invoke function

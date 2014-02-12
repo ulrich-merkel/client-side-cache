@@ -8,12 +8,13 @@
  * @description
  * - provide utility functions
  *
- * @author Ulrich Merkel, 2013
- * @version 0.2.1
+ * @author Ulrich Merkel, 2014
+ * @version 0.2.2
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
  * - 0.2.1 examples added, isFunction added, refactoring
  * - 0.2 improved console.log wrapper, console.warn added
  * - 0.1.9 improved namespacing
@@ -88,13 +89,8 @@
     var utils = (function () {
 
         // init global vars
-        var jsonObject = null,                                                                              // @type {object} The current json object
-            hasConsole = window.console !== undefined,                                                      // @type {boolean} If window.console is available
-            console = hasConsole ? window.console : null,                                                   // @type {object} The window.console object
-            hasConsoleLog = (hasConsole && console.log !== undefined),                                      // @type {boolean} If console.log is available
-            hasConsoleWarn = (hasConsole && console.warn !== undefined),                                    // @type {boolean} If console.warn is available
-            hasConsoleTime = (hasConsole && console.time !== undefined && console.timeEnd !== undefined),   // @type {boolean} If console.time/console.timeEnd is available
-            emptyArray = [];                                                                                // @type {array} Placeholder for array testing
+        var jsonObject = null,                  // @type {object} The current json object
+            emptyArray = [];                    // @type {array} Placeholder for array testing
 
 
         /**
@@ -609,7 +605,10 @@
 
                 var args = arguments,
                     length = args.length,
-                    message;
+                    message,
+                    hasConsole = window.console !== undefined,
+                    console = hasConsole ? window.console : null,
+                    hasConsoleLog = (hasConsole && console.log !== undefined);
 
                 if (!length) {
                     return;
@@ -626,66 +625,7 @@
 
             },
 
-
-            /**
-             * wrapper for console.warn due to some browsers lack of this functions
-             *
-             * @param {arguments} The warnings to log
-             */
-            warn: function () {
-
-                var args = arguments,
-                    length = args.length,
-                    message;
-
-                if (!length) {
-                    return;
-                }
-                message = args[0];
-
-                // check for support
-                if (hasConsoleWarn) {
-                    console.warn.apply(console, args);
-                } else {
-                    // try to log normal message
-                    utils.log(message);
-                }
-
-                // log messages to dom element
-                utils.logToScreen(message);
-            },
-
             /* end-dev-block */
-
-
-            /**
-             * log timer start
-             *
-             * @param {string} key The timer key
-             */
-            logTimerStart: function (key) {
-
-                // check for support
-                if (hasConsoleTime) {
-                    window.console.time(key);
-                }
-
-            },
-
-
-            /**
-             * log timer end
-             *
-             * @param {string} key The timer key
-             */
-            logTimerEnd: function (key) {
-
-                // check for support
-                if (hasConsoleTime) {
-                    window.console.timeEnd(key);
-                }
-
-            },
 
 
             /**
@@ -735,79 +675,6 @@
                 };
             },
 
-            /* start-dev-block */
-
-            /**
-             * get url query string
-             *
-             * @param {string} url The optional url to get the query string from
-             *  
-             * @return {object} Current url query strings
-             */
-            queryString: (function (url) {
-
-                var queryString = {},
-                    //query = utils.url(url) ? utils.url(url).query : window.location.search.substring(1),
-                    query = window.location.search.substring(1),
-                    vars = query.split('&'),
-                    varsLength = vars.length,
-                    i = 0,
-                    pair,
-                    arr;
-
-                for (i = 0; i < varsLength; i = i + 1) {
-
-                    // get value pairs
-                    pair = vars[i].split('=');
-
-                    if (queryString[pair[0]] === undefined) {
-
-                        // if first entry with this name
-                        queryString[pair[0]] = pair[1];
-
-                    } else if (typeof queryString[pair[0]] === 'string') {
-
-                        // if second entry with this name
-                        arr = [queryString[pair[0]], pair[1]];
-                        queryString[pair[0]] = arr;
-
-                    } else {
-
-                        // if third or later entry with this name
-                        queryString[pair[0]].push(pair[1]);
-
-                    }
-
-                }
-
-                return queryString;
-
-            }()),
-
-
-            /**
-             * text replacement for simple client-side templates
-             *
-             * @example
-             * <li><a href="%s">%s</a></li>
-             * var result = sprintf(templateText, "/item/4", "Fourth item");
-             *
-             * @param {string} text The template string
-             *
-             * @return {string} The string with replaced placeholders
-             */
-            sprintf: function (text) {
-                var i = 1,
-                    args = arguments;
-
-                return text.replace(/%s/g, function () {
-                    return (i < args.length) ? args[i++] : '';
-                });
-
-            },
-
-            /* end-dev-block */
-
 
             /**
              * trim string, delete whitespace in front/back
@@ -849,7 +716,7 @@
      * 
      * @export
      */
-    ns.namespace('helpers.utils', utils);
+    ns.ns('helpers.utils', utils);
 
 
 }(window, document, window.getNs())); // immediatly invoke function

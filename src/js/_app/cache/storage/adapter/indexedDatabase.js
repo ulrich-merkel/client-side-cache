@@ -17,7 +17,7 @@
  *      - Seamonkey 2.15 +
  * 
  * @version 0.1.5
- * @author Ulrich Merkel, 2013
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * 
  * @namespace ns
  *
@@ -174,7 +174,7 @@
         self.dbName = 'cache';
         self.dbVersion = '1.0';
         self.dbTable = 'offline';
-        self.dbDescription = 'Local offline cache';
+        self.dbDescription = 'offline cache';
         self.dbKey = 'key';
 
         // run init function
@@ -227,8 +227,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init local vars
@@ -282,8 +283,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init local vars
@@ -360,8 +362,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             /**
@@ -695,8 +698,8 @@
      * 
      * @export
      */
-    if (utils.isFunction(ns.namespace)) {
-        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (utils.isFunction(ns.ns)) {
+        ns.ns('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
     }

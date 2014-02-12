@@ -13,12 +13,13 @@
  * - convert resource data, encode data into storable formats and decode data form storage
  * - implementing the strategy pattern for storage adapters
  * 
- * @version 0.1.6
- * @author Ulrich Merkel, 2013
+ * @version 0.1.7
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.7 bug fixes for outdated browsers and options passed ins
  * - 0.1.6 logging improved
  * - 0.1.5 improved namespacing
  * - 0.1.4 timeout for xhr connections added
@@ -74,11 +75,13 @@
         hasCanvasSupport = client.hasCanvas(),                      // @type {boolean} Whether there is canvas support or not
 
         /**
-         * @type {array} Config array with objects for different storage types
+         * Config array with objects for different storage types
          * 
          * this is the place to configure the defaults values which types of
          * adapters will be checked in which order and which resource types 
          * are stored in which adapter type.
+         *
+         * @type {array}
          */
         adapterTypes = [
             {type: 'fileSystem', css: true, js: true, html: true, img: true },
@@ -89,10 +92,12 @@
 
 
         /**
-         * @type {object} The default option to initialize the adapter
+         * The default option to initialize the adapter
          *
          * this is the default config for strorage adapters and could be
          * overridden by the passed in parameters.
+         *
+         * @type {object}
          */
         adapterDefaults = {
             name: 'localcache',                                 // @type {string} [adapterDefaults.name=localcache] Default db name
@@ -115,9 +120,11 @@
 
 
         /**
-         * @type {object} The defaults for a single resource
+         * The defaults for a single resource
          *
          * this config could be overridden by the passed in resource parameters
+         *
+         * @type {object}
          */
         resourceDefaults = {
             ajax: true,                                         // @type {boolean} [resourceDefaults.ajax=true] Default value for loading a resource via xhr or not
@@ -462,9 +469,7 @@
 
         // end of recursive loop reached, no adapter available
         if (!storageAdapters || !storageAdapters.length) {
-            if (!adapterAvailable) {
-                callback(false);
-            }
+            callback(false);
             return;
         }
 
@@ -635,25 +640,33 @@
         }
 
         /**
-         * @type {boolean} Enable or disable client side storage
+         * Enable or disable client side storage
          *
          * load resources just via xhr if
          * this option is set to false.
+         *
+         * @type {boolean}
          */
         self.isEnabled = true;
 
         /**
-         * @type {object} The instance of the best (or given) available storage adapter
+         * The instance of the best (or given) available storage adapter
+         *
+         * @type {object}
          */
         self.adapter = null;
 
         /**
-         * @type {object} The instance of the application cache storage adapter
+         * The instance of the application cache storage adapter
+         *
+         * @type {object}
          */
         self.appCacheAdapter = null;
 
         /**
-         * @type {object} Make the adapter types and defaults available to instance calls
+         * Make the adapter types and defaults available to instance calls
+         *
+         * @type {object}
          */
         self.adapters = {
             types: adapterTypes,
@@ -661,7 +674,9 @@
         };
 
         /**
-         * @type {object} Make the resource defaults available to instance calls
+         * Make the resource defaults available to instance calls
+         *
+         * @type {object}
          */
         self.resources = {
             defaults: resourceDefaults
@@ -1239,7 +1254,7 @@
      * 
      * @export
      */
-    ns.namespace('cache.' + controllerType + '.controller', Storage);
+    ns.ns('cache.' + controllerType + '.controller', Storage);
 
 
 }(window, document, window.getNs())); // immediatly invoke function

@@ -5,6 +5,11 @@ describe('Cache Storage Controller', function () {
 
     'use strict';
 
+    var path = '';
+    if (window.__karma__ !== undefined) {
+        path += 'base/';
+    }
+
     it('Initialize storage controller', function () {
 
         var storage = new app.cache.storage.controller();
@@ -59,7 +64,7 @@ describe('Cache Storage Controller', function () {
             callback,
             storage = new app.cache.storage.controller(function (self) {
                 instance = self;
-                instance.create({url: 'js/lib.js', type: 'js'}, function () {
+                instance.create({url: path + 'js/lib.js', type: 'js'}, function () {
                     callback = 'success';
                 });
             });
@@ -120,13 +125,13 @@ describe('Cache Storage Controller', function () {
             callback,
             storage = new app.cache.storage.controller(function (self) {
                 instance = self;
-                instance.read({url: 'js/lib.js', type: 'js'}, function () {
+                instance.read({url: path + 'js/lib.js', type: 'js'}, function () {
                     callback = 'success';
                 });
             });
 
         waitsFor(function () {
-            return instance !== undefined;
+            return callback !== undefined;
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
@@ -181,7 +186,7 @@ describe('Cache Storage Controller', function () {
             callback,
             storage = new app.cache.storage.controller(function (self) {
                 instance = self;
-                instance.update({url: 'js/lib.js', type: 'js'}, function () {
+                instance.update({url: path + 'js/lib.js', type: 'js'}, function () {
                     callback = 'success';
                 });
             });
@@ -242,13 +247,13 @@ describe('Cache Storage Controller', function () {
             callback,
             storage = new app.cache.storage.controller(function (self) {
                 instance = self;
-                instance.remove({url: 'js/lib.js', type: 'js'}, function () {
+                instance.remove({url: path + 'js/lib.js', type: 'js'}, function () {
                     callback = 'success';
                 });
             });
 
         waitsFor(function () {
-            return instance !== undefined;
+            return callback !== undefined;
         }, 'cache.storage initialized', 1000);
 
         runs(function () {

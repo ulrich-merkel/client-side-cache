@@ -13,7 +13,7 @@
  *      - Maxthon 4.0.5 +
  *
  * @version 0.1.5
- * @author Ulrich Merkel, 2013
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  *
  * @namespace ns
  *
@@ -378,6 +378,10 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!boolIsSupported) {
+                callback(false);
+                return;
+            }
 
             // check for database
             if (null === adapter) {
@@ -439,8 +443,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init local function vars
@@ -528,8 +533,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init local function vars
@@ -604,8 +610,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init local function vars
@@ -677,8 +684,8 @@
      * 
      * @export
      */
-    if (utils.isFunction(ns.namespace)) {
-        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (utils.isFunction(ns.ns)) {
+        ns.ns('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
     }

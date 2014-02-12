@@ -5,6 +5,17 @@ describe('Cache Controller Load Single Html', function () {
 
     'use strict';
 
+    var path = '';
+    if (window.__karma__ !== undefined) {
+        path += 'base/';
+    }
+
+    beforeEach(function(){
+        if (!$('#test-node-html').length) {
+            $('<div id="test-node-html"></div>').appendTo('body');
+        }
+    });
+
     afterEach(function () {
 
         var ready = false;
@@ -35,7 +46,7 @@ describe('Cache Controller Load Single Html', function () {
 
         runs(function () {
             cache.load([
-                {url:  "ajax.html", type: "html"}
+                {url:  path + "ajax.html", type: "html"}
             ], function () {
                 loadCallback = 'success';
             });
@@ -64,7 +75,7 @@ describe('Cache Controller Load Single Html', function () {
 
         runs(function () {
             cache.load([
-                {url:  "ajax.html", type: "html", loaded: function () {
+                {url:  path + "ajax.html", type: "html", loaded: function () {
                     loadCallback = true;
                 }}
             ]);
@@ -93,7 +104,7 @@ describe('Cache Controller Load Single Html', function () {
 
         runs(function () {
             cache.load([
-                {url:  "ajax.html", type: "html", loaded: function (data) {
+                {url:  path + "ajax.html", type: "html", loaded: function (data) {
                     loadCallback = !!data;
                 }}
             ]);
@@ -122,7 +133,7 @@ describe('Cache Controller Load Single Html', function () {
 
         runs(function () {
             cache.load([
-                {url:  "ajax.html", type: "html", node: {id: 'test-node-html'}}
+                {url:  path + "ajax.html", type: "html", node: {id: 'test-node-html'}}
             ], function () {
                 loadCallback = true;
             });
@@ -151,7 +162,7 @@ describe('Cache Controller Load Single Html', function () {
 
         runs(function () {
             cache.load([
-                {url:  "ajax.html", type: "html", node: {dom: $('#test-node-html')[0]}}
+                {url:  path + "ajax.html", type: "html", node: {dom: $('#test-node-html')[0]}}
             ], function () {
                 loadCallback = true;
             });
@@ -180,7 +191,7 @@ describe('Cache Controller Load Single Html', function () {
 
         runs(function () {
             cache.load([
-                {url:  "ajax123.html", type: "html"}
+                {url:  path + "ajax123.html", type: "html"}
             ], function () {
                 loadCallback = true;
             });
@@ -209,7 +220,7 @@ describe('Cache Controller Load Single Html', function () {
 
         runs(function () {
             cache.load([
-                {url:  "ajax.html", type: "html", node: {id: 'test-node-html123'}}
+                {url:  path + "ajax.html", type: "html", node: {id: 'test-node-html123'}}
             ], function () {
                 loadCallback = true;
             });
@@ -238,7 +249,7 @@ describe('Cache Controller Load Single Html', function () {
 
         runs(function () {
             cache.load([
-                {url:  "ajax.html", type: "htm"}
+                {url:  path + "ajax.html", type: "htm"}
             ], function () {
                 loadCallback = true;
             });
@@ -267,7 +278,7 @@ describe('Cache Controller Load Single Html', function () {
 
         runs(function () {
             cache.load([
-                {url:  "ajax.html", node: {id: 'test-node-html'}}
+                {url:  path + "ajax.html", node: {id: 'test-node-html'}}
             ], function () {
                 loadCallback = true;
             });

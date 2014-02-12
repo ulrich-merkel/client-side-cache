@@ -9,7 +9,7 @@
  * - interface functions for the cache files
  * - enable chaining (fluent interface) and make sure the cache with given parameters is just initialized once
  * 
- * @author Ulrich Merkel (hello@ulrichmerkel.com)
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * @version 0.2
  *
  * @namespace ns
@@ -345,7 +345,7 @@
                     var storage = currentInterface.storage;
 
                     // handle application cache loading
-                    if (storage && storage.appCacheAdapter && !storage.appCacheAdapter.opened) {
+                    if (storage && storage.appCacheAdapter) {
                         storage.appCacheAdapter.open(callback, parameters);
                     } else {
                         callback(false);
@@ -447,9 +447,9 @@
      *
      * @export
      */
-    ns.namespace('cache.load', cacheInterface.load);
-    ns.namespace('cache.remove', cacheInterface.remove);
-    ns.namespace('cache.setup', cacheInterface.setup);
+    ns.ns('cache.load', cacheInterface.load);
+    ns.ns('cache.remove', cacheInterface.remove);
+    ns.ns('cache.setup', cacheInterface.setup);
 
 
 }(window, window.getNs()));

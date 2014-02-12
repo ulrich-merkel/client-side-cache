@@ -5,7 +5,13 @@ describe('Cache Storage Adapter Web Storage', function () {
 
     'use strict';
 
-    var storageAdapter = app.cache.storage.adapter.webStorage;
+    var storageAdapter = app.cache.storage.adapter.webStorage,
+        isSupported = new storageAdapter().isSupported(),
+        path = '';
+
+    if (window.__karma__ !== undefined) {
+        path += 'base/';
+    }
 
     afterEach(function () {
 

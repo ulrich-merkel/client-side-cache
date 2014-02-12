@@ -8,7 +8,7 @@
  * - connect to storage controller and read/write data
  * - handle logic to check for outdated data
  * 
- * @author Ulrich Merkel (hello@ulrichmerkel.com)
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * @version 0.2.0
  *
  * @namespace ns
@@ -161,8 +161,9 @@
 
 
     /**
+     * check given resource type
      *
-     *
+     * @param {object} resource The resource object
      */
     function checkResourceType(resource) {
 
@@ -200,7 +201,9 @@
         }
 
         /**
-         * @type {object} The storage controller instance
+         * The storage controller instance
+         *
+         * @type {object}
          */
         self.storage = null;
 
@@ -317,7 +320,11 @@
                         dom.appendHtml(url, data, callback, node, update);
                         break;
                     default:
-                        // didn't match any type
+
+                        /* start-dev-block */
+                        moduleLog('Didn\'t match any type for dom append: type ' + resource.type);
+                        /* end-dev-block */
+
                         callback();
                         break;
                     }
@@ -651,10 +658,10 @@
         /**
          * remove multiple resources
          *
-         * @param {array} resources The array with resource objects
+         * @param {array} mainResources The array with resource objects
          * @param {function} mainCallback The callback after all resources are removed
          */
-        remove: function (resources, mainCallback) {
+        remove: function (mainResources, mainCallback) {
 
             // declare remove vars and functions
             var self = this,
@@ -736,7 +743,7 @@
 
 
             // start routine
-            main(resources, mainCallback);
+            main(mainResources, mainCallback);
 
 
         },
@@ -779,7 +786,7 @@
      * 
      * @export
      */
-    ns.namespace(controllerType + '.controller', Controller);
+    ns.ns(controllerType + '.controller', Controller);
 
 
 }(window.getNs())); // immediatly invoke function

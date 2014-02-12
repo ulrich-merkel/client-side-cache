@@ -5,6 +5,11 @@ describe('Cache Controller Load Advanced', function () {
 
     'use strict';
 
+    var path = '';
+    if (window.__karma__ !== undefined) {
+        path += 'base/';
+    }
+
     afterEach(function () {
 
         var ready = false;
@@ -43,10 +48,10 @@ describe('Cache Controller Load Advanced', function () {
 
         runs(function () {
             cache.load([
-                {url: "css/app.css", type: "css"},
-                {url: "js/lib.js", type: "js"},
-                {url: "assets/img/content/410x144/test-1.jpg", type: "img"},
-                {url: "ajax.html", type: "html"}
+                {url: path + "css/app.css", type: "css"},
+                {url: path + "js/lib.js", type: "js"},
+                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img"},
+                {url: path + "ajax.html", type: "html"}
             ], function () {
                 loadCallback = 'success';
             });
@@ -76,8 +81,8 @@ describe('Cache Controller Load Advanced', function () {
 
         runs(function () {
             cache.load([
-                {url: "js/_lib/vendor/jquery-1.8.3.js", type: "js"},
-                {url: "js/_lib/utils/jquery.reveal.js", type: "js", group: 1}
+                {url: path + "js/_lib/vendor/jquery-1.8.3.js", type: "js"},
+                {url: path + "js/_lib/utils/jquery.reveal.js", type: "js", group: 1}
             ], function () {
                 loadCallback = 'success';
             });
@@ -108,9 +113,9 @@ describe('Cache Controller Load Advanced', function () {
 
         runs(function () {
             cache.load([
-                {url: "js/_lib/vendor/jquery-1.8.3.js", type: "js"},
-                {url: "js/_lib/utils/jquery.reveal.js", type: "js", group: 15},
-                {url: "js/_lib/polyfill/matchmedia.js", type: "js", group: 40}
+                {url: path + "js/_lib/vendor/jquery-1.8.3.js", type: "js"},
+                {url: path + "js/_lib/utils/jquery.reveal.js", type: "js", group: 15},
+                {url: path + "js/_lib/polyfill/matchmedia.js", type: "js", group: 40}
             ], function () {
                 loadCallback = 'success';
             });
@@ -143,7 +148,7 @@ describe('Cache Controller Load Advanced', function () {
 
         runs(function () {
             cache.load([
-                {url: "js/_lib/utils/jquery.imagesLoaded.js", lifetime: 0, type: "js", loaded: function (resource) {
+                {url: path + "js/_lib/utils/jquery.imagesLoaded.js", lifetime: 0, type: "js", loaded: function (resource) {
                     resourceExpires = resource.expires;
                 }}
             ], function () {
@@ -178,7 +183,7 @@ describe('Cache Controller Load Advanced', function () {
         // make sure item is in cache
         runs(function () {
             cache.load([
-                {url: "js/_lib/utils/jquery.pubsub.js", lifetime: -1, type: "js"}
+                {url: path + "js/_lib/utils/jquery.pubsub.js", lifetime: -1, type: "js"}
             ], function () {
                 loadCallback = 'success';
             });
@@ -191,7 +196,7 @@ describe('Cache Controller Load Advanced', function () {
         // check validation
         runs(function () {
             cache.load([
-                {url: "js/_lib/utils/jquery.pubsub.js", lifetime: -1, type: "js", loaded: function (resource) {
+                {url: path + "js/_lib/utils/jquery.pubsub.js", lifetime: -1, type: "js", loaded: function (resource) {
                     resourceIsValid = !!instance.isEnabled ? !!resource.isValid : true;
                 }}
             ], function () {
@@ -227,7 +232,7 @@ describe('Cache Controller Load Advanced', function () {
 
         runs(function () {
             cache.remove([
-                {url: "js/_lib/mobile/fastclick.js", type: "js"}
+                {url: path + "js/_lib/mobile/fastclick.js", type: "js"}
             ], function () {
                 loadCallback = 'deleted';
             });
@@ -239,7 +244,7 @@ describe('Cache Controller Load Advanced', function () {
 
         runs(function () {
             cache.load([
-                {url: "js/_lib/mobile/fastclick.js", type: "js", loaded: function (resource) {
+                {url: path + "js/_lib/mobile/fastclick.js", type: "js", loaded: function (resource) {
                     resourceVersion1 = !!instance.isEnabled ? resource.version : true;
                     resourceExpires1 = !!instance.isEnabled ? resource.expires : true;
                 }}
@@ -255,7 +260,7 @@ describe('Cache Controller Load Advanced', function () {
         runs(function () {
             window.setTimeout(function () {
                 cache.load([
-                    {url: "js/_lib/mobile/fastclick.js", type: "js", version: '1.1', loaded: function (resource) {
+                    {url: path + "js/_lib/mobile/fastclick.js", type: "js", version: '1.1', loaded: function (resource) {
                         resourceVersion2 = !!instance.isEnabled ? resource.version : true;
                         resourceExpires2 = !!instance.isEnabled ? resource.expires : true;
                     }}
@@ -294,7 +299,7 @@ describe('Cache Controller Load Advanced', function () {
 
         runs(function () {
             cache.remove([
-                {url: "js/_lib/mobile/fastclick.js", type: "js"}
+                {url: path + "js/_lib/mobile/fastclick.js", type: "js"}
             ], function () {
                 loadCallback = 'deleted';
             });
@@ -306,7 +311,7 @@ describe('Cache Controller Load Advanced', function () {
 
         runs(function () {
             cache.load([
-                {url: "js/_lib/mobile/fastclick.js", type: "js", lastmod: 1387414672021, loaded: function (resource) {
+                {url: path + "js/_lib/mobile/fastclick.js", type: "js", lastmod: 1387414672021, loaded: function (resource) {
                     resourceLastmod1 = resource.lastmod;
                 }}
             ], function () {
@@ -321,7 +326,7 @@ describe('Cache Controller Load Advanced', function () {
         runs(function () {
             window.setTimeout(function () {
                 cache.load([
-                    {url: "js/_lib/mobile/fastclick.js", type: "js", lastmod: new Date().getTime(), loaded: function (resource) {
+                    {url: path + "js/_lib/mobile/fastclick.js", type: "js", lastmod: new Date().getTime(), loaded: function (resource) {
                         resourceLastmod2 = resource.lastmod;
                     }}
                 ], function () {

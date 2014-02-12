@@ -9,10 +9,10 @@
 				'use strict';
 		
 				// local vars for faster access
-				var helpers = ns.helpers,                                       // @type {object} Shortcut for helpers functions
-					utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
-					logTimerStart = utils.logTimerStart,                        // @type {function} Shortcut for utils.logTimerStart functions
-					logTimerEnd = utils.logTimerEnd,                            // @type {function} Shortcut for utils.logTimerEnd functions
+				var helpers = ns.helpers,
+					utils = ns.helpers.utils,
+                    hasConsole = window.console !== undefined,
+                    hasConsoleTime = (hasConsole && console.time !== undefined && console.timeEnd !== undefined),
 					on = utils.on;                                              // @type {function} Shortcut for utilsl.on helper
 
 
@@ -22,23 +22,43 @@
 				 */
 				on(window, 'load', function () {
 
-					// start timers to profile loading time, just for testing purposes
-					logTimerStart('Page css and js files loaded');
-					logTimerStart('Page images loaded');
-					logTimerStart('Html loaded');
-					logTimerStart('Application Cache loaded');
-
+					// start console timers to profile loading time, just for testing purposes
+                    if (hasConsoleTime) {
+                        window.console.time('Console Time: Page css and js files loaded');
+                        window.console.time('Console Time: Page images loaded');
+                        window.console.time('Console Time: Html loaded');
+                        window.console.time('Console Time: Application Cache loaded');
+                    }
 
 					// init base vars and loaded callback, loaded callback will be invoked
 					// when called twice
 					var baseUrl = window.baseurl || utils.url(window.location.pathname).folder,
 						loaded = 0,
+                        wait = 0,
 						layerLoading = document.getElementById('layer-loading'),
-						loadedCallback = function () {
+						loadedCallback = function (increaseWait) {
+
 							loaded = loaded + 1;
-							if (loaded === 2 && layerLoading) {
+                            if (increaseWait) {
+                                wait = wait + 1;
+                            }
+
+							if (wait === 2 && layerLoading) {
 								layerLoading.style.display = 'none';
 							}
+                            if (loaded === 4) {
+
+                                // check window performance, just for testing purposes
+                                if (window.performance && window.performance.timing && hasConsole) {
+
+                                    var t = window.performance.timing;
+
+                                    console.log('Window Performance : navigationStart until requestStart ' + (t.loadEventEnd - t.requestStart));
+                                    console.log('Window Performance : navigationStart until domComplete ' + (t.loadEventEnd - t.domComplete));
+                                    console.log('Window Performance : navigationStart until loadEventEnd ' + (t.loadEventEnd - t.navigationStart));
+                                }
+
+                            }
 						},
 						loadingBar = document.getElementById('layer-progress-value'),
 						animateLoadingBar = function (data) {
@@ -49,9 +69,11 @@
 
 					// init application cache, listen to events
 					ns.cache.load('applicationCache', function () {
-					    logTimerEnd('Application Cache loaded');
+                        if (hasConsoleTime) {
+                            window.console.timeEnd('Console Time: Application Cache loaded');
+                        }
 						animateLoadingBar(100);
-					    loadedCallback();
+					    loadedCallback(true);
 					}, {
 					    progress: function (data) {
 							animateLoadingBar(data);
@@ -64,8 +86,10 @@
 						{url: baseUrl + "js/lib.js", type: "js"},
 						{url: baseUrl + "js/app.js", type: "js", group: 1}
 					], function () {
-						logTimerEnd('Page css and js files loaded');
-						loadedCallback();
+                        if (hasConsoleTime) {
+                            window.console.timeEnd('Console Time: Page css and js files loaded');
+                        }
+						loadedCallback(true);
 					});
 
 					// load images dynamically
@@ -74,14 +98,19 @@
 					    {url: baseUrl + "assets/img/content/410x144/test-2.jpg", type: "img", node: {id: "image-2"}},
 					    {url: baseUrl + "assets/img/content/410x144/test-3.jpg", type: "img", node: {id: "image-3"}}
 					], function () {
-					    logTimerEnd('Page images loaded');
+                        if (hasConsoleTime) {
+                            window.console.timeEnd('Console Time: Page images loaded');
+                        }
+                        loadedCallback();
 					});
 
 					// load html data dynamically
 					ns.cache.load([
 						{url: baseUrl + "ajax.html", type: "html", node: {id: "ajax"}}
 					], function () {
-						logTimerEnd('Html loaded');
+                        if (hasConsoleTime) {
+                            window.console.timeEnd('Console Time: Html loaded');
+                        }
 						loadedCallback();
 					});
 

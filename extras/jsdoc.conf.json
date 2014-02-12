@@ -1,0 +1,35 @@
+{
+    "source": {
+        "include": [ "src/js/cache.dev.js" ],
+        "exclude": [],
+        "includePattern": ".+\\.js(doc)?$",
+        "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "opts": {
+        "encoding": "utf8",
+        "destination": "./jsdoc/",
+        "recurse": true
+    },
+    "plugins": [
+        "plugins/markdown",
+        "plugins/verboseOutput"
+    ],
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "templates": {
+        "cleverLinks": true,
+        "monospaceLinks": true,
+        "systemName": "Client side cache",
+        "footer": "footer",
+        "copyright": "© 2013-2014 Ulrich Merkel",
+        "navType": "vertical",
+        "linenums": true,
+        "collapseSymbols": true,
+        "inverseNav": true
+    },
+    "markdown" : {
+        "parser": "gfm",
+        "hardwrap": true
+    }
+}

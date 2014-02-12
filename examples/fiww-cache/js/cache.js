@@ -130,7 +130,7 @@
                     current[names[i]] = {};
                 }
                 // set value if set and last namespace item reached
-                if (i === length - 1 && !!value) {
+                if (i === length - 1 && value !== undefined) {
                     current[names[i]] = value;
                 }
 
@@ -151,7 +151,7 @@
 
     // create basic object and init namespace function
     ns = getNamespace();
-    ns.namespace = namespace;
+    ns.namespace = ns.ns = namespace;
 
 
     /**
@@ -242,19 +242,13 @@
             return new Queue();
         }
 
-        /**
-         * @type {array} [this.methods=[]] Store your callbacks
-         */
+        // @type {array} [[]] Store your callbacks
         self.methods = [];
 
-        /**
-         * @type {object} [this.response=null] Keep a reference to your response
-         */
+        // @type {object} [null] Keep a reference to your response
         self.response = null;
 
-        /**
-         * @type {boolean} [this.flushed=false] All queues start off unflushed
-         */
+        // @type {boolean} [false] All queues start off unflushed
         self.flushed = false;
 
     }
@@ -323,7 +317,7 @@
      *
      * @export
      */
-    ns.namespace('helpers.queue', Queue);
+    ns.ns('helpers.queue', Queue);
 
 
 }(window.getNs()));  // immediatly invoke function
@@ -338,12 +332,13 @@
  * @description
  * - provide utility functions
  *
- * @author Ulrich Merkel, 2013
- * @version 0.2.1
+ * @author Ulrich Merkel, 2014
+ * @version 0.2.2
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
  * - 0.2.1 examples added, isFunction added, refactoring
  * - 0.2 improved console.log wrapper, console.warn added
  * - 0.1.9 improved namespacing
@@ -418,13 +413,8 @@
     var utils = (function () {
 
         // init global vars
-        var jsonObject = null,                                                                              // @type {object} The current json object
-            hasConsole = window.console !== undefined,                                                      // @type {boolean} If window.console is available
-            console = hasConsole ? window.console : null,                                                   // @type {object} The window.console object
-            hasConsoleLog = (hasConsole && console.log !== undefined),                                      // @type {boolean} If console.log is available
-            hasConsoleWarn = (hasConsole && console.warn !== undefined),                                    // @type {boolean} If console.warn is available
-            hasConsoleTime = (hasConsole && console.time !== undefined && console.timeEnd !== undefined),   // @type {boolean} If console.time/console.timeEnd is available
-            emptyArray = [];                                                                                // @type {array} Placeholder for array testing
+        var jsonObject = null,                  // @type {object} The current json object
+            emptyArray = [];                    // @type {array} Placeholder for array testing
 
 
         /**
@@ -939,7 +929,10 @@
 
                 var args = arguments,
                     length = args.length,
-                    message;
+                    message,
+                    hasConsole = window.console !== undefined,
+                    console = hasConsole ? window.console : null,
+                    hasConsoleLog = (hasConsole && console.log !== undefined);
 
                 if (!length) {
                     return;
@@ -956,66 +949,7 @@
 
             },
 
-
-            /**
-             * wrapper for console.warn due to some browsers lack of this functions
-             *
-             * @param {arguments} The warnings to log
-             */
-            warn: function () {
-
-                var args = arguments,
-                    length = args.length,
-                    message;
-
-                if (!length) {
-                    return;
-                }
-                message = args[0];
-
-                // check for support
-                if (hasConsoleWarn) {
-                    console.warn.apply(console, args);
-                } else {
-                    // try to log normal message
-                    utils.log(message);
-                }
-
-                // log messages to dom element
-                utils.logToScreen(message);
-            },
-
             /* end-dev-block */
-
-
-            /**
-             * log timer start
-             *
-             * @param {string} key The timer key
-             */
-            logTimerStart: function (key) {
-
-                // check for support
-                if (hasConsoleTime) {
-                    window.console.time(key);
-                }
-
-            },
-
-
-            /**
-             * log timer end
-             *
-             * @param {string} key The timer key
-             */
-            logTimerEnd: function (key) {
-
-                // check for support
-                if (hasConsoleTime) {
-                    window.console.timeEnd(key);
-                }
-
-            },
 
 
             /**
@@ -1065,79 +999,6 @@
                 };
             },
 
-            /* start-dev-block */
-
-            /**
-             * get url query string
-             *
-             * @param {string} url The optional url to get the query string from
-             *  
-             * @return {object} Current url query strings
-             */
-            queryString: (function (url) {
-
-                var queryString = {},
-                    //query = utils.url(url) ? utils.url(url).query : window.location.search.substring(1),
-                    query = window.location.search.substring(1),
-                    vars = query.split('&'),
-                    varsLength = vars.length,
-                    i = 0,
-                    pair,
-                    arr;
-
-                for (i = 0; i < varsLength; i = i + 1) {
-
-                    // get value pairs
-                    pair = vars[i].split('=');
-
-                    if (queryString[pair[0]] === undefined) {
-
-                        // if first entry with this name
-                        queryString[pair[0]] = pair[1];
-
-                    } else if (typeof queryString[pair[0]] === 'string') {
-
-                        // if second entry with this name
-                        arr = [queryString[pair[0]], pair[1]];
-                        queryString[pair[0]] = arr;
-
-                    } else {
-
-                        // if third or later entry with this name
-                        queryString[pair[0]].push(pair[1]);
-
-                    }
-
-                }
-
-                return queryString;
-
-            }()),
-
-
-            /**
-             * text replacement for simple client-side templates
-             *
-             * @example
-             * <li><a href="%s">%s</a></li>
-             * var result = sprintf(templateText, "/item/4", "Fourth item");
-             *
-             * @param {string} text The template string
-             *
-             * @return {string} The string with replaced placeholders
-             */
-            sprintf: function (text) {
-                var i = 1,
-                    args = arguments;
-
-                return text.replace(/%s/g, function () {
-                    return (i < args.length) ? args[i++] : '';
-                });
-
-            },
-
-            /* end-dev-block */
-
 
             /**
              * trim string, delete whitespace in front/back
@@ -1179,7 +1040,7 @@
      * 
      * @export
      */
-    ns.namespace('helpers.utils', utils);
+    ns.ns('helpers.utils', utils);
 
 
 }(window, document, window.getNs())); // immediatly invoke function
@@ -1192,12 +1053,13 @@
  * @description
  * - provide information about the client and device
  * 
- * @author Ulrich Merkel, 2013
- * @version 0.4.1
+ * @author Ulrich Merkel, 2014
+ * @version 0.4.2
  *
  * @namespace ns
  * 
  * @changelog
+ * - 0.4.2 removed unused functions for client-side-cache optimization, complete client helper moved to separate git
  * - 0.4.1 example added
  * - 0.4 improved detectOrientation function calls
  * - 0.3.9 improved namespacing
@@ -1226,12 +1088,9 @@
  * @example
  *
  *        // check for isiOS devices
- *        var isIOS = app.helpers.client.isiOS();
- *
- *        // check for isiOS devices
- *         var browserVersion = app.helpers.client.getBrowserVersion();
- *
- *         // for the complete list of available methods
+ *        var isMicrosoftBrowser = app.helpers.client.isMsie();
+ *        
+ *        // for the complete list of available methods
  *        // please take a look at the @interface below
  *
  *
@@ -1269,155 +1128,15 @@
          */
 
         // init global vars
-        var privateIsiOS,                                                   // @type {boolean} Whether this browser is ios or not
-            privateIsWebkit,                                                // @type {boolean} Whether this browser is webkit or not
-            privateIsAndroid,                                               // @type {boolean} Whether this browser is android or not
-            privateIsBlackberry,                                            // @type {boolean} Whether this browser blackberry ios or not
-            privateIsOpera,                                                 // @type {boolean} Whether this browser is opera or not
-            privateIsChrome,                                                // @type {boolean} Whether this browser is chrome or not
-            privateIsSafari,                                                // @type {boolean} Whether this browser is safari or not
-            privateIsFirefox,                                               // @type {boolean} Whether this browser is firefox or not
-            privateIsSeamonkey,                                             // @type {boolean} Whether this browser is seamonkey or not
-            privateIsCamino,                                                // @type {boolean} Whether this browser is camino or not
+        var privateIsOpera,                                                 // @type {boolean} Whether this browser is opera or not
             privateIsMsie,                                                  // @type {boolean} Whether this browser is msie or not
-            privateIsiPad,                                                  // @type {boolean} Whether this device is an ipad tablet or not
-            privateIsiPhone,                                                // @type {boolean} Whether this device is an iphone device or not
-            privateIsMobileBrowser,                                         // @type {boolean} Whether this device is mobile or not
-            privateBrowserVersion,                                          // @type {string} The version of this browser
-            privateIOSVersion,                                              // @type {string} The ios version of this browser or undefined
             privateIsOnline,                                                // @type {boolean} Whether this device has network connection or not
-            privateNetworkConnection,                                       // @type {object} The navigator.connection object if available
-            privateLandscapeMode = 'landscapeMode',                         // @type {string} The landscape mode string
-            privatePortraitMode = 'portraitMode',                           // @type {string} The portrait mode string
-            privateOrientationMode,                                         // @type {boolean} The current view mode (landscape/portrait)
             privateHasCanvas,                                               // @type {boolean} Whether the browser has canvas support or not
-            privateHideStatusbarTimeout,                                    // @type {integer} Storage placeholder for window.setTimeout
-
-            privateDetectOrientationBound,                                  // @type {boolean} Check to bind detectOrientation function just once
 
             ua = navigator.userAgent || navigator.vendor || window.opera,   // @type {string} The user agent string of the current browser
             uaLowerCase = ua.toLowerCase(),                                 // @type {string} The lower case user agent string for easier matching
             on = ns.helpers.utils.on;                                       // @type {object} Shortcut for on function
 
-
-        /**
-         * detect orientation
-         */
-        function detectOrientation() {
-            var orienation = parseInt(window.orientation, 10);
-            switch (orienation) {
-            case 0:
-                privateOrientationMode = privatePortraitMode;
-                break;
-            case 180:
-                privateOrientationMode = privatePortraitMode;
-                break;
-            case 90:
-                privateOrientationMode = privateLandscapeMode;
-                break;
-            case -90:
-                privateOrientationMode = privateLandscapeMode;
-                break;
-            default:
-                break;
-            }
-        }
-
-
-        /**
-         * bind event to orientation change and make sure
-         * it is bound only once
-         */
-        function bindOrientationChange() {
-            if (!privateDetectOrientationBound) {
-                on(window, 'orientationchange', detectOrientation);
-                privateDetectOrientationBound = true;
-            }
-        }
-
-        /* start-dev-block */
-
-        /**
-         * check for ios browser
-         */
-        function checkIfIsiOS() {
-            privateIsiOS = uaLowerCase.match(/(iphone|ipod|ipad)/) !== null;
-            if (privateIsiOS) {
-                bindOrientationChange();
-            }
-        }
-
-
-        /**
-         * check for webkit browser
-         */
-        function checkIfIsWebkit() {
-            privateIsWebkit = uaLowerCase.match(/(webkit)/) !== null;
-        }
-
-
-        /**
-         * check for android browser
-         */
-        function checkIfIsAndroid() {
-            privateIsAndroid = uaLowerCase.match(/(android)/) !== null;
-            if (privateIsAndroid) {
-                bindOrientationChange();
-            }
-        }
-
-
-        /**
-         * check for blackberry browser
-         */
-        function checkIfIsBlackberry() {
-            privateIsBlackberry = uaLowerCase.match(/(blackberry)/) !== null;
-            if (privateIsBlackberry) {
-                bindOrientationChange();
-            }
-        }
-
-
-        /**
-         * check for chrome browser
-         */
-        function checkIfIsChrome() {
-            privateIsChrome = uaLowerCase.match(/(chrome)/) !== null;
-        }
-
-
-        /**
-         * check for safari browser
-         */
-        function checkIfIsSafari() {
-            privateIsSafari = uaLowerCase.match(/(safari)/) !== null;
-        }
-
-
-        /**
-         * check for firefox browser
-         */
-        function checkIfIsFirefox() {
-            privateIsFirefox = uaLowerCase.match(/(firefox)/) !== null;
-        }
-
-
-        /**
-         * check for seamonkey browser
-         */
-        function checkIfIsSeamonkey() {
-            privateIsSeamonkey = uaLowerCase.match(/(seamonkey)/) !== null;
-        }
-
-
-        /**
-         * check for camino browser
-         */
-        function checkIfIsCamino() {
-            privateIsCamino = uaLowerCase.match(/(camino)/) !== null;
-        }
-
-        /* end-dev-block */
 
         /**
          * check for microsoft internet explorer
@@ -1426,89 +1145,12 @@
             privateIsMsie = uaLowerCase.match(/(msie)/) !== null;
         }
 
-
         /**
          * check for opera browser
          */
         function checkIfIsOpera() {
             privateIsOpera = uaLowerCase.match(/(opera)/) !== null;
         }
-
-        /* start-dev-block */
-
-        /**
-         * check for ios browser
-         */
-        function checkIfIsiPad() {
-            privateIsiPad = uaLowerCase.match(/(ipad)/) !== null;
-            if (privateIsiPad) {
-                bindOrientationChange();
-            }
-        }
-
-
-        /**
-         * check for ios browser
-         */
-        function checkIfIsiPhone() {
-            privateIsiPhone = uaLowerCase.match(/(iphone)/) !== null;
-            if (privateIsiPhone) {
-                bindOrientationChange();
-            }
-        }
-
-
-        /**
-         * detect mobile browsers
-         *
-         * @see http://detectmobilebrowsers.com/
-         */
-        function checkIfIsMobileBrower() {
-
-            if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(uaLowerCase) ||
-                    /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(uaLowerCase.substr(0, 4))) {
-                privateIsMobileBrowser = true;
-                bindOrientationChange();
-            } else {
-                privateIsMobileBrowser = false;
-            }
-        }
-
-
-        /**
-         * check for browser version
-         */
-        function checkBrowserVersion() {
-            var temp,
-                info;
-
-            info = uaLowerCase.match(/(opera|chrome|safari|firefox|msie)\/?\s*(\.?\d+(\.\d+)*)/i);
-            if (info && (temp = ua.match(/version\/([\.\d]+)/i)) !== null) {
-                info[2] = temp[1];
-            }
-
-            privateBrowserVersion = info ? info[2] : navigator.appVersion;
-        }
-
-
-        /**
-         * check for ios version
-         */
-        function checkiOSVersion() {
-            if (privateIsiOS === undefined) {
-                checkIfIsiOS();
-            }
-
-            if (privateIsiOS) {
-
-                // supports iOS 2.0 and later: <http://bit.ly/TJjs1V>
-                var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
-
-                privateIOSVersion = [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
-            }
-        }
-
-        /* end-dev-block */
 
         /**
          * check for browser online state
@@ -1522,116 +1164,12 @@
             privateIsOnline = navigator.onLine !== undefined ? !!navigator.onLine : true;
         }
 
-        /* start-dev-block */
-
-        /**
-         * check for network information
-         *
-         * try to use navigator.connection object (Android 2.2+, W3C proposal)
-         */
-        function checkNetworkConnection() {
-
-            // try to get connection object and create custom one if it's not available
-            var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || {
-                    type: 0,
-                    UNKNOWN: 0,
-                    ETHERNET: 1,
-                    WIFI: 2,
-                    CELL_2G: 3,
-                    CELL_3G: 4
-                },
-                detectNetwork = function () {
-                    privateNetworkConnection = connection;
-                };
-
-            connection.onchange = detectNetwork;
-            detectNetwork();
-        }
-
-        /* end-dev-block */
-
         /**
          * public functions
          *
          * @interface
          */
         return {
-
-            /* start-dev-block */
-
-            // is ios
-            isiOS: function () {
-                if (privateIsiOS === undefined) {
-                    checkIfIsiOS();
-                }
-                return privateIsiOS;
-            },
-
-            // is webkit
-            isWebkit: function () {
-                if (privateIsWebkit === undefined) {
-                    checkIfIsWebkit();
-                }
-                return privateIsWebkit;
-            },
-
-            // is android
-            isAndroid: function () {
-                if (privateIsAndroid === undefined) {
-                    checkIfIsAndroid();
-                }
-                return privateIsAndroid;
-            },
-
-            // is blackberry
-            isBlackberry: function () {
-                if (privateIsBlackberry === undefined) {
-                    checkIfIsBlackberry();
-                }
-                return privateIsBlackberry;
-            },
-
-            // is chrome
-            isChrome: function () {
-                if (privateIsChrome === undefined) {
-                    checkIfIsChrome();
-                }
-                return privateIsChrome;
-            },
-
-            // is safari
-            isSafari: function () {
-                if (privateIsSafari === undefined) {
-                    checkIfIsSafari();
-                }
-                return privateIsSafari;
-            },
-
-            // is firefox
-            isFirefox: function () {
-                if (privateIsFirefox === undefined) {
-                    checkIfIsFirefox();
-                }
-                return privateIsFirefox;
-            },
-
-            // is seamonkey
-            isSeamonkey: function () {
-                if (privateIsSeamonkey === undefined) {
-                    checkIfIsSeamonkey();
-                }
-                return privateIsSeamonkey;
-            },
-
-            // is camino
-            isCamino: function () {
-                if (privateIsCamino === undefined) {
-                    checkIfIsCamino();
-                }
-                return privateIsCamino;
-            },
-
-            /* end-dev-block */
 
             // is microsoft internet explorer
             isMsie: function () {
@@ -1649,52 +1187,6 @@
                 return privateIsOpera;
             },
 
-            /* start-dev-block */
-
-            // is apple ipad
-            isiPad: function () {
-                if (privateIsiPad === undefined) {
-                    checkIfIsiPad();
-                }
-                return privateIsiPad;
-            },
-
-            // is apple ipad
-            isiPhone: function () {
-                if (privateIsiPhone === undefined) {
-                    checkIfIsiPhone();
-                }
-                return privateIsiPhone;
-            },
-
-
-            // is mobile
-            isMobile: function () {
-                if (privateIsMobileBrowser === undefined) {
-                    checkIfIsMobileBrower();
-                }
-                return privateIsMobileBrowser;
-            },
-
-
-            // get browser version
-            getBrowserVersion: function () {
-                if (privateBrowserVersion === undefined) {
-                    checkBrowserVersion();
-                }
-                return privateBrowserVersion;
-            },
-
-            // get ios version
-            getiOSVersion: function () {
-                if (privateIOSVersion === undefined) {
-                    checkiOSVersion();
-                }
-                return privateIOSVersion;
-            },
-
-            /* end-dev-block */
-
             // is online or offline
             isOnline: function () {
                 if (privateIsOnline === undefined) {
@@ -1702,75 +1194,6 @@
                 }
                 return privateIsOnline;
             },
-
-            /* start-dev-block */
-
-            // get network connection
-            getNetworkConnection: function () {
-                if (privateNetworkConnection === undefined) {
-                    checkNetworkConnection();
-                }
-                return privateNetworkConnection;
-            },
-
-            // is standalone mode (apple web-app)
-            isStandalone: function () {
-                return (navigator.standalone !== undefined && navigator.standalone);
-            },
-
-            // is touch device
-            isTouchDevice: function () {
-                // ontouchstart works on most browsers, msMaxTouchPoints is for ie10
-                return !!window.ontouchstart || window.navigator.msMaxTouchPoints;
-            },
-
-            // get orientation degree
-            orientation: function () {
-                if (window.orientation) {
-                    return window.orientation;
-                }
-                return 0;
-            },
-
-            // get orientation mode
-            orientationMode: function () {
-                if (privateOrientationMode === undefined) {
-                    detectOrientation();
-                }
-                return privateOrientationMode;
-            },
-
-            // has retina display
-            hasRetinaDisplay: function () {
-                return (window.devicePixelRatio >= 2);
-            },
-
-            // hide mobile status bar
-            // @ see http://remysharp.com/2010/08/05/doing-it-right-skipping-the-iphone-url-bar/
-            hideStatusbar: function (delay) {
-
-                // check params
-                if (!delay) {
-                    delay = 0;
-                }
-
-                // set delay and hide status bar if view is on top
-                window.clearTimeout(privateHideStatusbarTimeout);
-                privateHideStatusbarTimeout = window.setTimeout(function () {
-
-                    // stop if view is already on top
-                    if (parseInt(window.pageYOffset, 10) === 0) {
-                        /**
-                         * won't work in ios7 anymore
-                         * @see http://www.mobilexweb.com/blog/safari-ios7-html5-problems-apis-review
-                         */
-                        window.scrollTo(0, 1);
-                    }
-
-                }, delay);
-            },
-
-            /* end-dev-block */
 
             // has canvas support
             hasCanvas: function () {
@@ -1791,7 +1214,7 @@
      * 
      * @export
      */
-    ns.namespace('helpers.client', client);
+    ns.ns('helpers.client', client);
 
 
 }(window, window.navigator, window.getNs()));
@@ -1805,12 +1228,14 @@
  * @description
  * - provide utility functions for dom elements
  *
- * @author Ulrich Merkel, 2013
- * @version 0.1.5
+ * @author Ulrich Merkel, 2014
+ * @version 0.1.7
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.1.7 removed unused functions for client-side-cache optimization, complete dom helper moved to separate git
+ * - 0.1.6 hasClass improved
  * - 0.1.5 setAttribute added, improved namespacing
  * - 0.1.4 refactoring xhr function
  * - 0.1.3 createDomNode added
@@ -1900,7 +1325,7 @@
         return {
 
             /**
-             * reset some private vars for testing
+             * reset some private vars
              * mainly used for testing purposes
              *
              */
@@ -1943,19 +1368,6 @@
 
 
             /**
-             * check if element has given class
-             * 
-             * @param {object} elem The html object to test
-             * @param {string} className The class name to test
-             *
-             * @returns {boolean} Whether the element has the class (return true) or not (return false)
-             */
-            hasClass: function (elem, className) {
-                return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
-            },
-
-
-            /**
              * get attribute from element
              * 
              * @param {object} elem The html object
@@ -1983,7 +1395,9 @@
 
             /**
              * append cascading stylesheet to dom
-             * 
+             *
+             * @see http://pieisgood.org/test/script-link-events/
+             *
              * @param {string} url The css url path
              * @param {string} data The css data string
              * @param {function} callback The success function
@@ -1997,7 +1411,9 @@
 
                     // init local vars
                     var link = null,
-                        textNode;
+                        handled = false,
+                        textNode,
+                        timer;
 
                     // check for node parameter
                     link = checkNodeParameters(link, node);
@@ -2028,12 +1444,17 @@
                         }
 
                         try {
+
                             textNode = document.createTextNode(data);
                             link.appendChild(textNode);
+
                         } catch (e) {
+
                             link.styleSheet.cssText = data;
+
                         } finally {
-                            callback();
+
+                            callback(true);
                         }
 
                     // if there is no data but the url parameter
@@ -2046,10 +1467,19 @@
                         }
 
                         // handle errors
-                        link.onerror = function () {
+                        link.onerror = link.error = function () {
+
+                            // avoid memory leaks
+                            link.onload = link.load = null;
+
+                            handled = true;
+                            window.clearTimeout(timer);
+
                             callback(false);
+
                         };
 
+                        // check if link needs to be appended to dom
                         if (!node) {
                             headNode.appendChild(link);
                         }
@@ -2062,20 +1492,43 @@
                          */
 
                         if (client.isMsie() || client.isOpera()) {
-                            link.onload = callback;
+                            link.onload = link.load = function () {
+
+                                // avoid memory leaks
+                                link.onerror = link.error = null;
+
+                                handled = true;
+                                window.clearTimeout(timer);
+
+                                callback(true);
+
+                            };
                         } else {
-                            callback();
+                            callback(true);
                         }
 
+                        // start loading
                         link.href = url;
 
+                        /**
+                         * set timeout for checking errors
+                         *
+                         * hack: this is important because not all browsers (e.g. opera)
+                         * support the onerror/error event for link elements, could appear
+                         * if data couldn't be loaded due to wrong url parameter
+                         */
+                        timer = window.setTimeout(function () {
+                            if (!handled) {
+                                callback(false);
+                            }
+                        }, 4000);
                     }
 
                     privateAppendedCss.push(url);
 
                 } else {
                     // css is already appended to dom
-                    callback();
+                    callback(true);
                 }
 
             },
@@ -2083,7 +1536,9 @@
 
             /**
              * append javascript to dom
-             * 
+             *
+             * @see http://pieisgood.org/test/script-link-events/
+             *
              * @param {string} url The js url path
              * @param {string} data The js data string
              * @param {function} callback The success function
@@ -2098,7 +1553,9 @@
                     // init dom and local vars
                     var script = dom.createDomNode('script'),
                         firstScript = document.getElementsByTagName('script')[0],
-                        loaded = false;
+                        handled = false,
+                        loaded = false,
+                        timer;
 
                     // check for dom node parameter
                     script = checkNodeParameters(script, node);
@@ -2110,7 +1567,7 @@
                      * id is passed
                      */
                     if (!script) {
-                        callback();
+                        callback(false);
                         return;
                     }
 
@@ -2133,9 +1590,11 @@
                             // avoid memory leaks in ie
                             this.onreadystatechange = this.onload = null;
                             loaded = true;
+                            handled = true;
+                            window.clearTimeout(timer);
                             privateAppendedJs.push(url);
 
-                            callback();
+                            callback(true);
                         }
                     };
 
@@ -2144,7 +1603,9 @@
 
                         // avoid memory leaks in ie
                         this.onload = this.onreadystatechange = this.onerror = null;
-                        callback();
+                        window.clearTimeout(timer);
+                        handled = true;
+                        callback(false);
 
                     };
 
@@ -2176,6 +1637,7 @@
 
                         // mark script as loaded
                         loaded = true;
+                        handled = true;
 
                     } else if (null !== url) {
                         script.src = url;
@@ -2184,13 +1646,29 @@
                     // check state if file is already loaded
                     if (loaded) {
                         privateAppendedJs.push(url);
-                        callback();
+                        handled = true;
+                        callback(true);
+                    }
+
+                    /**
+                     * set timeout for checking errors
+                     *
+                     * hack: this is important because not all browsers (e.g. opera)
+                     * support the onerror/error event for link elements, could appear if
+                     * data couldn't be loaded due to  wrong url parameter
+                     */
+                    if (!handled) {
+                        timer = window.setTimeout(function () {
+                            if (!loaded) {
+                                callback(false);
+                            }
+                        }, 5000);
                     }
 
                 } else {
 
                     // script is already appended to dom
-                    callback();
+                    callback(true);
 
                 }
             },
@@ -2222,7 +1700,7 @@
 
                     // avoid memory leaks
                     image.onload = image.onerror = null;
-                    callback();
+                    callback(false);
 
                 };
 
@@ -2231,7 +1709,7 @@
 
                     // avoid memory leaks
                     image.onload = image.onerror = null;
-                    callback();
+                    callback(true);
 
                 };
 
@@ -2273,7 +1751,7 @@
 
                 // no dom node to append found
                 if (!html) {
-                    callback();
+                    callback(false);
                     return;
                 }
 
@@ -2305,7 +1783,7 @@
 
                 }
 
-                callback();
+                callback(true);
                 privateAppendedHtml.push(url);
 
             }
@@ -2320,7 +1798,7 @@
      *
      * @export
      */
-    ns.namespace('helpers.dom', dom);
+    ns.ns('helpers.dom', dom);
 
 
 }(document, window.getNs())); // immediatly invoke function
@@ -2340,7 +1818,7 @@
  *      - Maxthon 4.0.5 +
  *
  * @version 0.1.5
- * @author Ulrich Merkel, 2013
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  *
  * @namespace ns
  *
@@ -2705,6 +2183,10 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!boolIsSupported) {
+                callback(false);
+                return;
+            }
 
             // check for database
             if (null === adapter) {
@@ -2766,8 +2248,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init local function vars
@@ -2855,8 +2338,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init local function vars
@@ -2931,8 +2415,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init local function vars
@@ -3004,8 +2489,8 @@
      * 
      * @export
      */
-    if (utils.isFunction(ns.namespace)) {
-        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (utils.isFunction(ns.ns)) {
+        ns.ns('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
     }
@@ -3032,7 +2517,7 @@
  *      - Seamonkey 2.15 +
  * 
  * @version 0.1.5
- * @author Ulrich Merkel, 2013
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * 
  * @namespace ns
  *
@@ -3189,7 +2674,7 @@
         self.dbName = 'cache';
         self.dbVersion = '1.0';
         self.dbTable = 'offline';
-        self.dbDescription = 'Local offline cache';
+        self.dbDescription = 'offline cache';
         self.dbKey = 'key';
 
         // run init function
@@ -3242,8 +2727,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init local vars
@@ -3297,8 +2783,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init local vars
@@ -3375,8 +2862,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             /**
@@ -3710,8 +3198,8 @@
      * 
      * @export
      */
-    if (utils.isFunction(ns.namespace)) {
-        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (utils.isFunction(ns.ns)) {
+        ns.ns('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
     }
@@ -3735,7 +3223,7 @@
  *      - Android 2.1 +
  *
  * @version 0.1.8
- * @author Ulrich Merkel, 2013
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * 
  * @namespace ns
  *
@@ -3886,7 +3374,7 @@
         } else {
             errorCallback(null, {
                 code: 0,
-                message: 'The storage adapter isn\'t available'
+                message: storageType + ' isn\'t available'
             });
         }
 
@@ -4003,8 +3491,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init vars and create success callback
@@ -4041,8 +3530,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init vars and read success callback
@@ -4085,14 +3575,14 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init vars and update success callback
             var self = this,
                 sqlSuccess = function () {
-                    //resource.data = data;
                     callback(true);
                 },
                 sqlError = function (transaction, e) {
@@ -4122,8 +3612,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init vars and delete success callback
@@ -4157,10 +3648,15 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!boolIsSupported) {
+                callback(false);
+                return;
+            }
 
             // init local function vars
             var self = this,
                 adapter = self.adapter,
+                deleteTestItem,
 
 
                 /**
@@ -4178,8 +3674,8 @@
                     moduleLog('Try to create test resource');
                     /* end-dev-block */
 
-                    // create test item
-                    self.create('test-item', '{test: "test-content"}', function (success) {
+                    // delete item after create/update
+                    deleteTestItem = function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
 
@@ -4193,7 +3689,15 @@
                         } else {
                             callback(false);
                         }
+                    };
 
+                    // create test item, check if item is already in storage
+                    self.read('test-item', function (data) {
+                        if (!!data) {
+                            self.update('test-item', '{test: "test-content"}', deleteTestItem);
+                        } else {
+                            self.create('test-item', '{test: "test-content"}', deleteTestItem);
+                        }
                     });
                 },
 
@@ -4381,8 +3885,8 @@
      * 
      * @export
      */
-    if (utils.isFunction(ns.namespace)) {
-        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (utils.isFunction(ns.ns)) {
+        ns.ns('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
     }
@@ -4418,7 +3922,7 @@
  *      - Seamonkey 2.15 +
  *      - Sunrise 2.2 +
  *
- * @author Ulrich Merkel, 2013
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * @version 0.1.8
  * 
  * @namespace ns
@@ -5030,8 +4534,8 @@
      * 
      * @export
      */
-    if (utils.isFunction(ns.namespace)) {
-        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (utils.isFunction(ns.ns)) {
+        ns.ns('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
     }
@@ -5056,12 +4560,13 @@
  *      - Maxthon 4.0.5 +
  *      - iOs 3.2 +
  * 
- * @version 0.1.7
- * @author Ulrich Merkel, 2013
+ * @version 0.1.8
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  *
  * @namespace app
  *
  * @changelog
+ * - 0.1.8 message parameter for updateReady conform dialog added
  * - 0.1.7 example doc added
  * - 0.1.6 improved logging
  * - 0.1.5 improved namespacing
@@ -5220,6 +4725,7 @@
         self.isLoaded = false;
         self.delay = 0;
         self.opened = true;
+        self.message = 'New version is available. Update page?';
 
         // run init function
         self.init(parameters);
@@ -5313,7 +4819,7 @@
                     }
 
                     // ask user for refreshing the page
-                    if (confirm('A new version of this website is available. Do you want to an update?')) {
+                    if (confirm(self.message)) {
                         window.location.reload(true);
                     } else {
                         loaded(callback, self);
@@ -5566,6 +5072,11 @@
                     adapter = self.adapter = window.applicationCache;
                 }
 
+                if (parameters) {
+                    if (!!parameters.message) {
+                        self.message = String(parameters.message);
+                    }
+                }
             }
 
             // return false if there is no support
@@ -5581,7 +5092,7 @@
      *
      * @export
      */
-    ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
 }(window, document)); // immediatly invoke function
@@ -5601,12 +5112,13 @@
  * - convert resource data, encode data into storable formats and decode data form storage
  * - implementing the strategy pattern for storage adapters
  * 
- * @version 0.1.6
- * @author Ulrich Merkel, 2013
+ * @version 0.1.7
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.7 bug fixes for outdated browsers and options passed ins
  * - 0.1.6 logging improved
  * - 0.1.5 improved namespacing
  * - 0.1.4 timeout for xhr connections added
@@ -5662,11 +5174,13 @@
         hasCanvasSupport = client.hasCanvas(),                      // @type {boolean} Whether there is canvas support or not
 
         /**
-         * @type {array} Config array with objects for different storage types
+         * Config array with objects for different storage types
          * 
          * this is the place to configure the defaults values which types of
          * adapters will be checked in which order and which resource types 
          * are stored in which adapter type.
+         *
+         * @type {array}
          */
         adapterTypes = [
             {type: 'fileSystem', css: true, js: true, html: true, img: true },
@@ -5677,10 +5191,12 @@
 
 
         /**
-         * @type {object} The default option to initialize the adapter
+         * The default option to initialize the adapter
          *
          * this is the default config for strorage adapters and could be
          * overridden by the passed in parameters.
+         *
+         * @type {object}
          */
         adapterDefaults = {
             name: 'localcache',                                 // @type {string} [adapterDefaults.name=localcache] Default db name
@@ -5703,9 +5219,11 @@
 
 
         /**
-         * @type {object} The defaults for a single resource
+         * The defaults for a single resource
          *
          * this config could be overridden by the passed in resource parameters
+         *
+         * @type {object}
          */
         resourceDefaults = {
             ajax: true,                                         // @type {boolean} [resourceDefaults.ajax=true] Default value for loading a resource via xhr or not
@@ -6050,9 +5568,7 @@
 
         // end of recursive loop reached, no adapter available
         if (!storageAdapters || !storageAdapters.length) {
-            if (!adapterAvailable) {
-                callback(false);
-            }
+            callback(false);
             return;
         }
 
@@ -6223,25 +5739,33 @@
         }
 
         /**
-         * @type {boolean} Enable or disable client side storage
+         * Enable or disable client side storage
          *
          * load resources just via xhr if
          * this option is set to false.
+         *
+         * @type {boolean}
          */
         self.isEnabled = true;
 
         /**
-         * @type {object} The instance of the best (or given) available storage adapter
+         * The instance of the best (or given) available storage adapter
+         *
+         * @type {object}
          */
         self.adapter = null;
 
         /**
-         * @type {object} The instance of the application cache storage adapter
+         * The instance of the application cache storage adapter
+         *
+         * @type {object}
          */
         self.appCacheAdapter = null;
 
         /**
-         * @type {object} Make the adapter types and defaults available to instance calls
+         * Make the adapter types and defaults available to instance calls
+         *
+         * @type {object}
          */
         self.adapters = {
             types: adapterTypes,
@@ -6249,7 +5773,9 @@
         };
 
         /**
-         * @type {object} Make the resource defaults available to instance calls
+         * Make the resource defaults available to instance calls
+         *
+         * @type {object}
          */
         self.resources = {
             defaults: resourceDefaults
@@ -6827,7 +6353,7 @@
      * 
      * @export
      */
-    ns.namespace('cache.' + controllerType + '.controller', Storage);
+    ns.ns('cache.' + controllerType + '.controller', Storage);
 
 
 }(window, document, window.getNs())); // immediatly invoke function
@@ -6842,7 +6368,7 @@
  * - connect to storage controller and read/write data
  * - handle logic to check for outdated data
  * 
- * @author Ulrich Merkel (hello@ulrichmerkel.com)
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * @version 0.2.0
  *
  * @namespace ns
@@ -6995,8 +6521,9 @@
 
 
     /**
+     * check given resource type
      *
-     *
+     * @param {object} resource The resource object
      */
     function checkResourceType(resource) {
 
@@ -7034,7 +6561,9 @@
         }
 
         /**
-         * @type {object} The storage controller instance
+         * The storage controller instance
+         *
+         * @type {object}
          */
         self.storage = null;
 
@@ -7151,7 +6680,11 @@
                         dom.appendHtml(url, data, callback, node, update);
                         break;
                     default:
-                        // didn't match any type
+
+                        /* start-dev-block */
+                        moduleLog('Didn\'t match any type for dom append: type ' + resource.type);
+                        /* end-dev-block */
+
                         callback();
                         break;
                     }
@@ -7485,10 +7018,10 @@
         /**
          * remove multiple resources
          *
-         * @param {array} resources The array with resource objects
+         * @param {array} mainResources The array with resource objects
          * @param {function} mainCallback The callback after all resources are removed
          */
-        remove: function (resources, mainCallback) {
+        remove: function (mainResources, mainCallback) {
 
             // declare remove vars and functions
             var self = this,
@@ -7570,7 +7103,7 @@
 
 
             // start routine
-            main(resources, mainCallback);
+            main(mainResources, mainCallback);
 
 
         },
@@ -7613,7 +7146,7 @@
      * 
      * @export
      */
-    ns.namespace(controllerType + '.controller', Controller);
+    ns.ns(controllerType + '.controller', Controller);
 
 
 }(window.getNs())); // immediatly invoke function
@@ -7629,7 +7162,7 @@
  * - interface functions for the cache files
  * - enable chaining (fluent interface) and make sure the cache with given parameters is just initialized once
  * 
- * @author Ulrich Merkel (hello@ulrichmerkel.com)
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * @version 0.2
  *
  * @namespace ns
@@ -7965,7 +7498,7 @@
                     var storage = currentInterface.storage;
 
                     // handle application cache loading
-                    if (storage && storage.appCacheAdapter && !storage.appCacheAdapter.opened) {
+                    if (storage && storage.appCacheAdapter) {
                         storage.appCacheAdapter.open(callback, parameters);
                     } else {
                         callback(false);
@@ -8067,9 +7600,9 @@
      *
      * @export
      */
-    ns.namespace('cache.load', cacheInterface.load);
-    ns.namespace('cache.remove', cacheInterface.remove);
-    ns.namespace('cache.setup', cacheInterface.setup);
+    ns.ns('cache.load', cacheInterface.load);
+    ns.ns('cache.remove', cacheInterface.remove);
+    ns.ns('cache.setup', cacheInterface.setup);
 
 
 }(window, window.getNs()));

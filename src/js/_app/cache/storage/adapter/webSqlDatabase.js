@@ -14,7 +14,7 @@
  *      - Android 2.1 +
  *
  * @version 0.1.8
- * @author Ulrich Merkel, 2013
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * 
  * @namespace ns
  *
@@ -165,7 +165,7 @@
         } else {
             errorCallback(null, {
                 code: 0,
-                message: 'The storage adapter isn\'t available'
+                message: storageType + ' isn\'t available'
             });
         }
 
@@ -282,8 +282,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init vars and create success callback
@@ -320,8 +321,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init vars and read success callback
@@ -364,14 +366,14 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init vars and update success callback
             var self = this,
                 sqlSuccess = function () {
-                    //resource.data = data;
                     callback(true);
                 },
                 sqlError = function (transaction, e) {
@@ -401,8 +403,9 @@
 
             // check params
             callback = checkCallback(callback);
-            if (!key) {
+            if (!key || !boolIsSupported) {
                 callback(false);
+                return;
             }
 
             // init vars and delete success callback
@@ -436,10 +439,15 @@
 
             // check params
             callback = checkCallback(callback);
+            if (!boolIsSupported) {
+                callback(false);
+                return;
+            }
 
             // init local function vars
             var self = this,
                 adapter = self.adapter,
+                deleteTestItem,
 
 
                 /**
@@ -457,8 +465,8 @@
                     moduleLog('Try to create test resource');
                     /* end-dev-block */
 
-                    // create test item
-                    self.create('test-item', '{test: "test-content"}', function (success) {
+                    // delete item after create/update
+                    deleteTestItem = function (success) {
                         if (!!success) {
                             self.remove('test-item', function () {
 
@@ -472,7 +480,15 @@
                         } else {
                             callback(false);
                         }
+                    };
 
+                    // create test item, check if item is already in storage
+                    self.read('test-item', function (data) {
+                        if (!!data) {
+                            self.update('test-item', '{test: "test-content"}', deleteTestItem);
+                        } else {
+                            self.create('test-item', '{test: "test-content"}', deleteTestItem);
+                        }
                     });
                 },
 
@@ -660,8 +676,8 @@
      * 
      * @export
      */
-    if (utils.isFunction(ns.namespace)) {
-        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (utils.isFunction(ns.ns)) {
+        ns.ns('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
     }

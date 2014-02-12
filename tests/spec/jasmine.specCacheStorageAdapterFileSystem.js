@@ -5,7 +5,13 @@ describe('Cache Storage Adapter File System', function () {
 
     'use strict';
 
-    var storageAdapter = app.cache.storage.adapter.fileSystem;
+    var storageAdapter = app.cache.storage.adapter.fileSystem,
+        isSupported = new storageAdapter().isSupported(),
+        path = '';
+ 
+    if (window.__karma__ !== undefined) {
+        path += 'base/';
+    }
 
     afterEach(function () {
 
@@ -155,7 +161,11 @@ describe('Cache Storage Adapter File System', function () {
         }, 'adapter.create callback', 1000);
 
         runs(function () {
-            expect(interfaceCallback).toEqual('{test: "test-content"}');
+            if (isSupported) {
+                expect(interfaceCallback).toEqual('{test: "test-content"}');
+            } else {
+                expect(true).toEqual(true);
+            }
         });
     });
 
@@ -253,7 +263,11 @@ describe('Cache Storage Adapter File System', function () {
         }, 'adapter.create callback', 1000);
 
         runs(function () {
-            expect(interfaceCallback2).toEqual('{test: "test-content2"}');
+            if (isSupported) {
+                expect(interfaceCallback2).toEqual('{test: "test-content2"}');
+            } else {
+                expect(true).toEqual(true);
+            }
         });
     });
 
@@ -286,7 +300,11 @@ describe('Cache Storage Adapter File System', function () {
         }, 'adapter.create callback', 1000);
 
         runs(function () {
-            expect(interfaceCallback2).toEqual('{test: "test-content2"}');
+            if (isSupported) {
+                expect(interfaceCallback2).toEqual('{test: "test-content2"}');
+            } else {
+                expect(true).toEqual(true);
+            }
         });
     });
 

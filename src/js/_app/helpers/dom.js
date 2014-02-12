@@ -8,12 +8,14 @@
  * @description
  * - provide utility functions for dom elements
  *
- * @author Ulrich Merkel, 2013
- * @version 0.1.5
+ * @author Ulrich Merkel, 2014
+ * @version 0.1.7
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.1.7 removed unused functions for client-side-cache optimization, complete dom helper moved to separate git
+ * - 0.1.6 hasClass improved
  * - 0.1.5 setAttribute added, improved namespacing
  * - 0.1.4 refactoring xhr function
  * - 0.1.3 createDomNode added
@@ -103,7 +105,7 @@
         return {
 
             /**
-             * reset some private vars for testing
+             * reset some private vars
              * mainly used for testing purposes
              *
              */
@@ -146,19 +148,6 @@
 
 
             /**
-             * check if element has given class
-             * 
-             * @param {object} elem The html object to test
-             * @param {string} className The class name to test
-             *
-             * @returns {boolean} Whether the element has the class (return true) or not (return false)
-             */
-            hasClass: function (elem, className) {
-                return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
-            },
-
-
-            /**
              * get attribute from element
              * 
              * @param {object} elem The html object
@@ -186,7 +175,9 @@
 
             /**
              * append cascading stylesheet to dom
-             * 
+             *
+             * @see http://pieisgood.org/test/script-link-events/
+             *
              * @param {string} url The css url path
              * @param {string} data The css data string
              * @param {function} callback The success function
@@ -200,7 +191,9 @@
 
                     // init local vars
                     var link = null,
-                        textNode;
+                        handled = false,
+                        textNode,
+                        timer;
 
                     // check for node parameter
                     link = checkNodeParameters(link, node);
@@ -231,12 +224,17 @@
                         }
 
                         try {
+
                             textNode = document.createTextNode(data);
                             link.appendChild(textNode);
+
                         } catch (e) {
+
                             link.styleSheet.cssText = data;
+
                         } finally {
-                            callback();
+
+                            callback(true);
                         }
 
                     // if there is no data but the url parameter
@@ -249,10 +247,19 @@
                         }
 
                         // handle errors
-                        link.onerror = function () {
+                        link.onerror = link.error = function () {
+
+                            // avoid memory leaks
+                            link.onload = link.load = null;
+
+                            handled = true;
+                            window.clearTimeout(timer);
+
                             callback(false);
+
                         };
 
+                        // check if link needs to be appended to dom
                         if (!node) {
                             headNode.appendChild(link);
                         }
@@ -265,20 +272,43 @@
                          */
 
                         if (client.isMsie() || client.isOpera()) {
-                            link.onload = callback;
+                            link.onload = link.load = function () {
+
+                                // avoid memory leaks
+                                link.onerror = link.error = null;
+
+                                handled = true;
+                                window.clearTimeout(timer);
+
+                                callback(true);
+
+                            };
                         } else {
-                            callback();
+                            callback(true);
                         }
 
+                        // start loading
                         link.href = url;
 
+                        /**
+                         * set timeout for checking errors
+                         *
+                         * hack: this is important because not all browsers (e.g. opera)
+                         * support the onerror/error event for link elements, could appear
+                         * if data couldn't be loaded due to wrong url parameter
+                         */
+                        timer = window.setTimeout(function () {
+                            if (!handled) {
+                                callback(false);
+                            }
+                        }, 4000);
                     }
 
                     privateAppendedCss.push(url);
 
                 } else {
                     // css is already appended to dom
-                    callback();
+                    callback(true);
                 }
 
             },
@@ -286,7 +316,9 @@
 
             /**
              * append javascript to dom
-             * 
+             *
+             * @see http://pieisgood.org/test/script-link-events/
+             *
              * @param {string} url The js url path
              * @param {string} data The js data string
              * @param {function} callback The success function
@@ -301,7 +333,9 @@
                     // init dom and local vars
                     var script = dom.createDomNode('script'),
                         firstScript = document.getElementsByTagName('script')[0],
-                        loaded = false;
+                        handled = false,
+                        loaded = false,
+                        timer;
 
                     // check for dom node parameter
                     script = checkNodeParameters(script, node);
@@ -313,7 +347,7 @@
                      * id is passed
                      */
                     if (!script) {
-                        callback();
+                        callback(false);
                         return;
                     }
 
@@ -336,9 +370,11 @@
                             // avoid memory leaks in ie
                             this.onreadystatechange = this.onload = null;
                             loaded = true;
+                            handled = true;
+                            window.clearTimeout(timer);
                             privateAppendedJs.push(url);
 
-                            callback();
+                            callback(true);
                         }
                     };
 
@@ -347,7 +383,9 @@
 
                         // avoid memory leaks in ie
                         this.onload = this.onreadystatechange = this.onerror = null;
-                        callback();
+                        window.clearTimeout(timer);
+                        handled = true;
+                        callback(false);
 
                     };
 
@@ -379,6 +417,7 @@
 
                         // mark script as loaded
                         loaded = true;
+                        handled = true;
 
                     } else if (null !== url) {
                         script.src = url;
@@ -387,13 +426,29 @@
                     // check state if file is already loaded
                     if (loaded) {
                         privateAppendedJs.push(url);
-                        callback();
+                        handled = true;
+                        callback(true);
+                    }
+
+                    /**
+                     * set timeout for checking errors
+                     *
+                     * hack: this is important because not all browsers (e.g. opera)
+                     * support the onerror/error event for link elements, could appear if
+                     * data couldn't be loaded due to  wrong url parameter
+                     */
+                    if (!handled) {
+                        timer = window.setTimeout(function () {
+                            if (!loaded) {
+                                callback(false);
+                            }
+                        }, 5000);
                     }
 
                 } else {
 
                     // script is already appended to dom
-                    callback();
+                    callback(true);
 
                 }
             },
@@ -425,7 +480,7 @@
 
                     // avoid memory leaks
                     image.onload = image.onerror = null;
-                    callback();
+                    callback(false);
 
                 };
 
@@ -434,7 +489,7 @@
 
                     // avoid memory leaks
                     image.onload = image.onerror = null;
-                    callback();
+                    callback(true);
 
                 };
 
@@ -476,7 +531,7 @@
 
                 // no dom node to append found
                 if (!html) {
-                    callback();
+                    callback(false);
                     return;
                 }
 
@@ -508,7 +563,7 @@
 
                 }
 
-                callback();
+                callback(true);
                 privateAppendedHtml.push(url);
 
             }
@@ -523,7 +578,7 @@
      *
      * @export
      */
-    ns.namespace('helpers.dom', dom);
+    ns.ns('helpers.dom', dom);
 
 
 }(document, window.getNs())); // immediatly invoke function

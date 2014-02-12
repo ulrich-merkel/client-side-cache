@@ -130,7 +130,7 @@
                     current[names[i]] = {};
                 }
                 // set value if set and last namespace item reached
-                if (i === length - 1 && !!value) {
+                if (i === length - 1 && value !== undefined) {
                     current[names[i]] = value;
                 }
 
@@ -151,7 +151,7 @@
 
     // create basic object and init namespace function
     ns = getNamespace();
-    ns.namespace = namespace;
+    ns.namespace = ns.ns = namespace;
 
 
     /**

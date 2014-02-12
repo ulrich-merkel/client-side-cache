@@ -15,12 +15,13 @@
  *      - Maxthon 4.0.5 +
  *      - iOs 3.2 +
  * 
- * @version 0.1.7
- * @author Ulrich Merkel, 2013
+ * @version 0.1.8
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  *
  * @namespace app
  *
  * @changelog
+ * - 0.1.8 message parameter for updateReady conform dialog added
  * - 0.1.7 example doc added
  * - 0.1.6 improved logging
  * - 0.1.5 improved namespacing
@@ -179,6 +180,7 @@
         self.isLoaded = false;
         self.delay = 0;
         self.opened = true;
+        self.message = 'New version is available. Update page?';
 
         // run init function
         self.init(parameters);
@@ -272,7 +274,7 @@
                     }
 
                     // ask user for refreshing the page
-                    if (confirm('A new version of this website is available. Do you want to an update?')) {
+                    if (confirm(self.message)) {
                         window.location.reload(true);
                     } else {
                         loaded(callback, self);
@@ -525,6 +527,11 @@
                     adapter = self.adapter = window.applicationCache;
                 }
 
+                if (parameters) {
+                    if (!!parameters.message) {
+                        self.message = String(parameters.message);
+                    }
+                }
             }
 
             // return false if there is no support
@@ -540,7 +547,7 @@
      *
      * @export
      */
-    ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
 }(window, document)); // immediatly invoke function

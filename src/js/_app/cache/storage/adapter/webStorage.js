@@ -26,7 +26,7 @@
  *      - Seamonkey 2.15 +
  *      - Sunrise 2.2 +
  *
- * @author Ulrich Merkel, 2013
+ * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * @version 0.1.8
  * 
  * @namespace ns
@@ -638,8 +638,8 @@
      * 
      * @export
      */
-    if (utils.isFunction(ns.namespace)) {
-        ns.namespace('cache.storage.adapter.' + storageType, Adapter);
+    if (utils.isFunction(ns.ns)) {
+        ns.ns('cache.storage.adapter.' + storageType, Adapter);
     } else {
         ns[storageType] = Adapter;
     }
