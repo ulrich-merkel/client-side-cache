@@ -76,8 +76,9 @@ The usage of the application cache will need the manifest attribute placed the c
 	
     	</body>
 		</html>
+
 #### Load resources:  ####
-Below you will find a simple examples of loading (or storing) data from your local html5 cache.
+Below you will find a simple examples of loading (or storing) data from your local html5 cache. The second javascript file (js/plugin.js) starts loading after the previous 2 files are loaded completly. This could be achieved with the group parameter (default is 0 and will be set automatically, if not present).
 
 		// load some resources
         app.cache.load([
@@ -85,14 +86,13 @@ Below you will find a simple examples of loading (or storing) data from your loc
         		// css file loaded
         	}},
        	    {url: "js/lib.js", type: "js", lifetime: 900000},
-       	    // js/plugin.js load starts after the previous files are completly
-       	    // loaded, due to group parameter (group default is 0)
             {url: "js/plugin.js", type: "js", group: 1}
         ], function () {
         	// all resources loaded
         });
 
-    
+For a full list of available resource options, please take a look below (section "Resource options").
+
 #### Append resource data to dom:  ####
 You can append data to a given dom element on the page. This can be used for example to load images and html files and append the result to a some elements on the page.
 
@@ -137,7 +137,7 @@ Due to the cache interface api you are allowed to call the app cache initializin
             {url: "img/954x600/test-2.jpg", type: "img", node: {id: "image-2"}},
             {url: "img/954x600/test-3.jpg", type: "img", node: {id: "image-3"}}
         ]).remove([
-            {url: "img/1280x220/test-4.jpg", type: "img", node: {id: "image-4"}}
+            {url: "img/1280x220/test-4.jpg"}
         ]);
 
 #### Resource options:  ####
@@ -411,6 +411,9 @@ If you need to organize your code and the caching functions under if different g
  - Stainless 0.8 +
  - Seamonkey 2.15 +
  - Sunrise 2.2 +
+ - Sleipnir 4.4 +
+ - Yandex 13.0 +
+ - Torch 23.0 +
  
 #### WebSql Database: ####
  - Safari 3.1 +
@@ -420,6 +423,10 @@ If you need to organize your code and the caching functions under if different g
  - iOs 6.1 + (3.2)
  - Android 2.1 +
  - Stainless 0.8 +
+ - iCab 5.1.1 +
+ - Sleipnir 4.4 +
+ - Yandex 13.0 +
+ - Torch 23.0 +
  
 #### Indexed Database ####
  - Internet Explorer 10.0 +
@@ -428,10 +435,14 @@ If you need to organize your code and the caching functions under if different g
  - Opera 12.5 +
  - Maxthon 4.0.5 +
  - Seamonkey 2.15 +
+ - Yandex 13.0 +
  
 #### File System ####
  - Google Crome 26.0 +
+ - Opera 19.0 +
  - Maxthon 4.0.5 +
+ - Yandex 13.0 +
+ - Torch 23.0 +
  
 #### Application Cache ####
  - Internet Explorer 10.0 +
@@ -442,8 +453,12 @@ If you need to organize your code and the caching functions under if different g
  - Maxthon 4.0.5 +
  - iOs 3.2 +
  - Android 2.1 +
+ - Yandex 13.0 +
 
 #### Fallback (no caching, just dynamic xhr loading): ####
 - Internet Explorer 7.0
 - Internet Explorer 6.0 (no dynamic html loading, just css/js/img)
+
+#### No support ####
+- Flock (tested 2.6.2)
 
