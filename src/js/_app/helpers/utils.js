@@ -9,11 +9,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2014
- * @version 0.2.2
+ * @version 0.2.3
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.2.3 bug fix xhr ie6
  * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
  * - 0.2.1 examples added, isFunction added, refactoring
  * - 0.2 improved console.log wrapper, console.warn added
@@ -483,10 +484,7 @@
                         } else if (reqObject.onload !== undefined) {
                             reqObject.onload = reqCallback;
                         }
-                    } catch (e) {
-                        // delete handler if already bound
-                        reqObject.onload = null;
-                        reqObject.onload = reqCallback;
+                    } catch (ignore) {
                     }
 
                     // send request

@@ -341,7 +341,13 @@ module.exports = function (grunt) {
             options: {
                 trace: true
             },
-            fileList: ['full-cache.html', 'fiww-cache.html', 'standard.html', 'cache.dev.js' , 'cache.prod.js'],
+            fileList: [
+                'full-cache.html',
+                'fiww-cache.html',
+                'standard.html',
+                'cache.dev.js' ,
+                'cache.prod.js'
+            ],
             dirList: [
                 'examples/full-cache/',
                 'examples/full-cache/js/',

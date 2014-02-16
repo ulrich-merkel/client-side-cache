@@ -68,7 +68,7 @@
         isArray = utils.isArray,                                    // @type {function} Shortcut for utils.isArray function
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        json = utils.getJson(),                                     // @type {function} Global window.Json object if available
+        json = utils.getJson(),                                     // @type {object} Global window.Json object if available
         xhr = utils.xhr,                                            // @type {function} Shortcut for utils.xhr function
         trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         appCacheStorageAdapter = ns.cache.storage.adapter,          // @type {object} Shortcut for ns.cache.storage.adapter namespace

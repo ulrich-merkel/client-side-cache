@@ -16,12 +16,13 @@
  *      - Maxthon 4.0.5 +
  *      - Seamonkey 2.15 +
  * 
- * @version 0.1.5
+ * @version 0.1.6
  * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.6 bug fix for torch 23
  * - 0.1.5 bug fix remove function
  * - 0.1.4 example doc added
  * - 0.1.3 improved namespacing
@@ -39,7 +40,7 @@
  * - ns.helpers.utils
  * 
  * @bugs
- * -
+ * - Torch 23.0
  *
  * @example
  * 
@@ -489,9 +490,6 @@
                     window.IDBKeyRange = window.webkitIDBKeyRange;
                 }
 
-                //createObjectStore = function () {
-                //};
-
                 createIndexes = function (store) {
                     // create new database indexes
                     store.createIndex(self.dbKey,  self.dbKey,  { unique: true });
@@ -508,7 +506,7 @@
                     self.adapter = db;
 
                     /* start-dev-block */
-                    moduleLog('Database successfully opened');
+                    moduleLog('Database request successfully done');
                     /* end-dev-block */
 
                     /**
@@ -539,15 +537,30 @@
                         // set version is successful, create new object store
                         setVersionRequest.onsuccess = function (e) {
                             dbResult = request.result;
-                            store = dbResult.createObjectStore(dbTable, {keyPath: self.dbKey});
 
-                            /* start-dev-block */
-                            moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
-                            /* end-dev-block */
+                            /**
+                             * hack: torch 23 throws ConstraintError: DOM IDBDatabase Exception 4,
+                             * so we have to use try catch here
+                             */
+                            try {
 
-                            // create new database indexes
-                            createIndexes(store);
+                                store = dbResult.createObjectStore(dbTable, {keyPath: self.dbKey});
 
+                                /* start-dev-block */
+                                moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
+                                /* end-dev-block */
+
+                                // create new database indexes
+                                createIndexes(store);
+
+                            } catch (error) {
+                                /* start-dev-block */
+                                moduleLog('Failed to open database: ' + dbName + ' ' + error);
+                                handleStorageEvents(error);
+                                /* end-dev-block */
+
+                                callback(false);
+                            }
                         };
 
                     } else {

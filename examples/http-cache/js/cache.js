@@ -333,11 +333,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2014
- * @version 0.2.2
+ * @version 0.2.3
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.2.3 bug fix xhr ie6
  * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
  * - 0.2.1 examples added, isFunction added, refactoring
  * - 0.2 improved console.log wrapper, console.warn added
@@ -807,10 +808,7 @@
                         } else if (reqObject.onload !== undefined) {
                             reqObject.onload = reqCallback;
                         }
-                    } catch (e) {
-                        // delete handler if already bound
-                        reqObject.onload = null;
-                        reqObject.onload = reqCallback;
+                    } catch (ignore) {
                     }
 
                     // send request
@@ -2516,12 +2514,13 @@
  *      - Maxthon 4.0.5 +
  *      - Seamonkey 2.15 +
  * 
- * @version 0.1.5
+ * @version 0.1.6
  * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * 
  * @namespace ns
  *
  * @changelog
+ * - 0.1.6 bug fix for torch 23
  * - 0.1.5 bug fix remove function
  * - 0.1.4 example doc added
  * - 0.1.3 improved namespacing
@@ -2539,7 +2538,7 @@
  * - ns.helpers.utils
  * 
  * @bugs
- * -
+ * - Torch 23.0
  *
  * @example
  * 
@@ -2989,9 +2988,6 @@
                     window.IDBKeyRange = window.webkitIDBKeyRange;
                 }
 
-                //createObjectStore = function () {
-                //};
-
                 createIndexes = function (store) {
                     // create new database indexes
                     store.createIndex(self.dbKey,  self.dbKey,  { unique: true });
@@ -3008,7 +3004,7 @@
                     self.adapter = db;
 
                     /* start-dev-block */
-                    moduleLog('Database successfully opened');
+                    moduleLog('Database request successfully done');
                     /* end-dev-block */
 
                     /**
@@ -3039,15 +3035,30 @@
                         // set version is successful, create new object store
                         setVersionRequest.onsuccess = function (e) {
                             dbResult = request.result;
-                            store = dbResult.createObjectStore(dbTable, {keyPath: self.dbKey});
 
-                            /* start-dev-block */
-                            moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
-                            /* end-dev-block */
+                            /**
+                             * hack: torch 23 throws ConstraintError: DOM IDBDatabase Exception 4,
+                             * so we have to use try catch here
+                             */
+                            try {
 
-                            // create new database indexes
-                            createIndexes(store);
+                                store = dbResult.createObjectStore(dbTable, {keyPath: self.dbKey});
 
+                                /* start-dev-block */
+                                moduleLog('Database needs upgrade: ' + dbName + ' ' + e.oldVersion + ' ' + e.newVersion);
+                                /* end-dev-block */
+
+                                // create new database indexes
+                                createIndexes(store);
+
+                            } catch (error) {
+                                /* start-dev-block */
+                                moduleLog('Failed to open database: ' + dbName + ' ' + error);
+                                handleStorageEvents(error);
+                                /* end-dev-block */
+
+                                callback(false);
+                            }
                         };
 
                     } else {
@@ -5167,7 +5178,7 @@
         isArray = utils.isArray,                                    // @type {function} Shortcut for utils.isArray function
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        json = utils.getJson(),                                     // @type {function} Global window.Json object if available
+        json = utils.getJson(),                                     // @type {object} Global window.Json object if available
         xhr = utils.xhr,                                            // @type {function} Shortcut for utils.xhr function
         trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         appCacheStorageAdapter = ns.cache.storage.adapter,          // @type {object} Shortcut for ns.cache.storage.adapter namespace
@@ -7177,14 +7188,15 @@
  * @see
  * -
  * 
- * * @requires
+ * @requires
  * - ns.helpers.namespace
  * - ns.helpers.utils
  * - ns.helpers.queue
  * 
  * @bugs
- * - tbd new interface api
- *      load([], {
+ * 
+ * - tbd: new interface api to follow other libraries with naming conventions
+ *      cache.load([], {
  *          adapters: {},
  *          resources: {},
  *          success: function () {},
@@ -7260,6 +7272,7 @@
         utils = helpers.utils,                                      // @type {object} Shortcut for ns.helpers.utils
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         isArray = utils.isArray,                                    // @type {function} Shortcut for isArray function
+        json = utils.getJson(),                                     // @type {object} Global window.Json object if available
         jsonToString = utils.jsonToString,                          // @type {function} Shortcut for jsonToString function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         interval = 25,                                              // @type {integer} Milliseconds for interval controller check
@@ -7330,18 +7343,21 @@
         }
 
         // toggle through already initialized cache controller interfaces
-        for (i = 0; i < length; i = i + 1) {
+        if (json) {
 
-            /**
-             * convert objects to strings for easier comparison
-             *
-             * check if this parameter config object is already
-             * stored in the interface array
-             */
-            if (jsonToString(interfaces[i].params) === jsonToString(parameters)) {
-                currentInterface = interfaces[i];
+            for (i = 0; i < length; i = i + 1) {
+
+                /**
+                 * convert objects to strings for easier comparison
+                 *
+                 * check if this parameter config object is already
+                 * stored in the interface array
+                 */
+                if (jsonToString(interfaces[i].params) === jsonToString(parameters)) {
+                    currentInterface = interfaces[i];
+                }
+
             }
-
         }
 
         // init new interface if not already done

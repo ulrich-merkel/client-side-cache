@@ -425,7 +425,6 @@ If you need to organize your code and the caching functions under if different g
  - Android 2.1 +
  - Stainless 0.8 +
  - iCab 5.1.1 +
- - Sleipnir 4.4 +
  - Yandex 13.0 +
  - Torch 23.0 +
  
@@ -455,11 +454,11 @@ If you need to organize your code and the caching functions under if different g
  - iOs 3.2 +
  - Android 2.1 +
  - Yandex 13.0 +
+ - Torch 23.0 +
 
-#### Fallback (no caching, just dynamic xhr loading): ####
+#### Fallback (no caching, just dynamic loading via xhr): ####
 - Internet Explorer 7.0
 - Internet Explorer 6.0 (no dynamic html loading, just css/js/img)
+- Flock 2.6
 
-#### No support ####
-- Flock (tested 2.6.2)
 

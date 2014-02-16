@@ -24,14 +24,15 @@
  * @see
  * -
  * 
- * * @requires
+ * @requires
  * - ns.helpers.namespace
  * - ns.helpers.utils
  * - ns.helpers.queue
  * 
  * @bugs
- * - tbd new interface api
- *      load([], {
+ * 
+ * - tbd: new interface api to follow other libraries with naming conventions
+ *      cache.load([], {
  *          adapters: {},
  *          resources: {},
  *          success: function () {},
@@ -107,6 +108,7 @@
         utils = helpers.utils,                                      // @type {object} Shortcut for ns.helpers.utils
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         isArray = utils.isArray,                                    // @type {function} Shortcut for isArray function
+        json = utils.getJson(),                                     // @type {object} Global window.Json object if available
         jsonToString = utils.jsonToString,                          // @type {function} Shortcut for jsonToString function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         interval = 25,                                              // @type {integer} Milliseconds for interval controller check
@@ -177,18 +179,21 @@
         }
 
         // toggle through already initialized cache controller interfaces
-        for (i = 0; i < length; i = i + 1) {
+        if (json) {
 
-            /**
-             * convert objects to strings for easier comparison
-             *
-             * check if this parameter config object is already
-             * stored in the interface array
-             */
-            if (jsonToString(interfaces[i].params) === jsonToString(parameters)) {
-                currentInterface = interfaces[i];
+            for (i = 0; i < length; i = i + 1) {
+
+                /**
+                 * convert objects to strings for easier comparison
+                 *
+                 * check if this parameter config object is already
+                 * stored in the interface array
+                 */
+                if (jsonToString(interfaces[i].params) === jsonToString(parameters)) {
+                    currentInterface = interfaces[i];
+                }
+
             }
-
         }
 
         // init new interface if not already done
