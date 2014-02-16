@@ -15,18 +15,19 @@ The given resources will be appended to dom automatically in case of javascript 
 	+ indexed database
 	+ web sql database
 	+ web storage (local storage)
-+ Control lifetime and state of your resource files
-+ Append css and js data automatically to dom, if not otherwise specified
++ Control lifetime and state of your files
++ Append css and js data automatically to dom (if not specified otherwise)
 + Avoid blocking download of javascript files
-+ Store image files (via base64) and append them to dom
-+ Control the application cache api state 
++ Store image files and append them to dom (via automaical base64 encoding)
++ Control the application cache api state (offline cache)
++ Gracefully degrades when the browser doesn't support html5 storage
 
 **Javascript files**
 
 You will find the latest javascript caching functions in the **build/** folder:
 
 + **build/cache.js**: The complete and uncompressed source code for development
-+ **build/cache.dev.js**: The minified source code, but with some logging informations to keep track of the current cache states
++ **build/cache.dev.js**: The minified source code, but with some console logging informations to keep track of the current cache states
 + **build/cache.min.js**: The minified and optimized javascript caching functions for production
 
 
@@ -34,7 +35,7 @@ You will find the latest javascript caching functions in the **build/** folder:
 
 If you just want to see a working demo, open the generated **/example/full-cache/index.html** file in your browser. You need to run this file in a webserver to make shure the ajax calls are working. The other examples are just there to facilitate comparisons between different caching methods against html5 client side caching.
 
-If you are not in the mood to install this project on a webserver, you could also visit the following link to get some demonstrations working. Clear your browser cache and check your browser console/ network panel to see the improvements:
+If you are not in the mood to install this project on a webserver, you could also visit the following link to get some working demonstrations. Clear your browser cache and check your browser console (or network panel) to see the html5 caching in action:
 
 
 [Full featured html5 cache ](http://www.ulrichmerkel.com/test/client-side-cache/full-cache/ "Ulrich Merkel")
@@ -78,7 +79,7 @@ The usage of the application cache will need the manifest attribute placed the c
 		</html>
 
 #### Load resources:  ####
-Below you will find a simple examples of loading (or storing) data from your local html5 cache. The second javascript file (js/plugin.js) starts loading after the previous 2 files are loaded completly. This could be achieved with the group parameter (default is 0 and will be set automatically, if not present).
+Below you will find a simple example of loading (or storing) data from your local html5 cache. The second javascript file (js/plugin.js) starts loading after the previous 2 files are loaded completly. This could be achieved with the group parameter (default is 0 and will be set automatically, if not present).
 
 		// load some resources
         app.cache.load([
