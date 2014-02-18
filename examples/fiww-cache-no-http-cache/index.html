@@ -153,7 +153,7 @@
 
         
         <!-- include script async -->
-		<script src="js/cache.js"></script>
+		<script src="js/cache.dev.js"></script>
 		<script>
 
 			// wrap cache initializing in a closure
@@ -206,9 +206,9 @@
 
                                     var t = window.performance.timing;
 
-                                    console.log('Window Performance : navigationStart until requestStart ' + (t.loadEventEnd - t.requestStart));
-                                    console.log('Window Performance : navigationStart until domComplete ' + (t.loadEventEnd - t.domComplete));
-                                    console.log('Window Performance : navigationStart until loadEventEnd ' + (t.loadEventEnd - t.navigationStart));
+                                    console.log('Window Performance: navigationStart until requestStart ' + (t.loadEventEnd - t.requestStart));
+                                    console.log('Window Performance: navigationStart until domComplete ' + (t.loadEventEnd - t.domComplete));
+                                    console.log('Window Performance: navigationStart until loadEventEnd ' + (t.loadEventEnd - t.navigationStart));
                                 }
 
                             }

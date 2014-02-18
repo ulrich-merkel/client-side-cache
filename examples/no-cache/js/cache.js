@@ -7135,7 +7135,7 @@
             callback = checkCallback(callback);
 
             /* start-dev-block */
-            moduleLog('Cache initializing and checking for storage adapters');
+            moduleLog('Cache initializing, checking for storage and adapters');
             /* end-dev-block */
 
             // init storage
@@ -7174,11 +7174,12 @@
  * - enable chaining (fluent interface) and make sure the cache with given parameters is just initialized once
  * 
  * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
- * @version 0.2
+ * @version 0.2.1
  *
  * @namespace ns
  *
  * @changelog
+ * - 0.2.1 small bug fix while waiting for storage controller
  * - 0.2 complete rewrite, remove interface added, examples added
  * - 0.1.3 refactoring
  * - 0.1.2 improved namespacing
@@ -7342,7 +7343,16 @@
             parameters = setupParameters;
         }
 
-        // toggle through already initialized cache controller interfaces
+        /**
+         * check if cache instance is already initialized
+         *
+         * toggle through already initialized cache controller interfaces
+         * and try to find that one with the same params as the current
+         * ones
+         *
+         * try to avoid generating multiple cache instances if
+         * parameters stay the same
+         */
         if (json) {
 
             for (i = 0; i < length; i = i + 1) {
@@ -7397,17 +7407,18 @@
              */
             startInterval = function () {
 
-                // faster access
+                // save local vars for faster access
                 currentInterfaceInterval = currentInterface.interval;
 
+                // start interval
                 window.clearInterval(currentInterfaceInterval);
                 currentInterfaceInterval = window.setInterval(function () {
 
-                    // save vars for faster access
+                    // save local vars for faster access
                     currentInterface.timeout = currentInterfaceTimeout = currentInterface.timeout + interval;
 
-                    // if interface is completly loaded, start queue
-                    if (currentInterface.controller && currentInterface.storage) {
+                    // if cache and storage controller is completly loaded, start queue
+                    if (currentInterface.controller && currentInterface.storage && currentInterface.storage.adapter) {
                         window.clearInterval(currentInterfaceInterval);
                         currentInterface.queue.flush();
                     }
@@ -7464,7 +7475,6 @@
                         // wait for asynchronous initializing
                         startInterval();
                     }
-                //}, setupParameters);
                 }, parameters);
 
             } else {

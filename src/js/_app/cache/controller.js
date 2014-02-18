@@ -764,7 +764,7 @@
             callback = checkCallback(callback);
 
             /* start-dev-block */
-            moduleLog('Cache initializing and checking for storage adapters');
+            moduleLog('Cache initializing, checking for storage and adapters');
             /* end-dev-block */
 
             // init storage

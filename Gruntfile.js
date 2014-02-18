@@ -106,10 +106,11 @@ module.exports = function (grunt) {
             min: {
                 command: [
                     'cd extras/',
-                    'java -jar compiler.jar --charset  utf-8  --js ../temp/cache.prod.js --js_output_file ../temp/cache.min.js  --summary_detail_level 3 --create_source_map ../temp/cache.min.js.map --source_map_format=V3 --compilation_level SIMPLE_OPTIMIZATIONS',
+                    'java -jar compiler.jar --charset  utf-8  --js ../temp/cache.prod.js --js_output_file ../temp/cache.min.js  --summary_detail_level 3 --compilation_level SIMPLE_OPTIMIZATIONS',
                     'cd ../../'
                 ].join('&&'),
                 options: {
+                    async: true,
                     callback: function (error, stdout, stderr, cb) {
                         if (!!error) {
                             grunt.log.error('ERROR:', error, stderr);
@@ -123,23 +124,11 @@ module.exports = function (grunt) {
             log: {
                 command: [
                     'cd extras/',
-                    'java -jar compiler.jar --charset  utf-8  --js ../temp/cache.js --js_output_file ../temp/cache.dev.js  --summary_detail_level 3 --create_source_map ../temp/cache.dev.js.map --source_map_format=V3 --compilation_level SIMPLE_OPTIMIZATIONS',
+                    'java -jar compiler.jar --charset  utf-8  --js ../temp/cache.js --js_output_file ../temp/cache.dev.js  --summary_detail_level 3 --compilation_level SIMPLE_OPTIMIZATIONS',
                     'cd ../../'
                 ].join('&&'),
                 options: {
-                    callback: function (error, stdout, stderr, cb) {
-                        if (!!error) {
-                            grunt.log.error('ERROR:', error, stderr);
-                            cb(false);
-                        } else {
-                            cb(true);
-                        }
-                    }
-                }
-            },
-            test: {
-                command: 'karma start extras/karma.conf.js',
-                options: {
+                    async: true,
                     callback: function (error, stdout, stderr, cb) {
                         if (!!error) {
                             grunt.log.error('ERROR:', error, stderr);
@@ -232,6 +221,18 @@ module.exports = function (grunt) {
             options: {
                 ignore: true
             },
+            buildSrc: {
+                src: 'temp/cache.js',
+                dest: 'build/cache.js'
+            },
+            buildDev: {
+                src: 'temp/cache.dev.js',
+                dest: 'build/cache.dev.js'
+            },
+            buildMin: {
+                src: 'temp/cache.min.js',
+                dest: 'build/cache.min.js'
+            },
             fullCache: {
                 src: 'examples/full-cache/full-cache.html',
                 dest: 'examples/full-cache/index.html'
@@ -255,19 +256,6 @@ module.exports = function (grunt) {
             noCache: {
                 src: 'examples/no-cache/standard.html',
                 dest: 'examples/no-cache/index.html'
-            },
-
-            buildSrc: {
-                src: 'temp/cache.js',
-                dest: 'build/cache.js'
-            },
-            buildMin: {
-                src: 'temp/cache.dev.js',
-                dest: 'build/cache.dev.js'
-            },
-            buildDev: {
-                src: 'temp/cache.min.js',
-                dest: 'build/cache.min.js'
             }
         },
 
@@ -284,7 +272,7 @@ module.exports = function (grunt) {
                 files: [
                     { expand: true, flatten: true, src: ['src/template/cache.manifest'], dest: 'examples/full-cache' },
                     { expand: true, flatten: true, src: ['src/template/htaccess/http-cache/.htaccess'], dest: 'examples/full-cache' },
-                    { expand: true, flatten: true, src: ['build/**/*.js'], dest: 'examples/full-cache/js/' },
+                    { expand: true, flatten: true, src: ['build/**/*.js'], dest: 'examples/full-cache/js' },
                     { expand: true, cwd: 'temp/template/',  src: ['**/*'], dest: 'examples/full-cache/' }
                 ]
             },
@@ -292,7 +280,7 @@ module.exports = function (grunt) {
                 files: [
                     { expand: true, flatten: true, src: ['src/template/cache.manifest'], dest: 'examples/full-cache-no-http-cache' },
                     { expand: true, flatten: true, src: ['src/template/htaccess/no-http-cache/.htaccess'], dest: 'examples/full-cache-no-http-cache' },
-                    { expand: true, flatten: true, src: ['build/**/*.js'], dest: 'examples/full-cache-no-http-cache/js/' },
+                    { expand: true, flatten: true, src: ['build/**/*.js'], dest: 'examples/full-cache-no-http-cache/js' },
                     { expand: true, cwd: 'temp/template/',  src: ['**/*'], dest: 'examples/full-cache-no-http-cache/' }
                 ]
             },
@@ -306,8 +294,8 @@ module.exports = function (grunt) {
             fiwwCacheNoHttpCache: {
                 files: [
                     { expand: true, flatten: true, src: ['src/template/htaccess/no-http-cache/.htaccess'], dest: 'examples/fiww-cache-no-http-cache' },
-                    { expand: true, flatten: true, src: ['build/**/*.js'], dest: 'examples/full-cache-no-http-cache/js/' },
-                    { expand: true, cwd: 'temp/template/',  src: ['**/*'], dest: 'examples/full-cache-no-http-cache/' }
+                    { expand: true, flatten: true, src: ['build/**/*.js'], dest: 'examples/fiww-cache-no-http-cache/js/' },
+                    { expand: true, cwd: 'temp/template/',  src: ['**/*'], dest: 'examples/fiww-cache-no-http-cache/' }
                 ]
             },
             httpCache: {
@@ -324,7 +312,7 @@ module.exports = function (grunt) {
                     { expand: true, cwd: 'temp/template/',  src: ['**/*'], dest: 'examples/no-cache/' }
                 ]
             },
-
+            
             tests: {
                 files: [
                     { expand: true, flatten: true, src: ['temp/template/css/**/*.css'], dest: 'tests/css' },
@@ -345,18 +333,14 @@ module.exports = function (grunt) {
                 'full-cache.html',
                 'fiww-cache.html',
                 'standard.html',
-                'cache.dev.js' ,
-                'cache.prod.js'
             ],
             dirList: [
                 'examples/full-cache/',
-                'examples/full-cache/js/',
                 'examples/full-cache-no-http-cache',
                 'examples/fiww-cache/',
                 'examples/fiww-cache-no-http-cache/',
                 'examples/http-cache/',
-                'examples/no-cache/',
-                'examples/**/js/',
+                'examples/no-cache/'
             ]
         },
 
@@ -480,7 +464,6 @@ module.exports = function (grunt) {
                 files: [
 					'src/js/_app/**/*.js'
 				],
-                //tasks: ['concat:cache', 'copy']
                 tasks: ['dev']
             },
             js: {
@@ -529,13 +512,12 @@ module.exports = function (grunt) {
         'cssmin',
         'assemble',
         'rename',
-        'copy',
-        'remove'
+        'copy'
     ]);
 
     grunt.registerTask('build-dev', [
         'dev',
-        'lint'
+        'lint',
     ]);
 
     grunt.registerTask('build-deploy', [
