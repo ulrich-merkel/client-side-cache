@@ -1,13 +1,41 @@
         
-		<!-- include css -->
-		<link rel="stylesheet" href="css/app.css" type="text/css" media="all">
-
         <!-- include script async -->
 		<script src="js/lib.js"></script>
 		<script src="js/app.js"></script>
 		<script>
-			$(document).ready(function () {
-                $("#ajax").load("ajax.html");
-                $('#layer-loading').fadeOut(200);
-            });
+			// wrap cache initializing in a closure
+			(function (window, document, $) {
+				
+				'use strict';
+		
+				// local vars for faster access
+				var hasConsole = window.console,
+                    hasConsoleTime = (hasConsole && console.time && console.timeEnd);
+
+				// start console timers to profile loading time, just for testing purposes
+                if (hasConsoleTime) {
+                    window.console.time('Console Time: Html loaded');
+                }
+
+				$(document).ready(function () {
+					$("#ajax").load("ajax.html", function () {
+					
+						// check window performance, just for testing purposes
+                        if (window.performance && window.performance.timing && hasConsole) {
+
+                            var t = window.performance.timing;
+
+                            console.log('Window Performance: navigationStart until requestStart ' + (t.loadEventEnd - t.requestStart));
+                            console.log('Window Performance: navigationStart until domComplete ' + (t.loadEventEnd - t.domComplete));
+                            console.log('Window Performance: navigationStart until loadEventEnd ' + (t.loadEventEnd - t.navigationStart));
+                        }
+
+						if (hasConsoleTime) {
+                            window.console.timeEnd('Console Time: Html loaded');
+                        }
+
+					});
+					$('#layer-loading').fadeOut(200);
+				});
+			}(window, document, window.jQuery));
 		</script>

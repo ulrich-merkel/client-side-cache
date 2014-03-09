@@ -9,11 +9,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2014
- * @version 0.2.3
+ * @version 0.2.4
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.2.4 bug fix legacy browsers isArray
  * - 0.2.3 bug fix xhr ie6
  * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
  * - 0.2.1 examples added, isFunction added, refactoring
@@ -164,7 +165,7 @@
                     // Duck-Typing arrays (by Douglas Crockford), asume sort function is only available for arrays
                     // Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array"
                     utils.isArray = function (value) {
-                        return (!!value.sort && typeof value.sort === 'function');
+                        return (!!value && !!value.sort && typeof value.sort === 'function');
                     };
                 }
 

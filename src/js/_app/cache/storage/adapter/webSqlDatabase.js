@@ -12,6 +12,10 @@
  *      - Maxthon 4.0.5 +
  *      - iOs 6.1 + (3.2)
  *      - Android 2.1 +
+ *      - Stainless 0.8 +
+ *      - iCab 5.1.1 +
+ *      - Yandex 13.0 +
+ *      - Torch 23.0 +
  *
  * @version 0.1.8
  * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
@@ -78,7 +82,7 @@
  *
  *      
  */
-(function (window, undefined) {
+(function (window, ns, undefined) {
 
     'use strict';
 
@@ -89,9 +93,9 @@
      * being passed in so we can ensure that its value is
      * truly undefined. In ES5, undefined can no longer be
      * modified.
-     * 
-     * window is passed through as local variable rather
-     * than as global, because this (slightly)
+     *
+     * window and ns are passed through as local
+     * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
@@ -100,11 +104,13 @@
 
     // create the global vars once
     var storageType = 'webSqlDatabase',                             // @type {string} The storage type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not
+        boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
+
+        // get global javascript interface as shortcut
+        globalInterface = window.openDatabase;
 
 
     /**
@@ -255,7 +261,7 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                boolIsSupported = !!window.openDatabase;
+                boolIsSupported = !!globalInterface;
 
                 /* start-dev-block */
                 if (!boolIsSupported) {
@@ -566,7 +572,7 @@
                      * to change the database version, is not fully supported in Webkit. it works in Chrome and Opera,
                      * but not in Safari or Webkit.
                      */
-                    self.adapter = adapter = window.openDatabase(self.dbName, '', self.dbDescription, self.dbSize);
+                    self.adapter = adapter = globalInterface(self.dbName, '', self.dbDescription, self.dbSize);
 
                     // check for new version
                     if (String(adapter.version) !== String(self.dbVersion) && !!adapter.changeVersion && typeof adapter.changeVersion === 'function') {
@@ -672,15 +678,11 @@
 
     /**
      * make the storage constructor available for ns.cache.storage.adapter.webSqlDatabase()
-     * calls under the ns.cache namespace, alternativly save it to window object
+     * calls under the ns.cache namespace
      * 
      * @export
      */
-    if (utils.isFunction(ns.ns)) {
-        ns.ns('cache.storage.adapter.' + storageType, Adapter);
-    } else {
-        ns[storageType] = Adapter;
-    }
+    ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window)); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function

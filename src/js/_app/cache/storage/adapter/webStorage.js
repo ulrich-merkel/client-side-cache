@@ -25,6 +25,10 @@
  *      - Stainless 0.8 +
  *      - Seamonkey 2.15 +
  *      - Sunrise 2.2 +
+ *      - Sleipnir 4.4 +
+ *      - iCab 5.1.1 +
+ *      - Yandex 13.0 +
+ *      - Torch 23.0 +
  *
  * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * @version 0.1.8
@@ -48,6 +52,7 @@
  * - https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Storage
  *
  * @requires
+ * - ns.helpers.namespace
  * - ns.helpers.utils
  * 
  * @bugs
@@ -128,7 +133,7 @@
  *      }
  *      
  */
-(function (window, undefined) {
+(function (window, ns, undefined) {
 
     'use strict';
 
@@ -139,9 +144,9 @@
      * being passed in so we can ensure that its value is
      * truly undefined. In ES5, undefined can no longer be
      * modified.
-     * 
-     * window is passed through as local variable rather
-     * than as global, because this (slightly)
+     *
+     * window and ns are passed through as local
+     * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
@@ -149,7 +154,6 @@
 
     // create the global vars once
     var storageType = 'webStorage',                                 // @type {string} The storage type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
         on = utils.on,                                              // @type {function} Shortcut for utils.on function
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
@@ -634,15 +638,11 @@
 
     /**
      * make the storage constructor available for ns.cache.storage.adapter.webStorage()
-     * calls under the ns.cache namespace, alternativly save it to window object
+     * calls under the ns.cache namespace
      * 
      * @export
      */
-    if (utils.isFunction(ns.ns)) {
-        ns.ns('cache.storage.adapter.' + storageType, Adapter);
-    } else {
-        ns[storageType] = Adapter;
-    }
+    ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window)); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function

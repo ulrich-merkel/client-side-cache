@@ -1216,6 +1216,12 @@
                  */
 
                 getStorageAdapter(function (adapter) {
+
+                    // set isEnabled to false, if there is no adapter available
+                    if (!adapter) {
+                        self.isEnabled = false;
+                    }
+
                     self.adapter = adapter;
                     callback(self);
                 }, self.adapters.types, preferredAdapterType);

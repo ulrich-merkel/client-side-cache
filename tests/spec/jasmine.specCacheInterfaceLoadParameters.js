@@ -5,7 +5,7 @@ describe('Cache Interface Load Parameters', function () {
 
     'use strict';
 
-	var path = '';
+    var path = '';
     if (window.__karma__ !== undefined) {
         path += 'base/';
     }
@@ -71,6 +71,7 @@ describe('Cache Interface Load Parameters', function () {
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
+                
             }, {
                 isEnabled: false
             });
@@ -89,7 +90,10 @@ describe('Cache Interface Load Parameters', function () {
     it('Call load with adapters param - check setting types', function () {
 
         var instance,
-            loadCallback;
+            loadCallback,
+            isSupportedFs = new app.cache.storage.adapter.fileSystem().isSupported(),
+            isSupportedId = new app.cache.storage.adapter.indexedDatabase().isSupported(),
+            isSupported = isSupportedFs && isSupportedId;
 
         runs(function () {
             app.cache.load([
@@ -99,21 +103,29 @@ describe('Cache Interface Load Parameters', function () {
                 loadCallback = 'success';
             }, {
                 adapters: {
-					types: [
-						{type: 'fileSystem', css: true, js: true, html: true, img: true},
-						{type: 'indexedDatabase', css: true, js: true, html: true, img: true }
-					]
+                    types: [
+                        {type: 'fileSystem', css: true, js: true, html: true, img: true},
+                        {type: 'indexedDatabase', css: true, js: true, html: true, img: true }
+                    ]
                 }
             });
         });
 
         waitsFor(function () {
-            return loadCallback === 'success';
+            if (isSupported) {
+                return loadCallback === 'success';
+            } else {
+                return true;
+            }
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-            var length = instance.storage.adapters.types.length;
-            expect(length).toEqual(2);
+            if (isSupported) {
+                var length = instance.storage.adapters.types.length;
+                expect(length).toEqual(2);
+            } else {
+                expect(true).toEqual(true);
+            }
         });
 
     });
@@ -122,7 +134,7 @@ describe('Cache Interface Load Parameters', function () {
 
         var instance,
             loadCallback,
-			isSupported = new app.cache.storage.adapter.webStorage().isSupported();
+            isSupported = new app.cache.storage.adapter.webStorage().isSupported();
 
         runs(function () {
             app.cache.load([
@@ -132,9 +144,9 @@ describe('Cache Interface Load Parameters', function () {
                 loadCallback = 'success';
             }, {
                 adapters: {
-					types: [
-						{type: 'webStorage'}
-					]
+                    types: [
+                        {type: 'webStorage'}
+                    ]
                 }
             });
         });
@@ -146,13 +158,13 @@ describe('Cache Interface Load Parameters', function () {
         runs(function () {
             var length = instance.storage.adapters.types.length;
             expect(length).toEqual(1);
-			if (isSupported) {
-				expect(instance.storage.adapter.type).toEqual('webStorage');
-				expect(instance.storage.adapters.types[0].css).toEqual(true);
-				expect(instance.storage.adapters.types[0].js).toEqual(true);
-				expect(instance.storage.adapters.types[0].html).toEqual(true);
-				expect(instance.storage.adapters.types[0].img).toEqual(true);
-			}
+            if (isSupported) {
+                expect(instance.storage.adapter.type).toEqual('webStorage');
+                expect(instance.storage.adapters.types[0].css).toEqual(true);
+                expect(instance.storage.adapters.types[0].js).toEqual(true);
+                expect(instance.storage.adapters.types[0].html).toEqual(true);
+                expect(instance.storage.adapters.types[0].img).toEqual(true);
+            }
             
         });
 
@@ -162,7 +174,7 @@ describe('Cache Interface Load Parameters', function () {
 
         var instance,
             loadCallback,
-			isSupported = new app.cache.storage.adapter.fileSystem().isSupported();
+            isSupported = new app.cache.storage.adapter.fileSystem().isSupported();
 
         runs(function () {
             app.cache.load([
@@ -172,9 +184,9 @@ describe('Cache Interface Load Parameters', function () {
                 loadCallback = 'success';
             }, {
                 adapters: {
-					types: [
-						{type: 'fileSystem', css: false, js: false, html: false, img: false}
-					]
+                    types: [
+                        {type: 'fileSystem', css: false, js: false, html: false, img: false}
+                    ]
                 }
             });
         });
@@ -186,13 +198,13 @@ describe('Cache Interface Load Parameters', function () {
         runs(function () {
             var length = instance.storage.adapters.types.length;
             expect(length).toEqual(1);
-			if (isSupported) {
-				expect(instance.storage.adapter.type).toEqual('fileSystem');
-				expect(instance.storage.adapters.types[0].css).toEqual(false);
-				expect(instance.storage.adapters.types[0].js).toEqual(false);
-				expect(instance.storage.adapters.types[0].html).toEqual(false);
-				expect(instance.storage.adapters.types[0].img).toEqual(false);
-			}
+            if (isSupported) {
+                expect(instance.storage.adapter.type).toEqual('fileSystem');
+                expect(instance.storage.adapters.types[0].css).toEqual(false);
+                expect(instance.storage.adapters.types[0].js).toEqual(false);
+                expect(instance.storage.adapters.types[0].html).toEqual(false);
+                expect(instance.storage.adapters.types[0].img).toEqual(false);
+            }
         });
 
     });
@@ -201,7 +213,7 @@ describe('Cache Interface Load Parameters', function () {
 
         var instance,
             loadCallback,
-			isSupported = new app.cache.storage.adapter.webSqlDatabase().isSupported();
+            isSupported = new app.cache.storage.adapter.webSqlDatabase().isSupported();
 
         runs(function () {
             app.cache.load([
@@ -211,11 +223,11 @@ describe('Cache Interface Load Parameters', function () {
                 loadCallback = 'success';
             }, {
                 adapters: {
-					types: [
-						{type: 'fileSystem', css: true, js: true, html: true, img: true},
-						{type: 'indexedDatabase', css: true, js: true, html: true, img: true },
+                    types: [
+                        {type: 'fileSystem', css: true, js: true, html: true, img: true},
+                        {type: 'indexedDatabase', css: true, js: true, html: true, img: true },
                         {type: 'webSqlDatabase', css: true, js: true, html: true, img: true }
-					],
+                    ],
                     preferredType: 'webSqlDatabase'
                 }
             });
@@ -228,9 +240,9 @@ describe('Cache Interface Load Parameters', function () {
         runs(function () {
             var length = instance.storage.adapters.types.length;
             expect(length).toEqual(3);
-			if (isSupported) {
-				expect(instance.storage.adapter.type).toEqual('webSqlDatabase');
-			}
+            if (isSupported) {
+                expect(instance.storage.adapter.type).toEqual('webSqlDatabase');
+            }
         });
 
     });
@@ -239,7 +251,7 @@ describe('Cache Interface Load Parameters', function () {
 
         var instance,
             loadCallback,
-			isSupported = new app.cache.storage.adapter.webStorage().isSupported();
+            isSupported = new app.cache.storage.adapter.webStorage().isSupported();
 
         runs(function () {
             app.cache.load([
@@ -249,9 +261,9 @@ describe('Cache Interface Load Parameters', function () {
                 loadCallback = 'success';
             }, {
                 adapters: {
-					types: [
-						{type: 'webStorage', css: true, js: true, html: true, img: true }
-					],
+                    types: [
+                        {type: 'webStorage', css: true, js: true, html: true, img: true }
+                    ],
                     preferredType: 'webStorage'
                 }
             });
@@ -264,11 +276,11 @@ describe('Cache Interface Load Parameters', function () {
         runs(function () {
             var length = instance.storage.adapters.types.length;
             expect(length).toEqual(1);
-			if (isSupported) {
-				expect(instance.storage.adapter.type).toEqual('webStorage');
-			} else {
-				expect(true).toEqual(true);
-			}
+            if (isSupported) {
+                expect(instance.storage.adapter.type).toEqual('webStorage');
+            } else {
+                expect(true).toEqual(true);
+            }
             
         });
 
@@ -278,7 +290,7 @@ describe('Cache Interface Load Parameters', function () {
 
         var instance,
             loadCallback,
-			isSupported = new app.cache.storage.adapter.webStorage().isSupported();
+            isSupported = new app.cache.storage.adapter.webStorage().isSupported();
 
         runs(function () {
             app.cache.load([
@@ -288,9 +300,9 @@ describe('Cache Interface Load Parameters', function () {
                 loadCallback = 'success';
             }, {
                 adapters: {
-					types: [
+                    types: [
                         {type: 'webStorage', css: true, js: true, html: true, img: true }
-					],
+                    ],
                     preferredType: 'webStorage123'
                 }
             });
@@ -301,14 +313,14 @@ describe('Cache Interface Load Parameters', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-			if (isSupported) {
-				var length = instance.storage.adapters.types.length;
-				expect(length).toEqual(1);
-				expect(instance.storage.adapter.type).not.toEqual('webStorage123');
-				expect(instance.storage.adapter.type).toEqual('webStorage');
-			} else {
-				expect(true).toEqual(true);
-			}
+            if (isSupported) {
+                var length = instance.storage.adapters.types.length;
+                expect(length).toEqual(1);
+                expect(instance.storage.adapter.type).not.toEqual('webStorage123');
+                expect(instance.storage.adapter.type).toEqual('webStorage');
+            } else {
+                expect(true).toEqual(true);
+            }
         });
 
     });
@@ -317,7 +329,7 @@ describe('Cache Interface Load Parameters', function () {
 
         var instance,
             loadCallback,
-			isSupported = new app.cache.storage.adapter.fileSystem().isSupported();
+            isSupported = new app.cache.storage.adapter.fileSystem().isSupported();
 
         runs(function () {
             app.cache.load([
@@ -328,8 +340,8 @@ describe('Cache Interface Load Parameters', function () {
             }, {
                 adapters: {
                     preferredType: 'fileSystem',
-					defaults: {
-						size: 1 * 1024 * 1024
+                    defaults: {
+                        size: 1 * 1024 * 1024
                     }
                 }
             });
@@ -340,13 +352,13 @@ describe('Cache Interface Load Parameters', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-			if (isSupported) {
-				var adapter = instance.storage.adapter.type;
-				expect(instance.storage.adapter.type).toEqual('fileSystem');
-				expect(instance.storage.adapter.size).toEqual(1 * 1024 * 1024);
-			} else {
-				expect(true).toEqual(true);
-			}
+            if (isSupported) {
+                var adapter = instance.storage.adapter.type;
+                expect(instance.storage.adapter.type).toEqual('fileSystem');
+                expect(instance.storage.adapter.size).toEqual(1 * 1024 * 1024);
+            } else {
+                expect(true).toEqual(true);
+            }
         });
 
     });
@@ -355,7 +367,7 @@ describe('Cache Interface Load Parameters', function () {
 
         var instance,
             loadCallback,
-			isSupported = new app.cache.storage.adapter.indexedDatabase().isSupported();
+            isSupported = new app.cache.storage.adapter.indexedDatabase().isSupported();
 
         runs(function () {
             app.cache.load([
@@ -366,11 +378,11 @@ describe('Cache Interface Load Parameters', function () {
             }, {
                 adapters: {
                     preferredType: 'indexedDatabase',
-					defaults: {
+                    defaults: {
                         name: 'testname',
-						//table: 'testcache', -> buggy?
-						version: '2.1',
-						//key: 'testkey', readonly
+                        //table: 'testcache', -> buggy?
+                        version: '2.1',
+                        //key: 'testkey', readonly
 
                     }
                 }
@@ -382,13 +394,13 @@ describe('Cache Interface Load Parameters', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-			if (isSupported) {
-				var adapter = instance.storage.adapter.type;
-				expect(instance.storage.adapter.type).toEqual('indexedDatabase');
-				expect(instance.storage.adapter.adapter.name).toEqual('testname');
-			} else {
-				expect(true).toEqual(true);
-			}
+            if (isSupported) {
+                var adapter = instance.storage.adapter.type;
+                expect(instance.storage.adapter.type).toEqual('indexedDatabase');
+                expect(instance.storage.adapter.adapter.name).toEqual('testname');
+            } else {
+                expect(true).toEqual(true);
+            }
         });
 
     });
@@ -397,7 +409,7 @@ describe('Cache Interface Load Parameters', function () {
 
         var instance,
             loadCallback,
-			isSupported = new app.cache.storage.adapter.webSqlDatabase().isSupported();
+            isSupported = new app.cache.storage.adapter.webSqlDatabase().isSupported();
 
         runs(function () {
             app.cache.load([
@@ -408,8 +420,8 @@ describe('Cache Interface Load Parameters', function () {
             }, {
                 adapters: {
                     preferredType: 'webSqlDatabase',
-					defaults: {
-						version: '2.1'
+                    defaults: {
+                        version: '2.1'
                     }
                 }
             });
@@ -420,13 +432,13 @@ describe('Cache Interface Load Parameters', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-			if (isSupported) {
-				var adapter = instance.storage.adapter.type;
-				expect(instance.storage.adapter.type).toEqual('webSqlDatabase');
-				expect(instance.storage.adapter.adapter.version).toEqual('2.1');
-			} else {
-				expect(true).toEqual(true);
-			}
+            if (isSupported) {
+                var adapter = instance.storage.adapter.type;
+                expect(instance.storage.adapter.type).toEqual('webSqlDatabase');
+                expect(instance.storage.adapter.adapter.version).toEqual('2.1');
+            } else {
+                expect(true).toEqual(true);
+            }
         });
 
     });
@@ -435,7 +447,7 @@ describe('Cache Interface Load Parameters', function () {
 
         var instance,
             loadCallback,
-			isSupported = new app.cache.storage.adapter.webStorage({lifetime: 'session'}).isSupported();
+            isSupported = new app.cache.storage.adapter.webStorage({lifetime: 'session'}).isSupported();
 
         runs(function () {
             app.cache.load([
@@ -446,8 +458,8 @@ describe('Cache Interface Load Parameters', function () {
             }, {
                 adapters: {
                     preferredType: 'webStorage',
-					defaults: {
-						lifetime: 'session'
+                    defaults: {
+                        lifetime: 'session'
                     }
                 }
             });
@@ -458,13 +470,13 @@ describe('Cache Interface Load Parameters', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-			if (isSupported && !window.__karma__) {
-				var data = !!sessionStorage.getItem(JSON.stringify('js/lib.js'));
-				expect(instance.storage.adapter.type).toEqual('webStorage');
-				expect(data).toEqual(true);
-			} else {
-				expect(true).toEqual(true);
-			}
+            if (isSupported && !window.__karma__) {
+                var data = !!sessionStorage.getItem(JSON.stringify('js/lib.js'));
+                expect(instance.storage.adapter.type).toEqual('webStorage');
+                expect(data).toEqual(true);
+            } else {
+                expect(true).toEqual(true);
+            }
         });
 
     });

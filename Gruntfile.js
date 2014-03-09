@@ -203,12 +203,18 @@ module.exports = function (grunt) {
                 flatten: true
             },
             httpCache: {
+                options: {
+                    layout: 'standard.hbs'
+                },
                 expand: true,
                 src: ['src/template/pages/standard.hbs'],
                 dest: 'examples/http-cache/',
                 flatten: true
             },
             noCache: {
+                options: {
+                    layout: 'standard.hbs'
+                },
                 expand: true,
                 src: ['src/template/pages/standard.hbs'],
                 dest: 'examples/no-cache/',

@@ -40,6 +40,8 @@
         </style>
     </noscript>
 
+		<!-- include css -->
+		<link rel="stylesheet" href="css/app.css" type="text/css" media="all">
 	</head>
 	<body>
 
@@ -61,13 +63,13 @@
 
         <article class="row" role="article">
 			<figure class="four columns">
-				<img alt="Test image" id="image-1" src="assets/img/blank.gif"/>
+				<img alt="Test image" id="image-1" src="assets/img/content/410x144/test-1.jpg"/>
 			</figure>
 			<figure class="four columns">
-				<img alt="Test image" id="image-2" src="assets/img/blank.gif"/>
+				<img alt="Test image" id="image-2" src="assets/img/content/410x144/test-2.jpg"/>
 			</figure>
 			<figure class="four columns">
-				<img alt="Test image" id="image-3" src="assets/img/blank.gif"/>
+				<img alt="Test image" id="image-3" src="assets/img/content/410x144/test-3.jpg"/>
 			</figure>
 		</article>
 
@@ -109,6 +111,7 @@
 				</div>
 				<div class="row" id="log">
 				</div>
+				<img alt="Placeholder" src="assets/img/bg/blank.gif"/>
 			</article>
 		</article>
 
@@ -148,22 +151,49 @@
         <div class="layer-background"></div>
     </div>
     <!-- no js layer end -->
-
+		
 		
 
         
-		<!-- include css -->
-		<link rel="stylesheet" href="css/app.css" type="text/css" media="all">
-
         <!-- include script async -->
 		<script src="js/lib.js"></script>
 		<script src="js/app.js"></script>
 		<script>
-			$(document).ready(function () {
-                $("#ajax").load("ajax.html");
-                $('#layer-loading').fadeOut(200);
-            });
-		</script>
+			// wrap cache initializing in a closure
+			(function (window, document, $) {
+				
+				'use strict';
+		
+				// local vars for faster access
+				var hasConsole = window.console,
+                    hasConsoleTime = (hasConsole && console.time && console.timeEnd);
 
+				// start console timers to profile loading time, just for testing purposes
+                if (hasConsoleTime) {
+                    window.console.time('Console Time: Html loaded');
+                }
+
+				$(document).ready(function () {
+					$("#ajax").load("ajax.html", function () {
+					
+						// check window performance, just for testing purposes
+                        if (window.performance && window.performance.timing && hasConsole) {
+
+                            var t = window.performance.timing;
+
+                            console.log('Window Performance: navigationStart until requestStart ' + (t.loadEventEnd - t.requestStart));
+                            console.log('Window Performance: navigationStart until domComplete ' + (t.loadEventEnd - t.domComplete));
+                            console.log('Window Performance: navigationStart until loadEventEnd ' + (t.loadEventEnd - t.navigationStart));
+                        }
+
+						if (hasConsoleTime) {
+                            window.console.timeEnd('Console Time: Html loaded');
+                        }
+
+					});
+					$('#layer-loading').fadeOut(200);
+				});
+			}(window, document, window.jQuery));
+		</script>
 	</body>
 </html>

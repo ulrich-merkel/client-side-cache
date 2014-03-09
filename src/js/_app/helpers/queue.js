@@ -6,12 +6,13 @@
  * @description
  * - handle async interfaces with queues
  * 
- * @author Ulrich Merkel, 2013
- * @version 0.1.2
+ * @author Ulrich Merkel, 2014
+ * @version 0.1.3
  *
  * @namespace ns
  *
  * @changelog
+ * - 0.1.3 rename instance vars for better compression
  * - 0.1.2 refactoring, examples added
  * - 0.1.1 improved namespacing
  * - 0.1 basic functions and plugin structur
@@ -75,14 +76,14 @@
             return new Queue();
         }
 
-        // @type {array} [[]] Store your callbacks
-        self.methods = [];
+        // @type {array} [[]] Store your method callbacks
+        self.m = [];
 
         // @type {object} [null] Keep a reference to your response
-        self.response = null;
+        self.r = null;
 
-        // @type {boolean} [false] All queues start off unflushed
-        self.flushed = false;
+        // @type {boolean} [false] All queues start off unflushed, flushed state
+        self.f = false;
 
     }
 
@@ -104,12 +105,12 @@
             var self = this;
 
             // if the queue had been flushed, return immediately
-            if (self.flushed) {
-                fn(self.response);
+            if (self.f) {
+                fn(self.r);
 
             // otherwise push it on the queue
             } else {
-                self.methods.push(fn);
+                self.m.push(fn);
             }
 
         },
@@ -125,19 +126,19 @@
             var self = this;
 
             // note: flush only ever happens once
-            if (self.flushed) {
+            if (self.f) {
                 return;
             }
 
             // store your response for subsequent calls after flush()
-            self.response = response;
+            self.r = response;
 
             // mark that it's been flushed
-            self.flushed = true;
+            self.f = true;
 
             // shift 'em out and call 'em back
-            while (self.methods[0]) {
-                self.methods.shift()(response);
+            while (self.m[0]) {
+                self.m.shift()(response);
             }
 
         }

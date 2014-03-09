@@ -51,7 +51,7 @@
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
-     * regularly referenced in your plugin).
+     * regularly referenced in your module).
      *
      */
 

@@ -112,7 +112,7 @@
         json = utils.getJson(),                                     // @type {object} Global window.Json object if available
         jsonToString = utils.jsonToString,                          // @type {function} Shortcut for jsonToString function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        interval = 25,                                              // @type {integer} Milliseconds for interval controller check
+        interval = 15,                                               // @type {integer} Milliseconds for interval controller check
         timeout = 5000,                                             // @type {integer} Maximum time in milliseconds after we will give up checking
         setupParameters = {};                                       // @type {object} Store parameters from setup call
 
@@ -235,6 +235,7 @@
         var currentInterface = getInterface(parameters),
             currentInterfaceInterval,
             currentInterfaceTimeout,
+            currentInterfaceStorage,
 
             /**
              * wait for loaded controller via timeout
@@ -252,9 +253,10 @@
 
                     // save local vars for faster access
                     currentInterface.timeout = currentInterfaceTimeout = currentInterface.timeout + interval;
+                    currentInterfaceStorage = currentInterface.storage;
 
                     // if cache and storage controller is completly loaded, start queue
-                    if (currentInterface.controller && currentInterface.storage && currentInterface.storage.adapter) {
+                    if (currentInterface.controller && currentInterfaceStorage && (currentInterfaceStorage.adapter || !currentInterfaceStorage.isEnabled)) {
                         window.clearInterval(currentInterfaceInterval);
                         currentInterface.queue.flush();
                     }

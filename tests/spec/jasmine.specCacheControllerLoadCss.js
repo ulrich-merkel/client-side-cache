@@ -270,7 +270,6 @@ describe('Cache Controller Load Single Css', function () {
             cache.load([
                 {url: path + "css123/app.css", type: "css"}
             ], function () {
-                console.log("asölaks");
                 loadCallback = true;
             });
         });

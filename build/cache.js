@@ -173,12 +173,13 @@
  * @description
  * - handle async interfaces with queues
  * 
- * @author Ulrich Merkel, 2013
- * @version 0.1.2
+ * @author Ulrich Merkel, 2014
+ * @version 0.1.3
  *
  * @namespace ns
  *
  * @changelog
+ * - 0.1.3 rename instance vars for better compression
  * - 0.1.2 refactoring, examples added
  * - 0.1.1 improved namespacing
  * - 0.1 basic functions and plugin structur
@@ -242,14 +243,14 @@
             return new Queue();
         }
 
-        // @type {array} [[]] Store your callbacks
-        self.methods = [];
+        // @type {array} [[]] Store your method callbacks
+        self.m = [];
 
         // @type {object} [null] Keep a reference to your response
-        self.response = null;
+        self.r = null;
 
-        // @type {boolean} [false] All queues start off unflushed
-        self.flushed = false;
+        // @type {boolean} [false] All queues start off unflushed, flushed state
+        self.f = false;
 
     }
 
@@ -271,12 +272,12 @@
             var self = this;
 
             // if the queue had been flushed, return immediately
-            if (self.flushed) {
-                fn(self.response);
+            if (self.f) {
+                fn(self.r);
 
             // otherwise push it on the queue
             } else {
-                self.methods.push(fn);
+                self.m.push(fn);
             }
 
         },
@@ -292,19 +293,19 @@
             var self = this;
 
             // note: flush only ever happens once
-            if (self.flushed) {
+            if (self.f) {
                 return;
             }
 
             // store your response for subsequent calls after flush()
-            self.response = response;
+            self.r = response;
 
             // mark that it's been flushed
-            self.flushed = true;
+            self.f = true;
 
             // shift 'em out and call 'em back
-            while (self.methods[0]) {
-                self.methods.shift()(response);
+            while (self.m[0]) {
+                self.m.shift()(response);
             }
 
         }
@@ -333,11 +334,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2014
- * @version 0.2.3
+ * @version 0.2.4
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.2.4 bug fix legacy browsers isArray
  * - 0.2.3 bug fix xhr ie6
  * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
  * - 0.2.1 examples added, isFunction added, refactoring
@@ -488,7 +490,7 @@
                     // Duck-Typing arrays (by Douglas Crockford), asume sort function is only available for arrays
                     // Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array"
                     utils.isArray = function (value) {
-                        return (!!value.sort && typeof value.sort === 'function');
+                        return (!!value && !!value.sort && typeof value.sort === 'function');
                     };
                 }
 
@@ -1269,7 +1271,7 @@
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
-     * regularly referenced in your plugin).
+     * regularly referenced in your module).
      *
      */
 
@@ -1813,7 +1815,10 @@
  * - provide a storage api for file system
  * - support:
  *      - Google Crome 26.0 +
+ *      - Opera 19.0 +
  *      - Maxthon 4.0.5 +
+ *      - Yandex 13.0 +
+ *      - Torch 23.0 +
  *
  * @version 0.1.5
  * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
@@ -1884,7 +1889,7 @@
  *
  *          
  */
-(function (window, undefined) {
+(function (window, ns, undefined) {
 
     'use strict';
 
@@ -1895,9 +1900,9 @@
      * being passed in so we can ensure that its value is
      * truly undefined. In ES5, undefined can no longer be
      * modified.
-     * 
-     * window is passed through as local variable rather
-     * than as global, because this (slightly)
+     *
+     * window and ns are passed through as local
+     * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
@@ -1905,11 +1910,14 @@
 
     // create the global vars once
     var storageType = 'fileSystem',                                 // @type {string} The storage type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not
+        boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
+
+        // get global javascript interface as shortcut
+        // note: the file system has been prefixed as of google chrome 12
+        globalInterface = window.requestFileSystem || window.webkitRequestFileSystem || window.moz_requestFileSystem;
 
 
     /**
@@ -2144,7 +2152,7 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                boolIsSupported = (!!window.requestFileSystem || !!window.webkitRequestFileSystem || !!window.moz_requestFileSystem) && (!!window.Blob || !!window.BlobBuilder) && window.FileReader;
+                boolIsSupported = !!globalInterface && (!!window.Blob || !!window.BlobBuilder) && window.FileReader;
 
                 /* start-dev-block */
                 if (!boolIsSupported) {
@@ -2189,8 +2197,8 @@
             // check for database
             if (null === adapter) {
 
-                // note: the file system has been prefixed as of google chrome 12
-                window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem || window.moz_requestFileSystem;
+                // override global with browser specific version
+                window.requestFileSystem = globalInterface;
 
                 // open filesystem
                 window.requestFileSystem(window.TEMPORARY, self.size, function (filesystem) {
@@ -2483,18 +2491,14 @@
 
     /**
      * make the storage constructor available for ns.cache.storage.adapter.fileSystem()
-     * calls under the ns.cache namespace, alternativly save it to window object
+     * calls under the ns.cache namespace
      * 
      * @export
      */
-    if (utils.isFunction(ns.ns)) {
-        ns.ns('cache.storage.adapter.' + storageType, Adapter);
-    } else {
-        ns[storageType] = Adapter;
-    }
+    ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window)); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function
 
 /*jslint browser: true, devel: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false*/
@@ -2513,6 +2517,7 @@
  *      - Opera 12.5 +
  *      - Maxthon 4.0.5 +
  *      - Seamonkey 2.15 +
+ *      - Yandex 13.0 +
  * 
  * @version 0.1.6
  * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
@@ -2535,6 +2540,7 @@
  * - https://github.com/brianleroux/lawnchair/blob/master/src/adapters/indexed-db.js
  *
  * @requires
+ * - ns.helpers.namespace
  * - ns.helpers.utils
  * 
  * @bugs
@@ -2578,7 +2584,7 @@
  *
  *      
  */
-(function (window, undefined) {
+(function (window, ns, undefined) {
 
     'use strict';
 
@@ -2589,9 +2595,9 @@
      * being passed in so we can ensure that its value is
      * truly undefined. In ES5, undefined can no longer be
      * modified.
-     * 
-     * window is passed through as local variable rather
-     * than as global, because this (slightly)
+     *
+     * window and ns are passed through as local
+     * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
@@ -2599,11 +2605,13 @@
 
     // create the global vars once
     var storageType = 'indexedDatabase',                            // @type {string} The storage type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not
+        boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
+
+        // get global javascript interface as shortcut
+        globalInterface = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
 
 
     /**
@@ -2699,7 +2707,7 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                boolIsSupported =  !!window.indexedDB || !!window.webkitIndexedDB || !!window.mozIndexedDB || !!window.OIndexedDB || !!window.msIndexedDB;
+                boolIsSupported = !!globalInterface;
 
                 /* start-dev-block */
                 if (!boolIsSupported) {
@@ -2974,7 +2982,7 @@
             if (null === self.adapter) {
 
                 // get window indexeddb object according to browser prefixes
-                windowObject = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
+                windowObject = globalInterface;
 
                 // indexeddb is not supported
                 if (!windowObject) {
@@ -3205,18 +3213,14 @@
 
     /**
      * make the storage constructor available for ns.cache.storage.adapter.indexedDatabase()
-     * calls under the ns.cache namespace, alternativly save it to window object
+     * calls under the ns.cache namespace
      * 
      * @export
      */
-    if (utils.isFunction(ns.ns)) {
-        ns.ns('cache.storage.adapter.' + storageType, Adapter);
-    } else {
-        ns[storageType] = Adapter;
-    }
+    ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window)); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function
 
 /*global window, undefined */
 
@@ -3232,6 +3236,10 @@
  *      - Maxthon 4.0.5 +
  *      - iOs 6.1 + (3.2)
  *      - Android 2.1 +
+ *      - Stainless 0.8 +
+ *      - iCab 5.1.1 +
+ *      - Yandex 13.0 +
+ *      - Torch 23.0 +
  *
  * @version 0.1.8
  * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
@@ -3298,7 +3306,7 @@
  *
  *      
  */
-(function (window, undefined) {
+(function (window, ns, undefined) {
 
     'use strict';
 
@@ -3309,9 +3317,9 @@
      * being passed in so we can ensure that its value is
      * truly undefined. In ES5, undefined can no longer be
      * modified.
-     * 
-     * window is passed through as local variable rather
-     * than as global, because this (slightly)
+     *
+     * window and ns are passed through as local
+     * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
@@ -3320,11 +3328,13 @@
 
     // create the global vars once
     var storageType = 'webSqlDatabase',                             // @type {string} The storage type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not
+        boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
+
+        // get global javascript interface as shortcut
+        globalInterface = window.openDatabase;
 
 
     /**
@@ -3475,7 +3485,7 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                boolIsSupported = !!window.openDatabase;
+                boolIsSupported = !!globalInterface;
 
                 /* start-dev-block */
                 if (!boolIsSupported) {
@@ -3786,7 +3796,7 @@
                      * to change the database version, is not fully supported in Webkit. it works in Chrome and Opera,
                      * but not in Safari or Webkit.
                      */
-                    self.adapter = adapter = window.openDatabase(self.dbName, '', self.dbDescription, self.dbSize);
+                    self.adapter = adapter = globalInterface(self.dbName, '', self.dbDescription, self.dbSize);
 
                     // check for new version
                     if (String(adapter.version) !== String(self.dbVersion) && !!adapter.changeVersion && typeof adapter.changeVersion === 'function') {
@@ -3892,18 +3902,14 @@
 
     /**
      * make the storage constructor available for ns.cache.storage.adapter.webSqlDatabase()
-     * calls under the ns.cache namespace, alternativly save it to window object
+     * calls under the ns.cache namespace
      * 
      * @export
      */
-    if (utils.isFunction(ns.ns)) {
-        ns.ns('cache.storage.adapter.' + storageType, Adapter);
-    } else {
-        ns[storageType] = Adapter;
-    }
+    ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window)); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function
 
 /*jslint browser: true, devel: true, ass: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false */
@@ -3932,6 +3938,10 @@
  *      - Stainless 0.8 +
  *      - Seamonkey 2.15 +
  *      - Sunrise 2.2 +
+ *      - Sleipnir 4.4 +
+ *      - iCab 5.1.1 +
+ *      - Yandex 13.0 +
+ *      - Torch 23.0 +
  *
  * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  * @version 0.1.8
@@ -3955,6 +3965,7 @@
  * - https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Storage
  *
  * @requires
+ * - ns.helpers.namespace
  * - ns.helpers.utils
  * 
  * @bugs
@@ -4035,7 +4046,7 @@
  *      }
  *      
  */
-(function (window, undefined) {
+(function (window, ns, undefined) {
 
     'use strict';
 
@@ -4046,9 +4057,9 @@
      * being passed in so we can ensure that its value is
      * truly undefined. In ES5, undefined can no longer be
      * modified.
-     * 
-     * window is passed through as local variable rather
-     * than as global, because this (slightly)
+     *
+     * window and ns are passed through as local
+     * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
      * regularly referenced in this module).
@@ -4056,7 +4067,6 @@
 
     // create the global vars once
     var storageType = 'webStorage',                                 // @type {string} The storage type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
         on = utils.on,                                              // @type {function} Shortcut for utils.on function
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
@@ -4541,18 +4551,14 @@
 
     /**
      * make the storage constructor available for ns.cache.storage.adapter.webStorage()
-     * calls under the ns.cache namespace, alternativly save it to window object
+     * calls under the ns.cache namespace
      * 
      * @export
      */
-    if (utils.isFunction(ns.ns)) {
-        ns.ns('cache.storage.adapter.' + storageType, Adapter);
-    } else {
-        ns[storageType] = Adapter;
-    }
+    ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window)); // immediatly invoke function
+}(window, window.getNs())); // immediatly invoke function
 
 /*global window, document, confirm*/
 
@@ -4571,19 +4577,20 @@
  *      - Maxthon 4.0.5 +
  *      - iOs 3.2 +
  * 
- * @version 0.1.8
+ * @version 0.1.9
  * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  *
  * @namespace app
  *
  * @changelog
- * - 0.1.8 message parameter for updateReady conform dialog added
+ * - 0.1.9 delay parameter added, improved minifying
+ * - 0.1.8 message parameter for updateReady confirm dialog added
  * - 0.1.7 example doc added
  * - 0.1.6 improved logging
  * - 0.1.5 improved namespacing
  * - 0.1.4 renamed addEventListener to adapterEvent, bug fixes progress event
  * - 0.1.3 improved module structur
- * - 0.1.2 initializing call via images loaded removed (seems to be buggy on edge connections), invoke main callback after 10 sec for slow connections
+ * - 0.1.2 initializing call via images loaded plugin removed (seems to be buggy on edge connections), invoke main callback after 10 sec for slow connections
  * - 0.1.1 update ready event bug fixes
  * - 0.1 basic functions
  *
@@ -4593,6 +4600,7 @@
  * - http://www.html5rocks.com/de/tutorials/appcache/beginner/
  *
  * @requires
+ * - ns.helpers.namespace
  * - ns.helpers.utils
  * 
  * @bugs
@@ -4601,7 +4609,12 @@
  * @example
  * 
  *      // init storage adapter
- *      var storage = new app.cache.storage.adapter.applicationCache(optionalParametersObject),
+ *      var storage = new app.cache.storage.adapter.applicationCache({
+ *              // message to be displayed on updateReady event
+ *              message: 'A new version is available. Do you want to reload this page?',
+ *              // wait for e.g. animations before loaded callback is fired, in milliseconds
+ *              delay: '100'
+ *          }),
  *          loaded = function () {
  *              // application cache loaded
  *          },
@@ -4616,7 +4629,7 @@
  *
  *      
  */
-(function (window, document, undefined) {
+(function (window, document, ns, undefined) {
 
     'use strict';
 
@@ -4628,7 +4641,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      *
-     * window and document are passed through as local
+     * window, document and ns are passed through as local
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -4650,7 +4663,6 @@
 
     // create the global vars once
     var storageType = 'applicationCache',                           // @type {string} The storage type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
         dom = helpers.dom,                                          // @type {object} Shortcut for dom functions
@@ -4658,8 +4670,10 @@
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback,                             // @type {function} Shortcur for utils.callback function
         boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
-        htmlNode = document.getElementsByTagName('html')[0];        // @type {object} The dom html element
+        htmlNode = document.getElementsByTagName('html')[0],        // @type {object} The dom html element
 
+        // get global javascript interface as shortcut
+        globalInterface = window.applicationCache;
 
     /**
      * -------------------------------------------
@@ -4694,7 +4708,7 @@
 
             self.isLoaded = true;
 
-            // set progress to 100% if not already done and wait for optional animations
+            // set progress to 100% if not already done and wait for optional animation endings
             self.progressCallback(100);
             window.setTimeout(function () {
                 callback();
@@ -4736,7 +4750,7 @@
         self.isLoaded = false;
         self.delay = 0;
         self.opened = true;
-        self.message = 'New version is available. Update page?';
+        self.message = 'New version available. Update page?';
 
         // run init function
         self.init(parameters);
@@ -4762,7 +4776,7 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                boolIsSupported = !!window.applicationCache && !!dom.getAttribute(htmlNode, 'manifest');
+                boolIsSupported = !!globalInterface && !!dom.getAttribute(htmlNode, 'manifest');
 
                 /* start-dev-block */
                 if (!boolIsSupported) {
@@ -5043,7 +5057,7 @@
                 /**
                  * call the main callback after certain time for slow
                  * internet connections or uncovered non-standard behaviours
-                 * throwing errors.
+                 * which could throw errors.
                  *
                  * the page is already accessable because all application cache
                  * files will be loaded async in the background.
@@ -5073,19 +5087,21 @@
         init: function (parameters) {
 
             // init local vars
-            var self = this,
-                adapter = self.adapter;
+            var self = this;
 
             // check for support
             if (self.isSupported()) {
 
-                if (null === adapter) {
-                    adapter = self.adapter = window.applicationCache;
+                if (null === self.adapter) {
+                    self.adapter = globalInterface;
                 }
 
                 if (parameters) {
                     if (!!parameters.message) {
                         self.message = String(parameters.message);
+                    }
+                    if (parameters.delay !== undefined) {
+                        self.delay = parseInt(parameters.delay, 10);
                     }
                 }
             }
@@ -5106,7 +5122,7 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, document)); // immediatly invoke function
+}(window, document, window.getNs())); // immediatly invoke function
 
 /*jslint browser: true, devel: true, regexp: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50 */
@@ -6326,6 +6342,12 @@
                  */
 
                 getStorageAdapter(function (adapter) {
+
+                    // set isEnabled to false, if there is no adapter available
+                    if (!adapter) {
+                        self.isEnabled = false;
+                    }
+
                     self.adapter = adapter;
                     callback(self);
                 }, self.adapters.types, preferredAdapterType);
@@ -7276,7 +7298,7 @@
         json = utils.getJson(),                                     // @type {object} Global window.Json object if available
         jsonToString = utils.jsonToString,                          // @type {function} Shortcut for jsonToString function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        interval = 25,                                              // @type {integer} Milliseconds for interval controller check
+        interval = 15,                                               // @type {integer} Milliseconds for interval controller check
         timeout = 5000,                                             // @type {integer} Maximum time in milliseconds after we will give up checking
         setupParameters = {};                                       // @type {object} Store parameters from setup call
 
@@ -7399,6 +7421,7 @@
         var currentInterface = getInterface(parameters),
             currentInterfaceInterval,
             currentInterfaceTimeout,
+            currentInterfaceStorage,
 
             /**
              * wait for loaded controller via timeout
@@ -7416,9 +7439,10 @@
 
                     // save local vars for faster access
                     currentInterface.timeout = currentInterfaceTimeout = currentInterface.timeout + interval;
+                    currentInterfaceStorage = currentInterface.storage;
 
                     // if cache and storage controller is completly loaded, start queue
-                    if (currentInterface.controller && currentInterface.storage && currentInterface.storage.adapter) {
+                    if (currentInterface.controller && currentInterfaceStorage && (currentInterfaceStorage.adapter || !currentInterfaceStorage.isEnabled)) {
                         window.clearInterval(currentInterfaceInterval);
                         currentInterface.queue.flush();
                     }

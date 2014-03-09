@@ -15,19 +15,20 @@
  *      - Maxthon 4.0.5 +
  *      - iOs 3.2 +
  * 
- * @version 0.1.8
+ * @version 0.1.9
  * @author Ulrich Merkel (hello@ulrichmerkel.com), 2014
  *
  * @namespace app
  *
  * @changelog
- * - 0.1.8 message parameter for updateReady conform dialog added
+ * - 0.1.9 delay parameter added, improved minifying
+ * - 0.1.8 message parameter for updateReady confirm dialog added
  * - 0.1.7 example doc added
  * - 0.1.6 improved logging
  * - 0.1.5 improved namespacing
  * - 0.1.4 renamed addEventListener to adapterEvent, bug fixes progress event
  * - 0.1.3 improved module structur
- * - 0.1.2 initializing call via images loaded removed (seems to be buggy on edge connections), invoke main callback after 10 sec for slow connections
+ * - 0.1.2 initializing call via images loaded plugin removed (seems to be buggy on edge connections), invoke main callback after 10 sec for slow connections
  * - 0.1.1 update ready event bug fixes
  * - 0.1 basic functions
  *
@@ -37,6 +38,7 @@
  * - http://www.html5rocks.com/de/tutorials/appcache/beginner/
  *
  * @requires
+ * - ns.helpers.namespace
  * - ns.helpers.utils
  * 
  * @bugs
@@ -45,7 +47,12 @@
  * @example
  * 
  *      // init storage adapter
- *      var storage = new app.cache.storage.adapter.applicationCache(optionalParametersObject),
+ *      var storage = new app.cache.storage.adapter.applicationCache({
+ *              // message to be displayed on updateReady event
+ *              message: 'A new version is available. Do you want to reload this page?',
+ *              // wait for e.g. animations before loaded callback is fired, in milliseconds
+ *              delay: '100'
+ *          }),
  *          loaded = function () {
  *              // application cache loaded
  *          },
@@ -60,7 +67,7 @@
  *
  *      
  */
-(function (window, document, undefined) {
+(function (window, document, ns, undefined) {
 
     'use strict';
 
@@ -72,7 +79,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      *
-     * window and document are passed through as local
+     * window, document and ns are passed through as local
      * variables rather than as globals, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -94,7 +101,6 @@
 
     // create the global vars once
     var storageType = 'applicationCache',                           // @type {string} The storage type string
-        ns = (window.getNs && window.getNs()) || window,            // @type {object} The current javascript namespace object
         helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
         dom = helpers.dom,                                          // @type {object} Shortcut for dom functions
@@ -102,8 +108,10 @@
         log = utils.log,                                            // @type {function} Shortcut for utils.log function
         checkCallback = utils.callback,                             // @type {function} Shortcur for utils.callback function
         boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
-        htmlNode = document.getElementsByTagName('html')[0];        // @type {object} The dom html element
+        htmlNode = document.getElementsByTagName('html')[0],        // @type {object} The dom html element
 
+        // get global javascript interface as shortcut
+        globalInterface = window.applicationCache;
 
     /**
      * -------------------------------------------
@@ -138,7 +146,7 @@
 
             self.isLoaded = true;
 
-            // set progress to 100% if not already done and wait for optional animations
+            // set progress to 100% if not already done and wait for optional animation endings
             self.progressCallback(100);
             window.setTimeout(function () {
                 callback();
@@ -180,7 +188,7 @@
         self.isLoaded = false;
         self.delay = 0;
         self.opened = true;
-        self.message = 'New version is available. Update page?';
+        self.message = 'New version available. Update page?';
 
         // run init function
         self.init(parameters);
@@ -206,7 +214,7 @@
 
             // check for global var
             if (null === boolIsSupported) {
-                boolIsSupported = !!window.applicationCache && !!dom.getAttribute(htmlNode, 'manifest');
+                boolIsSupported = !!globalInterface && !!dom.getAttribute(htmlNode, 'manifest');
 
                 /* start-dev-block */
                 if (!boolIsSupported) {
@@ -487,7 +495,7 @@
                 /**
                  * call the main callback after certain time for slow
                  * internet connections or uncovered non-standard behaviours
-                 * throwing errors.
+                 * which could throw errors.
                  *
                  * the page is already accessable because all application cache
                  * files will be loaded async in the background.
@@ -517,19 +525,21 @@
         init: function (parameters) {
 
             // init local vars
-            var self = this,
-                adapter = self.adapter;
+            var self = this;
 
             // check for support
             if (self.isSupported()) {
 
-                if (null === adapter) {
-                    adapter = self.adapter = window.applicationCache;
+                if (null === self.adapter) {
+                    self.adapter = globalInterface;
                 }
 
                 if (parameters) {
                     if (!!parameters.message) {
                         self.message = String(parameters.message);
+                    }
+                    if (parameters.delay !== undefined) {
+                        self.delay = parseInt(parameters.delay, 10);
                     }
                 }
             }
@@ -550,4 +560,4 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, document)); // immediatly invoke function
+}(window, document, window.getNs())); // immediatly invoke function

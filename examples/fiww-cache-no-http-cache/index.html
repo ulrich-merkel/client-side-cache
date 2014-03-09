@@ -61,13 +61,13 @@
 
         <article class="row" role="article">
 			<figure class="four columns">
-				<img alt="Test image" id="image-1" src="assets/img/blank.gif"/>
+				<img alt="Test image" id="image-1" src="assets/img/bg/blank.gif"/>
 			</figure>
 			<figure class="four columns">
-				<img alt="Test image" id="image-2" src="assets/img/blank.gif"/>
+				<img alt="Test image" id="image-2" src="assets/img/bg/blank.gif"/>
 			</figure>
 			<figure class="four columns">
-				<img alt="Test image" id="image-3" src="assets/img/blank.gif"/>
+				<img alt="Test image" id="image-3" src="assets/img/bg/blank.gif"/>
 			</figure>
 		</article>
 
@@ -157,16 +157,16 @@
 		<script>
 
 			// wrap cache initializing in a closure
-			(function (window, document, ns, undefined) {
+			(function (window, document, ns) {
 
 				'use strict';
 		
 				// local vars for faster access
 				var helpers = ns.helpers,
 					utils = ns.helpers.utils,
-                    hasConsole = window.console !== undefined,
-                    hasConsoleTime = (hasConsole && console.time !== undefined && console.timeEnd !== undefined),
-					on = utils.on;                                              // @type {function} Shortcut for utilsl.on helper
+                    hasConsole = window.console,
+                    hasConsoleTime = (hasConsole && console.time && console.timeEnd),
+					on = utils.on;
 
 
 				/**
@@ -189,6 +189,8 @@
 						loaded = 0,
                         wait = 0,
 						layerLoading = document.getElementById('layer-loading'),
+                        
+                        // custom check loaded function to check results (hiding loading layer, log performance and time values)
 						loadedCallback = function (increaseWait) {
 
 							loaded = loaded + 1;
