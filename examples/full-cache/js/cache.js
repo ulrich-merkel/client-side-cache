@@ -339,7 +339,7 @@
  * @namespace ns
  * 
  * @changelog
- * - 0.2.4 bug fix legacy browsers isArray
+ * - 0.2.4 bug fix legacy browsers isArray, bug fix console.log ie9
  * - 0.2.3 bug fix xhr ie6
  * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
  * - 0.2.1 examples added, isFunction added, refactoring
@@ -940,7 +940,12 @@
 
                 // check for support
                 if (hasConsoleLog) {
-                    console.log.apply(console, args);
+                    // fix for ie9
+                    if (console.log.apply) {
+                        console.log.apply(console, args);
+                    } else {
+                        console.log(args);
+                    }
                 }
 
                 // log messages to dom element
