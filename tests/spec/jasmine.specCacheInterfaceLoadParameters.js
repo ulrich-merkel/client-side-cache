@@ -213,7 +213,20 @@ describe('Cache Interface Load Parameters', function () {
 
         var instance,
             loadCallback,
+            checkAdapter,
+            checkAdapterOpen,
             isSupported = new app.cache.storage.adapter.webSqlDatabase().isSupported();
+
+        runs(function () {
+            checkAdapter = new app.cache.storage.adapter.webSqlDatabase();
+            checkAdapter.open(function (success) {
+                checkAdapterOpen = success;
+            });
+        });
+
+        waitsFor(function () {
+            return checkAdapterOpen !== undefined;
+        }, 'check adapter initialized', 1000);
 
         runs(function () {
             app.cache.load([
@@ -240,7 +253,7 @@ describe('Cache Interface Load Parameters', function () {
         runs(function () {
             var length = instance.storage.adapters.types.length;
             expect(length).toEqual(3);
-            if (isSupported) {
+            if (isSupported && checkAdapterOpen) {
                 expect(instance.storage.adapter.type).toEqual('webSqlDatabase');
             }
         });
@@ -409,7 +422,20 @@ describe('Cache Interface Load Parameters', function () {
 
         var instance,
             loadCallback,
+            checkAdapter,
+            checkAdapterOpen,
             isSupported = new app.cache.storage.adapter.webSqlDatabase().isSupported();
+
+        runs(function () {
+            checkAdapter = new app.cache.storage.adapter.webSqlDatabase();
+            checkAdapter.open(function (success) {
+                checkAdapterOpen = success;
+            });
+        });
+
+        waitsFor(function () {
+            return checkAdapterOpen !== undefined;
+        }, 'check adapter initialized', 1000);
 
         runs(function () {
             app.cache.load([
@@ -432,7 +458,7 @@ describe('Cache Interface Load Parameters', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-            if (isSupported) {
+            if (isSupported && checkAdapterOpen) {
                 var adapter = instance.storage.adapter.type;
                 expect(instance.storage.adapter.type).toEqual('webSqlDatabase');
                 expect(instance.storage.adapter.adapter.version).toEqual('2.1');

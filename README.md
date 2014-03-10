@@ -52,7 +52,7 @@ There are three basic interface methods available.
 		app.cache.load(
 			resourceArray,
 			callback,
-			options
+			adapterOptions
 		);
 		
 		// remove resources
@@ -63,7 +63,7 @@ There are three basic interface methods available.
 		
 		// set defaults
 		app.cache.setup(
-			options
+			adapterOptions
 		);
 
 #### Resource options:  ####
@@ -151,7 +151,26 @@ There are several options you can use to specify a resource. This can be useful 
  
         }
    
-   
+#### Adapter options:  ####
+You are able to specify, which storage adapters you want to use, which one you prefer and which kind of resources you want to store:
+
+        {
+        	adapters: {
+				types: [
+					/**
+					 * define which adapters will be checked and what kind of resource
+					 * types will be cached there
+					 */
+					{type: 'fileSystem', css: true, js: true, html: true, img: true },
+					{type: 'indexedDatabase', css: true, js: true, html: true, img: false },
+					{type: 'webSqlDatabase', css: true, js: true, html: true, img: false }
+                   	{type: 'webStorage', css: true, js: true, html: false, img: false }
+				],
+				// this adapter is the first one the check will start with
+                preferredType: 'indexedDatabase'
+           	}
+     	}
+           	
 ### Examples ####
 
 #### Basic html example code with cache initializing: ####

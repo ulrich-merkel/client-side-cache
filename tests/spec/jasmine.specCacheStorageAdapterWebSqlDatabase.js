@@ -67,7 +67,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         }, 'cache.storage.adapter callback', 1000);
 
         runs(function () {
-            if (isSupported) {
+            if (isSupported && adapter.adapter !== null) {
                 expect(adapter.adapter).not.toEqual(undefined);
             } else {
                 expect(true).toEqual(true);
@@ -75,7 +75,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         });
     });
 
-    it('Call create - asynchronous way', function () {
+    it('Call create - basically', function () {
 
         var instance,
             adapter = new storageAdapter(),
@@ -106,7 +106,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         });
     });
 
-    it('Call create - asynchronous without callback argument', function () {
+    it('Call create - without callback argument', function () {
 
         var instance,
             adapter = new storageAdapter(),
@@ -138,7 +138,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         });
     });
 
-    it('Call read - asynchronous way', function () {
+    it('Call read - basically', function () {
 
         var instance,
             adapter = new storageAdapter(),
@@ -165,7 +165,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         }, 'adapter.create callback', 1000);
 
         runs(function () {
-            if (isSupported) {
+            if (isSupported && adapter.adapter !== null) {
                 expect(interfaceCallback).toEqual('{test: "test-content"}');
             } else {
                 expect(true).toEqual(true);
@@ -204,7 +204,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         });
     });
 
-    it('Call read - asynchronous without callback argument', function () {
+    it('Call read - without callback argument', function () {
 
         var instance,
             adapter = new storageAdapter(),
@@ -229,7 +229,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         });
     });
 
-    it('Call update - asynchronous way', function () {
+    it('Call update - basically', function () {
 
         var instance,
             adapter = new storageAdapter(),
@@ -267,7 +267,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         }, 'adapter.create callback', 1000);
 
         runs(function () {
-            if (isSupported) {
+            if (isSupported && adapter.adapter !== null) {
                 expect(interfaceCallback2).toEqual('{test: "test-content2"}');
             } else {
                 expect(true).toEqual(true);
@@ -275,7 +275,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         });
     });
 
-    it('Call update - asynchronous without callback argument', function () {
+    it('Call update - without callback argument', function () {
 
         var instance,
             adapter = new storageAdapter(),
@@ -304,7 +304,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         }, 'adapter.create callback', 1000);
 
         runs(function () {
-            if (isSupported) {
+            if (isSupported && adapter.adapter !== null) {
                 expect(interfaceCallback2).toEqual('{test: "test-content2"}');
             } else {
                 expect(true).toEqual(true);
@@ -312,7 +312,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         });
     });
 
-    it('Call remove - asynchronous way', function () {
+    it('Call remove - basically', function () {
 
         var instance,
             adapter = new storageAdapter(),
@@ -354,7 +354,7 @@ describe('Cache Storage Adapter Web SQL Database', function () {
         });
     });
 
-    it('Call remove - asynchronous without callback argument', function () {
+    it('Call remove - without callback argument', function () {
 
         var instance,
             adapter = new storageAdapter(),
