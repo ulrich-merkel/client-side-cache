@@ -1,30 +1,3 @@
 {
-    "title": "EM Tippspiel",
-
-    "module1": {
-        "headline": "Jetzt mitspielen!",
-        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam de vitae viverra sapien, vitae porta tellus. Ut faucibus nec odio accumsan ultricies. Etiam vulputate, est vel dictum ultricies, felis tortor bibendum mi, non scelerisque purus risus sit amet quam. Curabitur tristique dolor eget lectus bibendum, nec lobortis est consectetur! Praesent dapibus velit vitae augue facilisis lobortis! Donec semper convallis nibh eget ornare. Integer vel purus scelerisque, tristique enim eget, porta mauris. In adipiscing scelerisque eros; non feugiat neque. In enim magna, tincidunt sed elementum ut, posuere et eros. Quisque imperdiet ante neque, eu interdum nisi luctus eget. In sagittis ipsum non nibh blandit ornare."
-    },
-
-    "module2": {
-        "headline": "Die Gewinne",
-        "tabs": {
-            "button1": {
-                "title": "Einzelwertung",
-                "label": "Einzelwertung"
-            },
-            "button2": {
-                "title": "Spieltage",
-                "label": "Spieltage"
-            },
-            "button3": {
-                "title": "Tippgemeinschaften",
-                "label": "Tippgemeinschaften"
-            }
-        },
-        "price": {
-            "headline": "1. Platz",
-            "description": "iPod touch (64 GB)"
-        }
-    }
+    
 }
