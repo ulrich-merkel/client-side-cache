@@ -1,4 +1,4 @@
-/*global describe, it, waitsFor, runs, expect, app, afterEach, $, window, console*/
+/*global beforeEach, window, describe, it, waitsFor, runs, expect, app, afterEach, $, window, console*/
 /*jslint unparam: true */
 
 describe('Cache Controller Load Single Js', function () {
@@ -24,8 +24,8 @@ describe('Cache Controller Load Single Js', function () {
             app.helpers.dom.nuke();
             $('#test-node-script').empty();
             $('#test-node-script').removeAttr('asnyc type class');
-            $("script.lazyloaded").remove();
-            if (!$("script.lazyloaded").length) {
+            $('script.lazyloaded').remove();
+            if (!$('script.lazyloaded').length) {
                 ready = true;
             }
         });
@@ -51,7 +51,7 @@ describe('Cache Controller Load Single Js', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function () {
                 loadCallback = 'success';
             });
@@ -80,7 +80,7 @@ describe('Cache Controller Load Single Js', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "js/lib.js", type: "js", loaded: function () {
+                {url: path + 'js/lib.js', type: 'js', loaded: function () {
                     loadCallback = 'success';
                 }}
             ]);
@@ -109,7 +109,7 @@ describe('Cache Controller Load Single Js', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "js/lib.js", type: "js", loaded: function (data) {
+                {url: path + 'js/lib.js', type: 'js', loaded: function (data) {
                     loadCallback = !!data;
                 }}
             ]);
@@ -138,7 +138,7 @@ describe('Cache Controller Load Single Js', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function () {
                 loadCallback = true;
             });
@@ -171,7 +171,7 @@ describe('Cache Controller Load Single Js', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function () {
                 loadCallback = true;
             });
@@ -204,7 +204,7 @@ describe('Cache Controller Load Single Js', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "js/lib.js", type: "js", node: {id: 'test-node-script'}}
+                {url: path + 'js/lib.js', type: 'js', node: {id: 'test-node-script'}}
             ], function () {
                 loadCallback = true;
             });
@@ -233,7 +233,7 @@ describe('Cache Controller Load Single Js', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "js/lib.js", type: "js", node: {dom: $('#test-node-script')[0]}}
+                {url: path + 'js/lib.js', type: 'js', node: {dom: $('#test-node-script')[0]}}
             ], function () {
                 loadCallback = true;
             });
@@ -262,7 +262,7 @@ describe('Cache Controller Load Single Js', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "js123/lib.js", type: "js"}
+                {url: path + 'js123/lib.js', type: 'js'}
             ], function () {
                 loadCallback = true;
             });
@@ -291,7 +291,7 @@ describe('Cache Controller Load Single Js', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "js/lib.js", type: "js", node: {id: 'test-node-script123'}}
+                {url: path + 'js/lib.js', type: 'js', node: {id: 'test-node-script123'}}
             ], function () {
                 loadCallback = true;
             });
@@ -320,7 +320,7 @@ describe('Cache Controller Load Single Js', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "js/lib.js", type: "cs"}
+                {url: path + 'js/lib.js', type: 'cs'}
             ], function () {
                 loadCallback = true;
             });
@@ -349,7 +349,7 @@ describe('Cache Controller Load Single Js', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "js/lib.js", node: {dom: $('#test-node-script')[0]}}
+                {url: path + 'js/lib.js', node: {dom: $('#test-node-script')[0]}}
             ], function () {
                 loadCallback = true;
             });

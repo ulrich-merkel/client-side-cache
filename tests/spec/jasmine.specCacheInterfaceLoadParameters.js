@@ -20,9 +20,9 @@ describe('Cache Interface Load Parameters', function () {
             $('#test-node-style').empty();
             $('#test-node-img').removeAttr('src');
             $('#test-node-html').empty();
-            $("script.lazyloaded").remove();
-            $("style.lazyloaded").remove();
-            if (!$("script.lazyloaded").length && !$("style.lazyloaded").length) {
+            $('script.lazyloaded').remove();
+            $('style.lazyloaded').remove();
+            if (!$('script.lazyloaded').length && !$('style.lazyloaded').length) {
                 ready = true;
             }
         });
@@ -41,7 +41,7 @@ describe('Cache Interface Load Parameters', function () {
     
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -67,7 +67,7 @@ describe('Cache Interface Load Parameters', function () {
     
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -97,7 +97,7 @@ describe('Cache Interface Load Parameters', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -138,7 +138,7 @@ describe('Cache Interface Load Parameters', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -178,7 +178,7 @@ describe('Cache Interface Load Parameters', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -230,7 +230,7 @@ describe('Cache Interface Load Parameters', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -268,7 +268,7 @@ describe('Cache Interface Load Parameters', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -307,7 +307,7 @@ describe('Cache Interface Load Parameters', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -346,7 +346,7 @@ describe('Cache Interface Load Parameters', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -384,7 +384,7 @@ describe('Cache Interface Load Parameters', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -439,7 +439,7 @@ describe('Cache Interface Load Parameters', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -477,7 +477,7 @@ describe('Cache Interface Load Parameters', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -497,7 +497,7 @@ describe('Cache Interface Load Parameters', function () {
 
         runs(function () {
             if (isSupported && !window.__karma__) {
-                var data = !!sessionStorage.getItem(JSON.stringify('js/lib.js'));
+                var data = !!window.sessionStorage.getItem(JSON.stringify('js/lib.js'));
                 expect(instance.storage.adapter.type).toEqual('webStorage');
                 expect(data).toEqual(true);
             } else {

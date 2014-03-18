@@ -1,4 +1,4 @@
-/*global describe, it, waitsFor, runs, expect, app, afterEach, $, window, console*/
+/*global beforeEach, window, describe, it, waitsFor, runs, expect, app, afterEach, $, window, console*/
 /*jslint unparam: true */
 
 describe('Cache Controller Load Single Css', function () {
@@ -23,8 +23,8 @@ describe('Cache Controller Load Single Css', function () {
         runs(function () {
             app.helpers.dom.nuke();
             $('#test-node-style').empty();
-            $("style.lazyloaded").remove();
-            if (!$("style.lazyloaded").length && $('#test-node-style').is(':empty')) {
+            $('style.lazyloaded').remove();
+            if (!$('style.lazyloaded').length && $('#test-node-style').is(':empty')) {
                 ready = true;
             }
         });
@@ -50,7 +50,7 @@ describe('Cache Controller Load Single Css', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "css/app.css", type: "css"}
+                {url: path + 'css/app.css', type: 'css'}
             ], function () {
                 loadCallback = 'success';
             });
@@ -80,7 +80,7 @@ describe('Cache Controller Load Single Css', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "css/app.css", type: "css", loaded: function () {
+                {url: path + 'css/app.css', type: 'css', loaded: function () {
                     loadCallback = true;
                 }}
             ]);
@@ -110,7 +110,7 @@ describe('Cache Controller Load Single Css', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "css/app.css", type: "css", loaded: function (data) {
+                {url: path + 'css/app.css', type: 'css', loaded: function (data) {
                     loadCallback = !!data;
                 }}
             ]);
@@ -140,7 +140,7 @@ describe('Cache Controller Load Single Css', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "css/app.css", type: "css"}
+                {url: path + 'css/app.css', type: 'css'}
             ], function () {
                 loadCallback = true;
             });
@@ -174,7 +174,7 @@ describe('Cache Controller Load Single Css', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "css/app.css", type: "css"}
+                {url: path + 'css/app.css', type: 'css'}
             ], function () {
                 loadCallback = true;
             });
@@ -208,7 +208,7 @@ describe('Cache Controller Load Single Css', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "css/app.css", type: "css", node: {id: 'test-node-style'}}
+                {url: path + 'css/app.css', type: 'css', node: {id: 'test-node-style'}}
             ], function () {
                 loadCallback = true;
             });
@@ -238,7 +238,7 @@ describe('Cache Controller Load Single Css', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "css/app.css", type: "css", node: {dom: $('#test-node-style')[0]}}
+                {url: path + 'css/app.css', type: 'css', node: {dom: $('#test-node-style')[0]}}
             ], function () {
                 loadCallback = true;
             });
@@ -268,7 +268,7 @@ describe('Cache Controller Load Single Css', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "css123/app.css", type: "css"}
+                {url: path + 'css123/app.css', type: 'css'}
             ], function () {
                 loadCallback = true;
             });
@@ -299,7 +299,7 @@ describe('Cache Controller Load Single Css', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "css/app.css", type: "css", node: {id: 'test-node-style123'}}
+                {url: path + 'css/app.css', type: 'css', node: {id: 'test-node-style123'}}
             ], function () {
                 loadCallback = true;
             });
@@ -329,7 +329,7 @@ describe('Cache Controller Load Single Css', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "css/app.css", type: "cs"}
+                {url: path + 'css/app.css', type: 'cs'}
             ], function () {
                 loadCallback = true;
             });
@@ -359,7 +359,7 @@ describe('Cache Controller Load Single Css', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "css/app.css", node: {dom: $('#test-node-style')[0]}}
+                {url: path + 'css/app.css', node: {dom: $('#test-node-style')[0]}}
             ], function () {
                 loadCallback = true;
             });

@@ -1,4 +1,4 @@
-/*global describe, it, waitsFor, runs, expect, app*/
+/*global window, describe, it, waitsFor, runs, expect, app*/
 /*jslint unparam: true */
 
 describe('Cache Controller', function () {

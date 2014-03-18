@@ -21,8 +21,8 @@ describe('Cache Storage Adapter Indexed Database', function () {
             app.helpers.dom.nuke();
             $('#test-node-script').empty();
             $('#test-node-script').removeAttr('asnyc type class');
-            $("script.lazyloaded").remove();
-            if (!$("script.lazyloaded").length) {
+            $('script.lazyloaded').remove();
+            if (!$('script.lazyloaded').length) {
                 ready = true;
             }
         });

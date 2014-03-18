@@ -21,9 +21,9 @@ describe('Cache Interface', function () {
             $('#test-node-style').empty();
             $('#test-node-img').removeAttr('src');
             $('#test-node-html').empty();
-            $("script.lazyloaded").remove();
-            $("style.lazyloaded").remove();
-            if (!$("script.lazyloaded").length && !$("style.lazyloaded").length) {
+            $('script.lazyloaded').remove();
+            $('style.lazyloaded').remove();
+            if (!$('script.lazyloaded').length && !$('style.lazyloaded').length) {
                 ready = true;
             }
         });
@@ -42,7 +42,7 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -111,10 +111,10 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js", loaded: function () {
+                {url: path + 'js/lib.js', type: 'js', loaded: function () {
                     loadedCallback1 = new Date().getTime();
                 }},
-                {url: path + "js/app.js", type: "js", group: 1, loaded: function () {
+                {url: path + 'js/app.js', type: 'js', group: 1, loaded: function () {
                     loadedCallback2 = new Date().getTime();
                 }}
             ], function (storage) {
@@ -128,7 +128,7 @@ describe('Cache Interface', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-            var test = !!(loadedCallback1 < loadedCallback2);
+            var test = loadedCallback1 < loadedCallback2;
             expect(test).toEqual(true);
         });
 
@@ -143,10 +143,10 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js", loaded: function () {
+                {url: path + 'js/lib.js', type: 'js', loaded: function () {
                     loadedCallback1 = new Date().getTime();
                 }},
-                {url: path + "js/app.js", type: "js", group: 1, loaded: function () {
+                {url: path + 'js/app.js', type: 'js', group: 1, loaded: function () {
                     loadedCallback2 = new Date().getTime();
                 }}
             ], function (storage) {
@@ -164,7 +164,7 @@ describe('Cache Interface', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-            var test = !!(loadedCallback1 < loadedCallback2);
+            var test = loadedCallback1 < loadedCallback2;
             expect(test).toEqual(true);
         });
 
@@ -179,10 +179,10 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js", loaded: function () {
+                {url: path + 'js/lib.js', type: 'js', loaded: function () {
                     loadedCallback1 = new Date().getTime();
                 }},
-                {url: path + "js/app.js", type: "js", group: 1, loaded: function () {
+                {url: path + 'js/app.js', type: 'js', group: 1, loaded: function () {
                     loadedCallback2 = new Date().getTime();
                 }}
             ], function (storage) {
@@ -200,7 +200,7 @@ describe('Cache Interface', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-            var test = !!(loadedCallback1 < loadedCallback2);
+            var test = loadedCallback1 < loadedCallback2;
             expect(test).toEqual(true);
         });
 
@@ -215,10 +215,10 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js", loaded: function () {
+                {url: path + 'js/lib.js', type: 'js', loaded: function () {
                     loadedCallback1 = new Date().getTime();
                 }},
-                {url: path + "js/app.js", type: "js", group: 1, loaded: function () {
+                {url: path + 'js/app.js', type: 'js', group: 1, loaded: function () {
                     loadedCallback2 = new Date().getTime();
                 }}
             ], function (storage) {
@@ -236,7 +236,7 @@ describe('Cache Interface', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-            var test = !!(loadedCallback1 < loadedCallback2);
+            var test = loadedCallback1 < loadedCallback2;
             expect(test).toEqual(true);
         });
 
@@ -251,10 +251,10 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js", loaded: function () {
+                {url: path + 'js/lib.js', type: 'js', loaded: function () {
                     loadedCallback1 = new Date().getTime();
                 }},
-                {url: path + "js/app.js", type: "js", group: 1, loaded: function () {
+                {url: path + 'js/app.js', type: 'js', group: 1, loaded: function () {
                     loadedCallback2 = new Date().getTime();
                 }}
             ], function (storage) {
@@ -272,7 +272,7 @@ describe('Cache Interface', function () {
         }, 'cache.storage initialized', 1000);
 
         runs(function () {
-            var test = !!(loadedCallback1 < loadedCallback2);
+            var test = loadedCallback1 < loadedCallback2;
             expect(test).toEqual(true);
         });
 
@@ -285,7 +285,7 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.cache.remove([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 instance = storage;
                 loadCallback = 'success';
@@ -360,7 +360,7 @@ describe('Cache Interface', function () {
     
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 loadCallback = 'success';
             }, {
@@ -376,7 +376,7 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.cache.remove([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function () {
                 loadCallback1 = 'success';
             }, {
@@ -392,7 +392,7 @@ describe('Cache Interface', function () {
 
         runs(function () {
             if (isSupported) {
-                var data = !!window.localStorage.getItem(JSON.stringify("js/lib.js"));
+                var data = !!window.localStorage.getItem(JSON.stringify('js/lib.js'));
                 expect(data).not.toEqual(true);
             } else {
                 expect(true).toEqual(true);
@@ -416,8 +416,8 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"},
-                {url: path + "js/app.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'},
+                {url: path + 'js/app.js', type: 'js'}
             ], function () {
                 loadCallback = 'success';
             }, {
@@ -433,8 +433,8 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.cache.remove([
-                {url: path + "js/lib.js", type: "js"},
-                {url: path + "js/app.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'},
+                {url: path + 'js/app.js', type: 'js'}
             ], function () {
                 loadCallback1 = 'success';
             }, {
@@ -450,8 +450,8 @@ describe('Cache Interface', function () {
 
         runs(function () {
             if (isSupported) {
-                var data1 = !!window.localStorage.getItem(JSON.stringify("js/lib.js")),
-                    data2 = !!window.localStorage.getItem(JSON.stringify("js/lib.js"));
+                var data1 = !!window.localStorage.getItem(JSON.stringify('js/lib.js')),
+                    data2 = !!window.localStorage.getItem(JSON.stringify('js/lib.js'));
                 expect(data1).not.toBe(true);
                 expect(data2).not.toBe(true);
             } else {
@@ -476,7 +476,7 @@ describe('Cache Interface', function () {
         });
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 loadedCallback1 = storage;
             });
@@ -500,11 +500,11 @@ describe('Cache Interface', function () {
 
         runs(function () {
             app.cache.load([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function (storage) {
                 loadedCallback1 = 'success';
             }).remove([
-                {url: path + "js/lib.js", type: "js"}
+                {url: path + 'js/lib.js', type: 'js'}
             ], function () {
                 loadedCallback2 = 'success';
             });

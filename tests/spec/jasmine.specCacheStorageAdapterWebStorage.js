@@ -1,4 +1,4 @@
-/*global describe, it, waitsFor, runs, expect, app, afterEach, $, window, console*/
+/*global window, localStorage, describe, it, waitsFor, runs, expect, app, afterEach, $, window, console*/
 /*jslint unparam: true */
 
 describe('Cache Storage Adapter Web Storage', function () {
@@ -6,7 +6,7 @@ describe('Cache Storage Adapter Web Storage', function () {
     'use strict';
 
     var storageAdapter = app.cache.storage.adapter.webStorage,
-        isSupported = new storageAdapter().isSupported(),
+        isSupported = storageAdapter().isSupported(),
         path = '';
 
     if (window.__karma__ !== undefined) {
@@ -21,8 +21,8 @@ describe('Cache Storage Adapter Web Storage', function () {
             app.helpers.dom.nuke();
             $('#test-node-script').empty();
             $('#test-node-script').removeAttr('asnyc type class');
-            $("script.lazyloaded").remove();
-            if (!$("script.lazyloaded").length) {
+            $('script.lazyloaded').remove();
+            if (!$('script.lazyloaded').length) {
                 ready = true;
             }
         });
@@ -37,7 +37,7 @@ describe('Cache Storage Adapter Web Storage', function () {
     it('Initialize storage adapter', function () {
 
         var instance,
-            adapter = new storageAdapter();
+            adapter = storageAdapter();
 
         runs(function () {
             adapter.open(function (callback) {
@@ -56,7 +56,7 @@ describe('Cache Storage Adapter Web Storage', function () {
 
     it('Initialize storage adapter - check without open callback', function () {
 
-        var adapter = new storageAdapter();
+        var adapter = storageAdapter();
 
         runs(function () {
             adapter.open();
@@ -74,7 +74,7 @@ describe('Cache Storage Adapter Web Storage', function () {
     it('Call create - asynchronous way', function () {
 
         var instance,
-            adapter = new storageAdapter(),
+            adapter = storageAdapter(),
             interfaceCallback;
 
         runs(function () {
@@ -105,7 +105,7 @@ describe('Cache Storage Adapter Web Storage', function () {
     it('Call create - asynchronous without callback argument', function () {
 
         var instance,
-            adapter = new storageAdapter(),
+            adapter = storageAdapter(),
             interfaceCallback;
 
         runs(function () {
@@ -155,7 +155,7 @@ describe('Cache Storage Adapter Web Storage', function () {
     it('Call read - asynchronous way', function () {
 
         var instance,
-            adapter = new storageAdapter(),
+            adapter = storageAdapter(),
             interfaceCallback;
 
         runs(function () {
@@ -186,7 +186,7 @@ describe('Cache Storage Adapter Web Storage', function () {
     it('Call read - asynchronous without callback argument', function () {
 
         var instance,
-            adapter = new storageAdapter(),
+            adapter = storageAdapter(),
             interfaceCallback;
 
         runs(function () {
@@ -211,7 +211,7 @@ describe('Cache Storage Adapter Web Storage', function () {
     it('Call read - check false result whit non-existing resource', function () {
 
         var instance,
-            adapter = new storageAdapter(),
+            adapter = storageAdapter(),
             interfaceCallback;
 
         runs(function () {
@@ -261,7 +261,7 @@ describe('Cache Storage Adapter Web Storage', function () {
     it('Call update - asynchronous way', function () {
 
         var instance,
-            adapter = new storageAdapter(),
+            adapter = storageAdapter(),
             interfaceCallback,
             interfaceCallback2;
 
@@ -303,7 +303,7 @@ describe('Cache Storage Adapter Web Storage', function () {
     it('Call update - asynchronous without callback argument', function () {
 
         var instance,
-            adapter = new storageAdapter(),
+            adapter = storageAdapter(),
             interfaceCallback,
             interfaceCallback2;
 
@@ -353,7 +353,7 @@ describe('Cache Storage Adapter Web Storage', function () {
     it('Call remove - asynchronous way', function () {
 
         var instance,
-            adapter = new storageAdapter(),
+            adapter = storageAdapter(),
             interfaceCallback,
             interfaceCallback2;
 
@@ -395,7 +395,7 @@ describe('Cache Storage Adapter Web Storage', function () {
     it('Call remove - asynchronous without callback argument', function () {
 
         var instance,
-            adapter = new storageAdapter(),
+            adapter = storageAdapter(),
             interfaceCallback,
             interfaceCallback2;
 

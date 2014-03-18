@@ -1,4 +1,4 @@
-/*global describe, it, waitsFor, runs, expect, app, afterEach, $, window, console*/
+/*global beforeEach, window, describe, it, waitsFor, runs, expect, app, afterEach, $, window, console*/
 /*jslint unparam: true */
 
 describe('Cache Controller Load Single Img', function () {
@@ -47,7 +47,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img"}
+                {url: path + 'assets/img/content/410x144/test-1.jpg', type: 'img'}
             ], function () {
                 loadCallback = 'success';
             });
@@ -76,7 +76,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img", loaded: function () {
+                {url: path + 'assets/img/content/410x144/test-1.jpg', type: 'img', loaded: function () {
                     loadCallback = true;
                 }}
             ]);
@@ -105,7 +105,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img", loaded: function (data) {
+                {url: path + 'assets/img/content/410x144/test-1.jpg', type: 'img', loaded: function (data) {
                     loadCallback = !!data;
                 }}
             ]);
@@ -134,7 +134,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img", node: {id: 'test-node-img'}}
+                {url: path + 'assets/img/content/410x144/test-1.jpg', type: 'img', node: {id: 'test-node-img'}}
             ], function () {
                 loadCallback = true;
             });
@@ -165,7 +165,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img", node: {dom: $('#test-node-img')[0]}}
+                {url: path + 'assets/img/content/410x144/test-1.jpg', type: 'img', node: {dom: $('#test-node-img')[0]}}
             ], function () {
                 loadCallback = true;
             });
@@ -196,7 +196,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "assets123/img/content/410x144/test-1.jpg", type: "img"}
+                {url: path + 'assets123/img/content/410x144/test-1.jpg', type: 'img'}
             ], function () {
                 loadCallback = true;
             });
@@ -225,7 +225,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "assets/img/content/410x144/test-1.jpg", type: "img", node: {id: 'test-node-img123'}}
+                {url: path + 'assets/img/content/410x144/test-1.jpg', type: 'img', node: {id: 'test-node-img123'}}
             ], function () {
                 loadCallback = true;
             });
@@ -254,7 +254,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "assets/img/content/410x144/test-1.jpg", type: "im"}
+                {url: path + 'assets/img/content/410x144/test-1.jpg', type: 'im'}
             ], function () {
                 loadCallback = true;
             });
@@ -283,7 +283,7 @@ describe('Cache Controller Load Single Img', function () {
 
         runs(function () {
             cache.load([
-                {url: path + "assets/img/content/410x144/test-1.jpg", node: {id: 'test-node-img'}}
+                {url: path + 'assets/img/content/410x144/test-1.jpg', node: {id: 'test-node-img'}}
             ], function () {
                 loadCallback = true;
             });
