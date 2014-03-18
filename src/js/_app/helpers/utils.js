@@ -105,7 +105,7 @@
             /**
              * check if value is string
              *
-             * @param {string} value The value to check
+             * @param {string} string The value to check
              *
              * @return {boolean} Whether the given value is a string or not
              */

@@ -43,34 +43,34 @@
  *
  *      // init cache controller, this is also
  *      // possible without the new operator
- *      var cache = new app.cache.controller(function () 
+ *      var cache = new app.cache.controller(function () {
+ *      
  *          // cache is ready to use        
+ *      
+ *          // load resources
+ *          cache.load(
+ *              [
+ *                  {url: "css/app.css", type: "css"},
+ *                  {url: "js/lib.js", type: "js"},
+ *                  {url: "js/plugin.js", type: "js", group: 1}
+ *              ],
+ *              function () {
+ *                  // all resources loaded
+ *              }
+ *          );
+ *
+ *          // remove resources
+ *          cache.remove(
+ *              [
+ *                  {url: "css/app.css", type: "css"},
+ *                  {url: "js/lib.js", type: "js"}
+ *              ],
+ *              function () {
+ *                  // all resources removed
+ *              }
+ *          );
+ *
  *      });
- *
- *      // load resources
- *      cache.load(
- *          [
- *              {url: "css/app.css", type: "css"},
- *              {url: "js/lib.js", type: "js"},
- *              {url: "js/plugin.js", type: "js", group: 1}
- *          ],
- *          function () {
- *              // all resources loaded
- *          }
- *      );
- *
- *      // remove resources
- *      cache.remove(
- *          [
- *              {url: "css/app.css", type: "css"},
- *              {url: "js/lib.js", type: "js"}
- *          ],
- *          function () {
- *              // all resources removed
- *          }
- *      );
- *
- *
  **/
 (function (ns, undefined) {
 
@@ -84,7 +84,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window and ns is passed through as local variable
+     * ns is passed through as local variable
      * rather than as global, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -280,7 +280,7 @@
                         }
                     };
 
-                }()), // immediatly invoke function to make init() and loaded() accessable via loadResourceGroupQueue
+                }()), // immediatly invoke function to make init() and loaded() accessable via loadResourceGroupQueue var
 
 
                 /**
@@ -294,7 +294,7 @@
                  */
                 appendFile = function (resource, data, update) {
 
-                    // init local vars
+                    // init and check local vars
                     var url = resource.url,
                         callback = function () {
                             resource.loaded(resource);
@@ -338,7 +338,7 @@
                  * @param {object} resource The resource object
                  * @param {object} item The cached resource object for comparison
                  *
-                 * @return {object} resource The resource object with isValid and lastmod properties
+                 * @return {object} resource The resource object with checked isValid, version and lastmod properties
                  */
                 isResourceValid = function (resource, item) {
 
@@ -402,7 +402,7 @@
                         (itemLifetime === -1 && itemResourceVersionAndLastmodCheck)
                     );
 
-                    // update meta data, mainly for test suites
+                    // update meta data, lastmod used mainly for test suite interfaces
                     resource.lastmod = resourceLastmod;
                     resource.isValid = isValid;
 

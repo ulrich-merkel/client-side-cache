@@ -1,5 +1,11 @@
-// Karma configuration
-// Generated on Tue Feb 04 2014 22:39:37 GMT+0100 (CET)
+/**
+ * Karma testrunner configuration
+ *
+ * @see
+ * - http://karma-runner.github.io/
+ * - https://github.com/karma-runner/karma
+ *
+ */
 
 module.exports = function(config) {
   config.set({

@@ -92,9 +92,9 @@
 
 
         /**
-         * The default option to initialize the adapter
+         * The default options for initializing the storage adapter
          *
-         * this is the default config for strorage adapters and could be
+         * this is the default config for storage adapters and could be
          * overridden by the passed in parameters.
          *
          * @type {object}
@@ -112,7 +112,7 @@
 
 
         /**
-         * some internal vars to keep globally track of the current adapter state
+         * some internal vars to keep track globally of the current adapter state
          * 
          */
         adapterAvailable = null,                                // @type {string} The name of the best available adapter after testing
@@ -122,7 +122,7 @@
         /**
          * The defaults for a single resource
          *
-         * this config could be overridden by the passed in resource parameters
+         * this config could be overridden by the passed in resource parameters.
          *
          * @type {object}
          */
@@ -401,7 +401,7 @@
     /**
      * copy resource object for the use in storage
      * 
-     * remove url from resource data string to avoid duplicate data in storage.
+     * remove url from resource data string to avoid duplicate data in storage (url will be saved as key).
      * we also set the new expires timestamp here, because this function will
      * only be called from create/update to get a copy from the resource content.
      *
@@ -425,6 +425,37 @@
             type: resource.type || selfResourcesDefaults.type,
             version: resource.version || selfResourcesDefaults.version
         };
+    }
+
+
+    /**
+     * check for image parsing and custom data
+     *
+     * @param
+     * @param
+     * @param
+     */
+    function chooseLoading(resource, createCallback, callback) {
+
+        // init local vars
+        var type = resource.type,
+            url = resource.url,
+            data = resource.data;
+
+        if (!!resource.ajax) {
+            // if updated via network flag is set, check for parsing images
+            if (type === 'img') {
+                convertImageToBase64(url, createCallback);
+            } else {
+                handleXhrRequests(url, createCallback, resource);
+            }
+        } else if (!!data) {
+            // data is set in request, handling custom data
+            createCallback(data);
+        } else {
+            // error callback
+            callback(false);
+        }
     }
 
 
@@ -788,17 +819,18 @@
                 };
 
             // get resource data based on type
-            if (!!resource.ajax) {
-                if (type === 'img') {
-                    convertImageToBase64(url, createCallback);
-                } else {
-                    handleXhrRequests(url, createCallback, resource);
-                }
-            } else if (!!resource.data) {
-                createCallback(resource.data);
-            } else {
-                callback(false);
-            }
+            chooseLoading(resource, createCallback, callback);
+            //if (!!resource.ajax) {
+            //    if (type === 'img') {
+            //        convertImageToBase64(url, createCallback);
+            //    } else {
+            //        handleXhrRequests(url, createCallback, resource);
+            //    }
+            //} else if (!!resource.data) {
+            //    createCallback(resource.data);
+            //} else {
+            //    callback(false);
+            //}
 
         },
 
@@ -997,17 +1029,18 @@
                 };
 
             // get resource data based on type
-            if (!!resource.ajax) {
-                if (type === 'img') {
-                    convertImageToBase64(url, updateCallback);
-                } else {
-                    handleXhrRequests(url, updateCallback, resource);
-                }
-            } else if (!!resource.data) {
-                updateCallback(resource.data);
-            } else {
-                callback(false);
-            }
+            chooseLoading(resource, updateCallback, callback);
+            //if (!!resource.ajax) {
+            //    if (type === 'img') {
+            //        convertImageToBase64(url, updateCallback);
+            //    } else {
+            //        handleXhrRequests(url, updateCallback, resource);
+            //    }
+            //} else if (!!resource.data) {
+            //    updateCallback(resource.data);
+            //} else {
+            //    callback(false);
+            //}
 
         },
 

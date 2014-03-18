@@ -430,7 +430,7 @@
             /**
              * check if value is string
              *
-             * @param {string} value The value to check
+             * @param {string} string The value to check
              *
              * @return {boolean} Whether the given value is a string or not
              */
@@ -5223,9 +5223,9 @@
 
 
         /**
-         * The default option to initialize the adapter
+         * The default options for initializing the storage adapter
          *
-         * this is the default config for strorage adapters and could be
+         * this is the default config for storage adapters and could be
          * overridden by the passed in parameters.
          *
          * @type {object}
@@ -5243,7 +5243,7 @@
 
 
         /**
-         * some internal vars to keep globally track of the current adapter state
+         * some internal vars to keep track globally of the current adapter state
          * 
          */
         adapterAvailable = null,                                // @type {string} The name of the best available adapter after testing
@@ -5253,7 +5253,7 @@
         /**
          * The defaults for a single resource
          *
-         * this config could be overridden by the passed in resource parameters
+         * this config could be overridden by the passed in resource parameters.
          *
          * @type {object}
          */
@@ -5532,7 +5532,7 @@
     /**
      * copy resource object for the use in storage
      * 
-     * remove url from resource data string to avoid duplicate data in storage.
+     * remove url from resource data string to avoid duplicate data in storage (url will be saved as key).
      * we also set the new expires timestamp here, because this function will
      * only be called from create/update to get a copy from the resource content.
      *
@@ -5556,6 +5556,37 @@
             type: resource.type || selfResourcesDefaults.type,
             version: resource.version || selfResourcesDefaults.version
         };
+    }
+
+
+    /**
+     * check for image parsing and custom data
+     *
+     * @param
+     * @param
+     * @param
+     */
+    function chooseLoading(resource, createCallback, callback) {
+
+        // init local vars
+        var type = resource.type,
+            url = resource.url,
+            data = resource.data;
+
+        if (!!resource.ajax) {
+            // if updated via network flag is set, check for parsing images
+            if (type === 'img') {
+                convertImageToBase64(url, createCallback);
+            } else {
+                handleXhrRequests(url, createCallback, resource);
+            }
+        } else if (!!data) {
+            // data is set in request, handling custom data
+            createCallback(data);
+        } else {
+            // error callback
+            callback(false);
+        }
     }
 
 
@@ -5919,17 +5950,18 @@
                 };
 
             // get resource data based on type
-            if (!!resource.ajax) {
-                if (type === 'img') {
-                    convertImageToBase64(url, createCallback);
-                } else {
-                    handleXhrRequests(url, createCallback, resource);
-                }
-            } else if (!!resource.data) {
-                createCallback(resource.data);
-            } else {
-                callback(false);
-            }
+            chooseLoading(resource, createCallback, callback);
+            //if (!!resource.ajax) {
+            //    if (type === 'img') {
+            //        convertImageToBase64(url, createCallback);
+            //    } else {
+            //        handleXhrRequests(url, createCallback, resource);
+            //    }
+            //} else if (!!resource.data) {
+            //    createCallback(resource.data);
+            //} else {
+            //    callback(false);
+            //}
 
         },
 
@@ -6128,17 +6160,18 @@
                 };
 
             // get resource data based on type
-            if (!!resource.ajax) {
-                if (type === 'img') {
-                    convertImageToBase64(url, updateCallback);
-                } else {
-                    handleXhrRequests(url, updateCallback, resource);
-                }
-            } else if (!!resource.data) {
-                updateCallback(resource.data);
-            } else {
-                callback(false);
-            }
+            chooseLoading(resource, updateCallback, callback);
+            //if (!!resource.ajax) {
+            //    if (type === 'img') {
+            //        convertImageToBase64(url, updateCallback);
+            //    } else {
+            //        handleXhrRequests(url, updateCallback, resource);
+            //    }
+            //} else if (!!resource.data) {
+            //    updateCallback(resource.data);
+            //} else {
+            //    callback(false);
+            //}
 
         },
 
@@ -6441,34 +6474,34 @@
  *
  *      // init cache controller, this is also
  *      // possible without the new operator
- *      var cache = new app.cache.controller(function () 
+ *      var cache = new app.cache.controller(function () {
+ *      
  *          // cache is ready to use        
+ *      
+ *          // load resources
+ *          cache.load(
+ *              [
+ *                  {url: "css/app.css", type: "css"},
+ *                  {url: "js/lib.js", type: "js"},
+ *                  {url: "js/plugin.js", type: "js", group: 1}
+ *              ],
+ *              function () {
+ *                  // all resources loaded
+ *              }
+ *          );
+ *
+ *          // remove resources
+ *          cache.remove(
+ *              [
+ *                  {url: "css/app.css", type: "css"},
+ *                  {url: "js/lib.js", type: "js"}
+ *              ],
+ *              function () {
+ *                  // all resources removed
+ *              }
+ *          );
+ *
  *      });
- *
- *      // load resources
- *      cache.load(
- *          [
- *              {url: "css/app.css", type: "css"},
- *              {url: "js/lib.js", type: "js"},
- *              {url: "js/plugin.js", type: "js", group: 1}
- *          ],
- *          function () {
- *              // all resources loaded
- *          }
- *      );
- *
- *      // remove resources
- *      cache.remove(
- *          [
- *              {url: "css/app.css", type: "css"},
- *              {url: "js/lib.js", type: "js"}
- *          ],
- *          function () {
- *              // all resources removed
- *          }
- *      );
- *
- *
  **/
 (function (ns, undefined) {
 
@@ -6482,7 +6515,7 @@
      * truly undefined. In ES5, undefined can no longer be
      * modified.
      * 
-     * window and ns is passed through as local variable
+     * ns is passed through as local variable
      * rather than as global, because this (slightly)
      * quickens the resolution process and can be more
      * efficiently minified (especially when both are
@@ -6678,7 +6711,7 @@
                         }
                     };
 
-                }()), // immediatly invoke function to make init() and loaded() accessable via loadResourceGroupQueue
+                }()), // immediatly invoke function to make init() and loaded() accessable via loadResourceGroupQueue var
 
 
                 /**
@@ -6692,7 +6725,7 @@
                  */
                 appendFile = function (resource, data, update) {
 
-                    // init local vars
+                    // init and check local vars
                     var url = resource.url,
                         callback = function () {
                             resource.loaded(resource);
@@ -6736,7 +6769,7 @@
                  * @param {object} resource The resource object
                  * @param {object} item The cached resource object for comparison
                  *
-                 * @return {object} resource The resource object with isValid and lastmod properties
+                 * @return {object} resource The resource object with checked isValid, version and lastmod properties
                  */
                 isResourceValid = function (resource, item) {
 
@@ -6800,7 +6833,7 @@
                         (itemLifetime === -1 && itemResourceVersionAndLastmodCheck)
                     );
 
-                    // update meta data, mainly for test suites
+                    // update meta data, lastmod used mainly for test suite interfaces
                     resource.lastmod = resourceLastmod;
                     resource.isValid = isValid;
 
