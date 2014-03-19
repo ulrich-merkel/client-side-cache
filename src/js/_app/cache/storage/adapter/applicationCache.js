@@ -283,6 +283,7 @@
 
                     // ask user for refreshing the page
                     if (confirm(self.message)) {
+                        // true indicates, that the current page must be reloaded from the server
                         window.location.reload(true);
                     } else {
                         loaded(callback, self);
