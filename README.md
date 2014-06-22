@@ -21,6 +21,7 @@ The given resources will be appended to dom automatically in case of javaScript 
 + Store image files and append them to dom (via automatical base64 encoding)
 + Control the html5 application cache api state (offline cache)
 + Gracefully degrades when the browser doesn't support html5 storage (resources are then just loaded via xhr and won't be cached)
++ No external library is neccessary for the code to work
 
 **JavaScript files**
 
@@ -43,6 +44,38 @@ If you are not in the mood to install this project on a webserver, you could als
 
 ## Usage ##
 
+### Quick start ####
+
+Just pick the minified javascript caching file (**build/cache.min.js**) and append it to your html markup. After that you can load the resources you like.
+
+
+        <!doctype html>
+		<html>
+    	<head>
+        	<!-- some meta tags ... -->
+    	</head>
+   	 	<body>
+   
+			<!-- some html content ... -->
+
+			<script src="js/cache.min.js"></script>
+			<script>
+        		app.helpers.utils.on(window, 'load', function () {
+        		
+        		    // start loading files from cache
+            		app.cache.load([
+            			{url: "css/main.css", type: "css"},
+            			{url: "js/vendor.js", type: "js"}
+        			]);
+        			
+        		});        		
+			</script>
+	
+    	</body>
+		</html>
+
+On following page loads these resources will be loaded from client-side cache and won't be transferred via network to reduce http requests.
+
 ### General API ####
 
 #### Cache interface:  ####
@@ -50,14 +83,14 @@ There are three basic interface methods available.
 
 		// load resources
 		app.cache.load(
-			resourceArray,
+			resourcesObject,
 			callback,
 			adapterOptions
 		);
 		
 		// remove resources
 		app.cache.remove(
-			resourceArray,
+			resourcesObject,
 			callback
 		);
 		
@@ -93,7 +126,8 @@ There are several options you can use to specify a resource. This can be useful 
         	 * @type {integer} The optional lifetime timestamp
         	 *
         	 * time in milliseconds used to mark a resource 
-        	 * to be updated after a given period if time
+        	 * to be updated after a given period if time, for testing 
+        	 * purposes this option is set by default to 20s
         	 *
         	 * if set to '-1' the resource will not expires via lastmod
         	 * if set to '0' the resource will not always expires
@@ -232,7 +266,8 @@ Below you will find a simple example of loading (or storing) data from your loca
         	// all resources loaded
         });
 
-For a full list of available resource options, please take a look at the section "Resource options".
+For a full list of available resource options, please take a look at the section "Resource options". It is advised that you specify the mime type of each resource - if you omit this value, the resource type will be guessed automatically but this will cost performance.
+
 
 #### Append resource data to dom:  ####
 You can append data to a given dom element on the page, if you specify a node parameter. This could be useful to load images and html files from cache and append the result to a some elements on the page.
@@ -308,7 +343,7 @@ Below you will find some simple examples of controlling the resource lifetime. T
         	{url: "css/app.css", type: "css", lifetime: 40000 }
         ]);
         
-        // this file will never expire
+        // this file will never expire (except the version changed)
         app.cache.load([
         	{url: "css/app.css", type: "css", lifetime: -1 }
         ]);
@@ -345,7 +380,7 @@ You are able to set some options for handling local cache.
         	adapters: {
 				types: [
 					// define which adapters will be checked and what kind of resource
-					// types will be cached there 
+					// types will be cached there
 					{type: 'fileSystem', css: true, js: true, html: true, img: true },
 					{type: 'indexedDatabase', css: true, js: true, html: true, img: false },
                    	{type: 'webStorage', css: true, js: true, html: false, img: false }
@@ -465,13 +500,13 @@ This project is based on Grunt.js, a [node.js](http://nodejs.org/ "Node Js") bui
 
 
 #### examples/ ####
-* Contains several generated html examples.
+* Contains several generated html examples, mainly for comparison reason.
 
 #### extras/ ####
 * Contains all additional scripts (like java files) which are maybe useful during the build process.
 
 #### src/ ####
-* Contains all folders and files for development.
+* Contains all folders and files for development (less/sass files, parts of the javascript application, html source files, images, etc.).
 
 #### src/js/ ####
 * Folder for javaScript client side caching source files. Here you will find all logic for handling html5 client side caching.
@@ -497,6 +532,8 @@ There is no external library neccessary for the code to work. The logic is split
 - src/js/_app/helpers/dom.js
 
 The helper files are used to get some utility functions. They provide some useful functions and information which will be needed to manage the caching mechanism and get some browser workarounds. The most important helper files are namespace.js and utils.js. The namespace.js file will take cake of the correct global javaScript namespacing whereas the utils.js is a kind if library for different browser functions and workarounds (e.g. event bindings).
+
+If you need to organize your code and the caching functions under if different global javaScript namespace rather than `window.app`, you are free to modify it. Just edit the corresponding variable (`namespaceName`) in **src/js/_app/helpers/namespace.js**, combine all necessary javaScript files and all the caching functions are available under your custom namespace.
 
 #### Caching ####
 - src/js/_app/cache/storage/controller.js
@@ -526,13 +563,14 @@ If you don't need one or some of the storage adapters (**src/js/\_app/cache/stor
 It is recommended that you combine all the single files into one and minimize the combined file. There are lot's of comments included in the source files to make the code better readable, which will be removed while minification during the grunt build process.
 If you're using Grunt.js to build your customized version, you can edit the **src/js/cache.files** file and start the build process via `grunt build`. Your customized version will be saved in the build folder and is already minified and optimized.
 
-If you need to organize your code and the caching functions under if different global javaScript namespace rather than `window.app`, you are free to modify it. Just edit the corresponding variable (`namespaceName`) in **src/js/_app/helpers/namespace.js**, combine all necessary javaScript files and all the caching functions are available under your custom namespace.
 
 ***
 
 ## Tests ###
 
 ### Tested and supported browsers:  ###
+
+An automatic [karma](http://karma-runner.github.io/ "Karma") test runner config is included for your convinience (extras/karma.conf.js), to run the test specs in multiple browsers at once. Just run `karma start extras/karma.conf.js` within your terminal.
 
 #### Web Storage: ####
  - Internet Explorer 8.0 +

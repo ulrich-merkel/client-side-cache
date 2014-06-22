@@ -287,7 +287,12 @@
             return;
         }
 
-        // wait for intializing
+        /**
+         * wait for intializing
+         *
+         * this is the main entry point for initiailizing
+         * the interface routine
+         */
         if (!currentInterface.storage) {
 
             // add current load/remove call to queue
