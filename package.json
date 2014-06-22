@@ -1,7 +1,7 @@
 {
   "name": "client-side-cache",
   "description": "Client side caching for javascript, css, images and html files via javascript - using file system, indexed database, web sql database or local storage, including a wrapper for application cache",
-  "version": "0.1.2",
+  "version": "1.0",
   "homepage": "https://github.com/ulrich-merkel/client-side-cache",
   "author": {
     "name": "Ulrich Merkel",
