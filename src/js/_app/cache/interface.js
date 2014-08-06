@@ -107,12 +107,13 @@
         helpers = ns.helpers,                                       // @type {object} Shortcut for ns.helpers
         Queue = helpers.queue,                                      // @type {function} Shortcut for queuing functions
         utils = helpers.utils,                                      // @type {object} Shortcut for ns.helpers.utils
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        jsonHelper = helpers.json,                                  // @type {object} Shortcut for ns.helpers.json
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         isArray = utils.isArray,                                    // @type {function} Shortcut for isArray function
-        json = utils.getJson(),                                     // @type {object} Global window.Json object if available
-        jsonToString = utils.jsonToString,                          // @type {function} Shortcut for jsonToString function
+        json = jsonHelper.getJson(),                                // @type {object} Global window.Json object if available
+        jsonToString = jsonHelper.jsonToString,                     // @type {function} Shortcut for jsonToString function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        interval = 15,                                               // @type {integer} Milliseconds for interval controller check
+        interval = 15,                                              // @type {integer} Milliseconds for interval controller check
         timeout = 5000,                                             // @type {integer} Maximum time in milliseconds after we will give up checking
         setupParameters = {};                                       // @type {object} Store parameters from setup call
 

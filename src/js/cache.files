@@ -1,6 +1,10 @@
 //= require "_app/helpers/namespace.js"
 //= require "_app/helpers/queue.js"
 //= require "_app/helpers/utils.js"
+//= require "_app/helpers/console.js"
+//= require "_app/helpers/ajax.js"
+//= require "_app/helpers/events.js"
+//= require "_app/helpers/json.js"
 //= require "_app/helpers/client.js"
 //= require "_app/helpers/dom.js"
 

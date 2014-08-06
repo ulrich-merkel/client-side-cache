@@ -60,7 +60,7 @@ Just pick the minified javascript caching file (**build/cache.min.js**) and appe
 
 			<script src="js/cache.min.js"></script>
 			<script>
-        		app.helpers.utils.on(window, 'load', function () {
+        		app.helpers.events.on(window, 'load', function () {
         		
         		    // start loading files from cache
             		app.cache.load([
@@ -237,7 +237,7 @@ Below you will find a short and combined example of how you can initialize html5
 				 * you are free to use your own event listenter, this
 				 * event helper is just implemented for your convenience
 				 */
-        		app.helpers.utils.on(window, 'load', function () {
+        		app.helpers.events.on(window, 'load', function () {
         		
         		    // start loading files from cache
             		app.cache.load([
@@ -527,11 +527,15 @@ There is no external library neccessary for the code to work. The logic is split
 #### Helpers ####
 - src/js/_app/helpers/namespace.js
 - src/js/_app/helpers/utils.js
+- src/js/_app/helpers/console.js
+- src/js/_app/helpers/ajax.js
+- src/js/_app/helpers/events.js
+- src/js/_app/helpers/json.js
 - src/js/_app/helpers/queue.js
 - src/js/_app/helpers/client.js
 - src/js/_app/helpers/dom.js
 
-The helper files are used to get some utility functions. They provide some useful functions and information which will be needed to manage the caching mechanism and get some browser workarounds. The most important helper files are namespace.js and utils.js. The namespace.js file will take cake of the correct global javaScript namespacing whereas the utils.js is a kind if library for different browser functions and workarounds (e.g. event bindings).
+The helper files are used to get some utility functions. They provide some useful functions and information which will be needed to manage the caching mechanism and get some browser workarounds. The most important helper files are namespace.js and utils.js. The namespace.js file will take cake of the correct global javaScript namespacing whereas the utils.js is a kind if library for different browser functions and workarounds.
 
 If you need to organize your code and the caching functions under if different global javaScript namespace rather than `window.app`, you are free to modify it. Just edit the corresponding variable (`namespaceName`) in **src/js/_app/helpers/namespace.js**, combine all necessary javaScript files and all the caching functions are available under your custom namespace.
 
@@ -552,9 +556,14 @@ If you don't need one or some of the storage adapters (**src/js/\_app/cache/stor
 
 - src/js/_app/helpers/namespace.js
 - src/js/_app/helpers/utils.js
+- src/js/_app/helpers/console.js
+- src/js/_app/helpers/ajax.js
+- src/js/_app/helpers/events.js
+- src/js/_app/helpers/json.js
 - src/js/_app/helpers/queue.js
 - src/js/_app/helpers/client.js
 - src/js/_app/helpers/dom.js
+
 - src/js/_app/cache/storage/controller.js
 - src/js/_app/cache/storage/adapter/webStorage.js
 - src/js/_app/cache/controller.js

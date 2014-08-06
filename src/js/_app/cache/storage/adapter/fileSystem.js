@@ -105,8 +105,10 @@
 
     // create the global vars once
     var storageType = 'fileSystem',                                 // @type {string} The storage type string
-        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        helpers = ns.helpers,                                       // @type {object} Shortcut for ns.helpers
+        utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        jsonHelper = helpers.json,                                  // @type {object} Shortcut for json functions
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
 
@@ -406,7 +408,7 @@
 
                     /* create test item */
                     try {
-                        self.create('test-item', utils.jsonToString({test: 'test-content'}), function (success) {
+                        self.create('test-item', jsonHelper.jsonToString({test: 'test-content'}), function (success) {
                             if (!!success) {
                                 self.remove('test-item', function () {
 

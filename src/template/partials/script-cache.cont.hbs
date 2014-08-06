@@ -10,10 +10,10 @@
 		
 				// local vars for faster access
 				var helpers = ns.helpers,
-					utils = ns.helpers.utils,
+					utils = helpers.utils,
                     hasConsole = window.console,
                     hasConsoleTime = (hasConsole && console.time && console.timeEnd),
-					on = utils.on;
+					on = helpers.events.on;
 
 
 				/**
@@ -71,7 +71,6 @@
 
                     var cache = new ns.cache.controller(function (result) {
 
-                        console.log(cache, result);
                         // init application cache, listen to events
                         cache.load('applicationCache', function () {
                             if (hasConsoleTime) {

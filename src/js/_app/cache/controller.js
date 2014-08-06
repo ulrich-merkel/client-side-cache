@@ -97,7 +97,7 @@
         dom = helpers.dom,                                          // @type {object} Shortcut for dom functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
         client = helpers.client,                                    // @type {object} Shortcut for client functions
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         isArray = utils.isArray,                                    // @type {function} Shortcut for utils.isArray function
         trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         checkCallback = utils.callback;                             // @type {function} Shortcut for utils.callback function

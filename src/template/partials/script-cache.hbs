@@ -10,10 +10,10 @@
 		
 				// local vars for faster access
 				var helpers = ns.helpers,
-					utils = ns.helpers.utils,
+					utils = helpers.utils,
                     hasConsole = window.console,
                     hasConsoleTime = (hasConsole && console.time && console.timeEnd),
-					on = utils.on;
+					on = helpers.events.on;
 
 
 				/**

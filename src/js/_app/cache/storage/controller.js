@@ -65,11 +65,13 @@
         helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
         client = helpers.client,                                    // @type {object} Shortcut for client functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        jsonHelper = helpers.json,                                  // @type {object} Shortcut for json functions
+        ajax = helpers.ajax,                                        // @type {object} Shortcut for ajax functions
         isArray = utils.isArray,                                    // @type {function} Shortcut for utils.isArray function
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        json = utils.getJson(),                                     // @type {object} Global window.Json object if available
-        xhr = utils.xhr,                                            // @type {function} Shortcut for utils.xhr function
+        json = jsonHelper.getJson(),                                // @type {object} Global window.Json object if available
+        xhr = ajax.xhr,                                             // @type {function} Shortcut for utils.xhr function
         trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         appCacheStorageAdapter = ns.cache.storage.adapter,          // @type {object} Shortcut for ns.cache.storage.adapter namespace
         hasCanvasSupport = client.hasCanvas(),                      // @type {boolean} Whether there is canvas support or not
@@ -189,15 +191,15 @@
     function handleXhrRequests(url, callback, resource) {
 
         // set timeout if network get lost
-        resource.timeout = window.setTimeout(function () {
+        resource.timeoutXhr = window.setTimeout(function () {
             callback(false);
         }, 4000);
 
         // make xhr call and check data
         xhr(url, function (data) {
 
-            window.clearTimeout(resource.timeout);
-            delete resource.timeout;
+            window.clearTimeout(resource.timeoutXhr);
+            delete resource.timeoutXhr;
 
             if (!!data) {
                 callback(data);
@@ -224,7 +226,7 @@
      * @return {string} The converted json string
      */
     function convertObjectToString(object) {
-        return utils.jsonToString(object);
+        return jsonHelper.jsonToString(object);
     }
 
 
@@ -248,7 +250,7 @@
          * have to use try/catch here.
          */
         try {
-            result = utils.jsonToObject(string);
+            result = jsonHelper.jsonToObject(string);
         } catch (e) {
 
             /* start-dev-block */

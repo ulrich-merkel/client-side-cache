@@ -94,7 +94,7 @@
      * chrome://appcache-internals/ to view and delete cached files 
      * or check the console while the page is loading.
      *
-     * firefox on desktop in general promts a popup
+     * firefox on desktop in general prompts a popup
      * when trying to save data with application cache.
      */
 
@@ -104,9 +104,9 @@
         helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
         dom = helpers.dom,                                          // @type {object} Shortcut for dom functions
-        on = utils.on,                                              // @type {object} Shortcut for on function
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                             // @type {function} Shortcur for utils.callback function
+        on = helpers.events.on,                                     // @type {object} Shortcut for events.on function
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
+        checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
         htmlNode = document.getElementsByTagName('html')[0],        // @type {object} The dom html element
 
@@ -135,7 +135,7 @@
     /**
      * adapter files loaded
      * 
-     * invoke a callback function and make shure it's
+     * invoke a callback function and make sure it's
      * only called once.
      *
      * @param {function} callback The function to be called on loaded

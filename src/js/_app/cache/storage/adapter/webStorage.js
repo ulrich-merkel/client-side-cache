@@ -154,9 +154,10 @@
 
     // create the global vars once
     var storageType = 'webStorage',                                 // @type {string} The storage type string
-        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
-        on = utils.on,                                              // @type {function} Shortcut for utils.on function
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
+        utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        on = helpers.events.on,                                     // @type {function} Shortcut for events.on function
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not

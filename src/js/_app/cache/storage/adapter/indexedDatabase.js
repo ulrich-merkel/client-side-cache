@@ -103,8 +103,9 @@
 
     // create the global vars once
     var storageType = 'indexedDatabase',                            // @type {string} The storage type string
-        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        helpers = ns.helpers,                                       // @type {object} Shortcut for ns.helpers
+        utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
 

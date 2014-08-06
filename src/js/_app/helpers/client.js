@@ -88,7 +88,7 @@
 
             ua = navigator.userAgent || navigator.vendor || window.opera,   // @type {string} The user agent string of the current browser
             uaLowerCase = ua.toLowerCase(),                                 // @type {string} The lower case user agent string for easier matching
-            on = ns.helpers.utils.on;                                       // @type {object} Shortcut for on function
+            on = ns.helpers.events.on;                                       // @type {object} Shortcut for events.on function
 
 
         /**

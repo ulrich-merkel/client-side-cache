@@ -325,7 +325,7 @@
 
 /*jslint browser: true, devel: true, continue: true, regexp: true, plusplus: true, unparam: true  */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
-/*global window, document, XMLHttpRequest, ActiveXObject*/
+/*global window, document*/
 
 /**
  * ns.helpers.utils
@@ -334,11 +334,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2014
- * @version 0.2.4
+ * @version 0.3
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.3.0 moved some functions to own helper files, to keep the structure clear
  * - 0.2.4 bug fix legacy browsers isArray, bug fix console.log ie9
  * - 0.2.3 bug fix xhr ie6
  * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
@@ -353,7 +354,7 @@
  * - 0.1.3 createDomNode added
  * - 0.1.2 refactoring
  * - 0.1.1 bug fix xhr when trying to read binary data on ie
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * -
@@ -365,19 +366,7 @@
  * -
  *
  * @example
- *
- *      // add event handler
- *      app.helpers.utils.on(window, 'scroll', function () {
- *          // do something while window scrolling
- *      });
- *
- *      // make ajax request
- *      app.helpers.utils.xhr('ajax.html', function (data) {
- *          if (data) {
- *              // ajax data is ready to use
- *          }
- *      });
- *
+
  *      // check for array type
  *      var isArray = app.helpers.utils.isArray(array);
  *
@@ -416,8 +405,7 @@
     var utils = (function () {
 
         // init global vars
-        var jsonObject = null,                  // @type {object} The current json object
-            emptyArray = [];                    // @type {array} Placeholder for array testing
+        var emptyArray = [];                    // @type {array} Placeholder for array testing
 
 
         /**
@@ -567,6 +555,7 @@
              * @return {function} The checked callback function
              */
             callback: function (callback) {
+
                 // check if param is function, if not set it to empty function
                 if (!utils.isFunction(callback)) {
                     callback = function () {
@@ -576,385 +565,8 @@
 
                 // return checked callback function
                 return callback;
-            },
-
-
-            /**
-             * add event handler
-             *
-             * following the lazy loading design pattern, the on function will be
-             * overridden with the correct implemation the first time it will be
-             * called. after that all consequent calls deliver the correct one without
-             * conditions for different browsers.
-             *
-             * @see
-             * - http://coding.smashingmagazine.com/2013/11/12/an-introduction-to-dom-events/
-             *
-             * @param {string} target The dom object
-             * @param {string} eventType The event type to bind
-             * @param {function} handler The function to bind
-             */
-            on: function (target, eventType, handler) {
-
-                /**
-                 * override existing function based on
-                 * browser capabilities
-                 */
-
-                if (typeof window.addEventListener === 'function') {
-                    // dom2 event
-                    utils.on = function (target, eventType, handler) {
-                        target.addEventListener(eventType, handler, false);
-                    };
-                } else if (typeof document.attachEvent === 'function') {
-                    // ie event
-                    utils.on = function (target, eventType, handler) {
-                        target.attachEvent('on' + eventType, handler);
-                    };
-                } else {
-                    // older browers
-                    utils.on = function (target, eventType, handler) {
-                        target['on' + eventType] = handler;
-                    };
-                }
-
-                // call the new function
-                utils.on(target, eventType, handler);
 
             },
-
-
-            /**
-             * remove event handler
-             *
-             * following the lazy loading design pattern, the off function will be
-             * overridden with the correct implemation the first time it will be
-             * called. after that all consequent calls deliver the correct one without
-             * conditions for different browsers.
-             *
-             * @see
-             * - http://coding.smashingmagazine.com/2013/11/12/an-introduction-to-dom-events/
-             *
-             * @param {string} target The dom object
-             * @param {string} eventType The event type to unbind
-             * @param {function} handler The function to unbind
-             */
-            off: function (target, eventType, handler) {
-
-                /**
-                 * override existing function based on
-                 * browser capabilities
-                 */
-
-                if (typeof window.removeEventListener === 'function') {
-                    // dom2 event
-                    utils.off = function (target, eventType, handler) {
-                        target.removeEventListener(eventType, handler, false);
-                    };
-                } else if (typeof document.detachEvent === 'function') {
-                    // ie event
-                    utils.off = function (target, eventType, handler) {
-                        target.detachEvent('on' + eventType, handler);
-                    };
-                } else {
-                    // older browsers
-                    utils.off = function (target, eventType) {
-                        target['on' + eventType] = null;
-                    };
-                }
-
-                // call the new function
-                utils.off(target, eventType, handler);
-
-            },
-
-
-            /**
-             * get xhr object
-             *
-             * @return {object} The new xhr request object or null
-             */
-            getXhr: function () {
-
-                // set xhr vars
-                var xhrObject = null,
-                    XMLHttpFactories = [
-                        // mozilla, opera, safari and internet explorer (since version 7)
-                        function () {
-                            return new XMLHttpRequest();
-                        },
-                        // internet explorer (since version 5)
-                        function () {
-                            return new ActiveXObject('Msxml2.XMLHTTP');
-                        },
-                        function () {
-                            return new ActiveXObject('Msxml3.XMLHTTP');
-                        },
-                        // internet explorer (since version 6)
-                        function () {
-                            return new ActiveXObject('Microsoft.XMLHTTP');
-                        }
-                    ],
-                    length = XMLHttpFactories.length,
-                    i = 0;
-
-                // toggle through factories and try to init xhr object
-                for (i = 0; i < length; i = i + 1) {
-                    try {
-                        xhrObject = XMLHttpFactories[i]();
-                    } catch (e) {
-                        continue;
-                    }
-                    break;
-                }
-
-                // return ajax object
-                return xhrObject;
-            },
-
-
-            /**
-             * make ajax request
-             * 
-             * @param {string} url The required url to load
-             * @param {function} callback The required callback after success
-             * @param {boolean} async The optional async parameter to load xhr async or sync 
-             * @param {string} postData The optional post request data to send
-             */
-            xhr: function (url, callback, async, postData) {
-
-                // init local function vars
-                var reqObject = utils.getXhr(),
-                    reqCallback,
-                    reqType = 'GET';
-
-                // check callback parameter
-                callback = utils.callback(callback);
-
-                // if ajax is available
-                if (reqObject) {
-
-                    // check parameters (url, request type, async and post data)
-                    if (!url) {
-                        callback(false);
-                        return;
-                    }
-                    if (postData !== undefined) {
-                        reqType = 'POST';
-                    } else {
-                        postData = null;
-                    }
-                    if (async === undefined) {
-                        async = true;
-                    }
-
-                    // listen to results
-                    reqCallback = function () {
-
-                        /**
-                         * ready states
-                         *
-                         * reqObject.readyStates:
-                         * 0: request not initialized
-                         * 1: server connection established
-                         * 2: request received
-                         * 3: processing request
-                         * 4: request finished and response is ready
-                         *
-                         * reqObject.status:
-                         * 200: the request was fulfilled, codes between 200 and < 400 indicate that everything is okay
-                         * 400: the request had bad syntax or was inherently impossible to be satisfied, codes >= 400 indicate errors
-                         * 
-                         */
-
-                        if (reqObject.readyState === 4 && ((reqObject.status >= 200 && reqObject.status < 400) || reqObject.status === 0)) {
-
-                            /**
-                             * checking additionally for response text parsing
-                             * 
-                             * binary data (like images) could not be resolved for ajax
-                             * calls in ie and is throwing an error if we try to do so
-                             */
-                            try {
-                                var data = reqObject.responseText;
-                                if (data) {
-                                    callback(data);
-                                } else {
-                                    callback(false);
-                                }
-                            } catch (e) {
-                                callback(false);
-                            }
-
-                        } else if (reqObject.readyState === 4) {
-
-                            /**
-                             * request is completed but maybe
-                             * called with non-existing url
-                             */
-                            callback(false);
-                        }
-
-                    };
-
-                    // open ajax request and listen for events
-                    reqObject.open(reqType, url, async);
-
-                    /**
-                     * listen to results, onreadystatechange for ie7+ and onload for others
-                     * try catch is added for ie6 (object error for onreadystatechange)
-                     */
-                    try {
-                        if (reqObject.onreadystatechange !== undefined) {
-                            reqObject.onreadystatechange = reqCallback;
-                        } else if (reqObject.onload !== undefined) {
-                            reqObject.onload = reqCallback;
-                        }
-                    } catch (ignore) {
-                    }
-
-                    // send request
-                    reqObject.send(postData);
-
-                } else {
-                    callback(false);
-                }
-
-            },
-
-
-            /**
-             * get json object
-             *
-             * @return {object} The window.JSON object or null
-             */
-            getJson: function () {
-
-                // check for json support
-                if (null === jsonObject) {
-                    if (window.JSON && window.JSON.stringify) {
-                        jsonObject = window.JSON;
-                    }
-                }
-
-                //return the json object
-                return jsonObject;
-
-            },
-
-
-            /**
-             * convert json object to string
-             *
-             * @param {object} object The object to be parsed
-             * 
-             * @return {string} The converted string
-             */
-            jsonToString: function (object) {
-
-                // init local vars
-                var result = false;
-
-                // check for json object
-                if (null === jsonObject) {
-                    jsonObject = utils.getJson();
-                }
-
-                // convert object to string
-                if (jsonObject && object !== undefined) {
-                    result = jsonObject.stringify(object);
-                }
-
-                //return the json string
-                return result;
-
-            },
-
-
-            /**
-             * convert string into json object
-             *
-             * @param {string} string The string to be parsed
-             * 
-             * @return {object} The converted object
-             */
-            jsonToObject: function (string) {
-
-                // init local vars
-                var result = false;
-
-                // check for json object
-                if (null === jsonObject) {
-                    jsonObject = utils.getJson();
-                }
-
-                // convert object to string
-                if (jsonObject && string !== undefined) {
-                    result = jsonObject.parse(string);
-                }
-
-                //return the json object
-                return result;
-            },
-
-
-            /* start-dev-block */
-
-            /**
-             * function to write logging message to screen
-             *
-             * @param {string} message The message to log
-             */
-            logToScreen: function (message) {
-
-                // init local vars
-                var log = document.getElementById('log'),
-                    p = document.createElement('p'),
-                    text = document.createTextNode(message);
-
-                // append message
-                if (log) {
-                    p.appendChild(text);
-                    log.appendChild(p);
-                }
-            },
-
-
-            /**
-             * wrapper for console.log due to some browsers lack of this functions
-             *
-             * @param {arguments} The messages to log
-             */
-            log: function () {
-
-                var args = arguments,
-                    length = args.length,
-                    message,
-                    hasConsole = window.console !== undefined,
-                    console = hasConsole ? window.console : null,
-                    hasConsoleLog = (hasConsole && console.log !== undefined);
-
-                if (!length) {
-                    return;
-                }
-
-                // check for support
-                if (hasConsoleLog) {
-                    // fix for ie9
-                    if (console.log.apply) {
-                        console.log.apply(console, args);
-                    } else {
-                        console.log(args);
-                    }
-                }
-
-                // log messages to dom element
-                message = args[0];
-                utils.logToScreen(message);
-
-            },
-
-            /* end-dev-block */
 
 
             /**
@@ -1002,6 +614,7 @@
                     extension: getExtension(url),
                     folder: getFolder()
                 };
+
             },
 
 
@@ -1049,6 +662,988 @@
 
 
 }(window, document, window.getNs())); // immediatly invoke function
+
+/*jslint browser: true, devel: true, continue: true, regexp: true, plusplus: true, unparam: true  */
+/*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
+/*global window, document, Blob*/
+
+/**
+ * ns.helpers.console
+ *
+ * @description
+ * - provide utility functions for console log
+ *
+ * @author Ulrich Merkel, 2014
+ * @version 0.3.0
+ * 
+ * @namespace ns
+ * 
+ * @changelog
+ * - 0.3.0 moved log functions to separate helper
+ * - 0.2.2 console.save added
+ * - 0.2.1 examples added, isFunction added, refactoring
+ * - 0.2 improved console.log wrapper, console.warn added
+ * - 0.1.9 improved namespacing
+ * - 0.1.8 inArray function improved
+ * - 0.1.7 trim string + sprintf functions added, isArray function improved
+ * - 0.1.6 get queryString function added
+ * - 0.1.5 moved dom functions to dom helpers, small function improvements
+ * - 0.1.4 refactoring xhr function
+ * - 0.1.3 createDomNode added
+ * - 0.1.2 refactoring
+ * - 0.1.1 bug fix xhr when trying to read binary data on ie
+ * - 0.1 basic functions and structur
+ *
+ * @see
+ * -
+ *
+ * @requires
+ * - ns.helpers.namespace
+ *
+ * @bugs
+ * -
+ *
+ * @example
+ *
+ *      // for the complete list of available methods
+ *      // please take a look at the @interface below
+ *
+ *
+ */
+(function (window, document, ns, undefined) {
+
+    'use strict';
+
+    /**
+     * undefined is used here as the undefined global
+     * variable in ECMAScript 3 and is mutable (i.e. it can
+     * be changed by someone else). undefined isn't really
+     * being passed in so we can ensure that its value is
+     * truly undefined. In ES5, undefined can no longer be
+     * modified.
+     *
+     * window, document and ns are passed through as local
+     * variables rather than as globals, because this (slightly)
+     * quickens the resolution process and can be more
+     * efficiently minified (especially when both are
+     * regularly referenced in your plugin).
+     *
+     */
+
+
+    /**
+     * utility functions
+     *
+     * following the singleton design pattern
+     *
+     */
+    var log = (function () {
+
+        // init global vars
+        var hasConsole = window.console !== undefined,                                                      // @type {boolean} If window.console is available
+            console = hasConsole ? window.console : null,                                                   // @type {object} The window.console object
+            hasConsoleLog = (hasConsole && console.log !== undefined),                                      // @type {boolean} If console.log is available
+            hasConsoleWarn = (hasConsole && console.warn !== undefined),                                    // @type {boolean} If console.warn is available
+            hasConsoleError = (hasConsole && console.error !== undefined),                                  // @type {boolean} If console.warn is available
+            hasConsoleTime = (hasConsole && console.time !== undefined && console.timeEnd !== undefined);   // @type {boolean} If console.time/console.timeEnd is available
+
+
+        /**
+         * public functions
+         *
+         * @interface
+         */
+        return {
+
+            /* start-dev-block */
+
+            /**
+             * function to write logging message to screen
+             *
+             * @param {string} message The message to log
+             */
+            logToScreen: function (message) {
+
+                // init local vars
+                var htmlElement = document.getElementById('log'),
+                    p = document.createElement('p'),
+                    text = document.createTextNode(message);
+
+                // append message
+                if (htmlElement) {
+                    p.appendChild(text);
+                    htmlElement.appendChild(p);
+                }
+
+            },
+
+
+            /**
+             * wrapper for console.log due to some browsers lack of this functions
+             *
+             * @param {arguments} The messages to log
+             */
+            log: function () {
+
+                var args = Array.prototype.slice.call(arguments),
+                    length = args.length,
+                    message;
+
+                if (!length) {
+                    return;
+                }
+
+                // check for support
+                if (hasConsoleLog) {
+                    if (!!console.log.apply) {
+                        console.log.apply(console, args);
+                    } else {
+                        console.log(args);
+                    }
+
+                }
+
+                // log messages to dom element
+                message = args[0];
+                log.logToScreen(message);
+
+            },
+
+
+            /**
+             * wrapper for console.warn due to some browsers lack of this functions
+             *
+             * @param {arguments} The warnings to log
+             */
+            warn: function () {
+
+                var args = Array.prototype.slice.call(arguments),
+                    length = args.length,
+                    message;
+
+                if (!length) {
+                    return;
+                }
+                message = args[0];
+
+                // check for support
+                if (hasConsoleWarn) {
+                    console.warn.apply(console, args);
+                } else {
+                    // try to log normal message
+                    log.log(message);
+                }
+
+                // log messages to dom element
+                log.logToScreen(message);
+
+            },
+
+
+            /**
+             * wrapper for console.error due to some browsers lack of this functions
+             *
+             * @param {arguments} The errors to log
+             */
+            error: function () {
+
+                var args = Array.prototype.slice.call(arguments),
+                    length = args.length,
+                    message;
+
+                if (!length) {
+                    return;
+                }
+                message = args[0];
+
+                // check for support
+                if (hasConsoleError) {
+                    console.error.apply(console, args);
+                } else {
+                    // try to log normal message
+                    log.log(message);
+                }
+
+                // log messages to dom element
+                log.logToScreen(message);
+
+            },
+
+
+            /**
+             * convenient function to save console.log outputs in
+             * download folder
+             *
+             */
+            save: function () {
+
+                if (hasConsole && window.Blob && window.JSON && window.URL) {
+                    console.save = function (data, filename) {
+
+                        if (!data && hasConsoleError) {
+                            console.error('Console.save: No data');
+                            return;
+                        }
+
+                        if (!filename) {
+                            filename = 'console.json';
+                        }
+
+                        if (typeof data === 'object') {
+                            data = JSON.stringify(data, undefined, 4);
+                        }
+
+                        var blob = new Blob([data], {type: 'text/json'}),
+                            e = document.createEvent('MouseEvents'),
+                            a = document.createElement('a');
+
+                        a.download = filename;
+                        a.href = window.URL.createObjectURL(blob);
+                        a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
+
+                        e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                        a.dispatchEvent(e);
+
+                    };
+                }
+
+            },
+
+
+            /**
+             * log timer start
+             *
+             * @param {string} key The timer key
+             */
+            logTimerStart: function (key) {
+
+                // check for support
+                if (hasConsoleTime) {
+                    console.time(key);
+                }
+
+            },
+
+
+            /**
+             * log timer end
+             *
+             * @param {string} key The timer key
+             */
+            logTimerEnd: function (key) {
+
+                // check for support
+                if (hasConsoleTime) {
+                    console.timeEnd(key);
+                }
+
+            }
+
+            /* end-dev-block */
+
+        };
+
+    }());
+
+
+    /**
+     * make the helper available for ns.helpers.log calls under
+     * the ns.helpers namespace
+     * 
+     * @export
+     */
+    ns.namespace('helpers.console', log);
+
+
+}(window, document, window.getNs())); // immediately invoke function
+
+/*jslint browser: true, devel: true, continue: true, regexp: true, plusplus: true, unparam: true  */
+/*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
+/*global window, XMLHttpRequest, ActiveXObject*/
+
+/**
+ * ns.helpers.ajax
+ *
+ * @description
+ * - provide utility functions for ajax
+ *
+ * @author Ulrich Merkel, 2014
+ * @version 0.3.0
+ * 
+ * @namespace ns
+ * 
+ * @changelog
+ * - 0.3.0 moved ajax functions to separate helper
+ * - 0.2.4 bug fix legacy browsers isArray, bug fix console.log ie9
+ * - 0.2.3 bug fix xhr ie6
+ * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
+ * - 0.2.1 examples added, isFunction added, refactoring
+ * - 0.2 improved console.log wrapper, console.warn added
+ * - 0.1.9 improved namespacing
+ * - 0.1.8 inArray function improved
+ * - 0.1.7 trim string + sprintf functions added, isArray function improved
+ * - 0.1.6 get queryString function added
+ * - 0.1.5 moved dom functions to dom helpers, small function improvements
+ * - 0.1.4 refactoring xhr function
+ * - 0.1.3 createDomNode added
+ * - 0.1.2 refactoring
+ * - 0.1.1 bug fix xhr when trying to read binary data on ie
+ * - 0.1 basic functions and structur
+ *
+ * @see
+ * -
+ *
+ * @requires
+ * - ns.helpers.namespace
+ * - ns.helpers.utils
+ *
+ * @bugs
+ * -
+ *
+ * @example
+ *
+ *      // make ajax request
+ *      app.helpers.ajax.xhr('ajax.html', function (data) {
+ *          if (data) {
+ *              // ajax data is ready to use
+ *          }
+ *      });
+
+ *      // for the complete list of available methods
+ *      // please take a look at the @interface below
+ *
+ *
+ */
+(function (window, ns, undefined) {
+
+    'use strict';
+
+    /**
+     * undefined is used here as the undefined global
+     * variable in ECMAScript 3 and is mutable (i.e. it can
+     * be changed by someone else). undefined isn't really
+     * being passed in so we can ensure that its value is
+     * truly undefined. In ES5, undefined can no longer be
+     * modified.
+     *
+     * window and ns are passed through as local
+     * variables rather than as globals, because this (slightly)
+     * quickens the resolution process and can be more
+     * efficiently minified (especially when both are
+     * regularly referenced in your plugin).
+     *
+     */
+
+
+    /**
+     * utility functions
+     *
+     * following the singleton design pattern
+     *
+     */
+    var ajax = (function () {
+
+        // init global vars
+        var utils = ns.helpers.utils;                                                                       // @type {object} Shortcut for utils helpers
+
+
+        /**
+         * public functions
+         *
+         * @interface
+         */
+        return {
+
+            /**
+             * get xhr object
+             *
+             * @return {object} The new xhr request object or null
+             */
+            getXhr: function () {
+
+                // set xhr vars
+                var xhrObject = null,
+                    XMLHttpFactories = [
+                        // mozilla, opera, safari and internet explorer (since version 7)
+                        function () {
+                            return new XMLHttpRequest();
+                        },
+                        // internet explorer (since version 5)
+                        function () {
+                            return new ActiveXObject('Msxml2.XMLHTTP');
+                        },
+                        function () {
+                            return new ActiveXObject('Msxml3.XMLHTTP');
+                        },
+                        // internet explorer (since version 6)
+                        function () {
+                            return new ActiveXObject('Microsoft.XMLHTTP');
+                        }
+                    ],
+                    length = XMLHttpFactories.length,
+                    i = 0;
+
+                // toggle through factories and try to init xhr object
+                for (i = 0; i < length; i = i + 1) {
+                    try {
+                        xhrObject = XMLHttpFactories[i]();
+                    } catch (e) {
+                        continue;
+                    }
+                    break;
+                }
+
+                // return ajax object
+                return xhrObject;
+
+            },
+
+
+            /**
+             * make ajax request
+             *
+             * @param {string} url The required url to load
+             * @param {function} callback The required callback after success
+             * @param {boolean} async The optional async parameter to load xhr async or sync
+             * @param {string} postData The optional post request data to send
+             */
+            xhr: function (url, callback, async, postData) {
+
+                // init local function vars
+                var reqObject = ajax.getXhr(),
+                    reqCallback,
+                    reqType = 'GET';
+
+                // check callback parameter
+                callback = utils.callback(callback);
+
+                // if ajax is available
+                if (reqObject) {
+
+                    // check parameters (url, request type, async and post data)
+                    if (!url) {
+                        callback(false);
+                        return;
+                    }
+
+                    if (postData !== undefined) {
+                        reqType = 'POST';
+                    } else {
+                        postData = null;
+                    }
+
+                    if (async === undefined) {
+                        async = true;
+                    }
+
+                    // listen to results
+                    reqCallback = function () {
+
+                        /**
+                         * ready states
+                         *
+                         * reqObject.readyStates:
+                         * 0: request not initialized
+                         * 1: server connection established
+                         * 2: request received
+                         * 3: processing request
+                         * 4: request finished and response is ready
+                         *
+                         * reqObject.status:
+                         * 200: the request was fulfilled, codes between 200 and < 400 indicate that everything is okay
+                         * 400: the request had bad syntax or was inherently impossible to be satisfied, codes >= 400 indicate errors
+                         *
+                         */
+
+                        if (reqObject.readyState === 4 && ((reqObject.status >= 200 && reqObject.status < 400) || reqObject.status === 0)) {
+
+                            /**
+                             * checking additionally for response text parsing
+                             *
+                             * binary data (like images) could not be resolved for ajax
+                             * calls in ie and is throwing an error if we try to do so
+                             */
+                            try {
+                                var data = reqObject.responseText;
+                                if (data) {
+                                    callback(data);
+                                } else {
+                                    callback(false);
+                                }
+                            } catch (e) {
+                                callback(false);
+                            }
+
+                        } else if (reqObject.readyState === 4) {
+
+                            /**
+                             * request is completed but maybe
+                             * called with non-existing url
+                             */
+                            callback(false);
+
+                        }
+
+                    };
+
+                    // open ajax request and listen for events
+                    reqObject.open(reqType, url, async);
+
+                    /**
+                     * listen to results, onreadystatechange for ie7+ and onload for others
+                     * try catch is added for ie6 (object error for onreadystatechange)
+                     */
+                    try {
+                        if (reqObject.onreadystatechange !== undefined) {
+                            reqObject.onreadystatechange = reqCallback;
+                        } else if (reqObject.onload !== undefined) {
+                            reqObject.onload = reqCallback;
+                        }
+                    } catch (ignore) {
+                    }
+
+                    // send request
+                    reqObject.send(postData);
+
+                } else {
+                    callback(false);
+                }
+
+            }
+
+
+        };
+
+    }());
+
+
+    /**
+     * make the helper available for ns.helpers.ajax calls under
+     * the ns.helpers namespace
+     * 
+     * @export
+     */
+    ns.namespace('helpers.ajax', ajax);
+
+
+}(window, window.getNs())); // immediately invoke function
+
+/*jslint browser: true, devel: true, continue: true, regexp: true, plusplus: true, unparam: true  */
+/*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
+/*global window, document*/
+
+/**
+ * ns.helpers.events
+ *
+ * @description
+ * - provide utility functions for events
+ *
+ * @author Ulrich Merkel, 2014
+ * @version 0.3.0
+ * 
+ * @namespace ns
+ * 
+ * @changelog
+ * - 0.3.0 moved events to separate helper
+ * - 0.2.4 bug fix legacy browsers isArray, bug fix console.log ie9
+ * - 0.2.3 bug fix xhr ie6
+ * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
+ * - 0.2.1 examples added, isFunction added, refactoring
+ * - 0.2 improved console.log wrapper, console.warn added
+ * - 0.1.9 improved namespacing
+ * - 0.1.8 inArray function improved
+ * - 0.1.7 trim string + sprintf functions added, isArray function improved
+ * - 0.1.6 get queryString function added
+ * - 0.1.5 moved dom functions to dom helpers, small function improvements
+ * - 0.1.4 refactoring xhr function
+ * - 0.1.3 createDomNode added
+ * - 0.1.2 refactoring
+ * - 0.1.1 bug fix xhr when trying to read binary data on ie
+ * - 0.1 basic functions and structure
+ *
+ * @see
+ * -
+ *
+ * @requires
+ * - ns.helpers.namespace
+ *
+ * @bugs
+ * -
+ *
+ * @example
+ *
+ *      // add event handler
+ *      app.helpers.events.on(window, 'scroll', function () {
+ *          // do something while window scrolling
+ *      });
+ *
+ *      // add event handler
+ *      app.helpers.events.on(window, 'load', function () {
+ *          // do something when window fires load event
+ *      });
+ *
+ *      // for the complete list of available methods
+ *      // please take a look at the @interface below
+ *
+ *
+ */
+(function (window, document, ns, undefined) {
+
+    'use strict';
+
+    /**
+     * undefined is used here as the undefined global
+     * variable in ECMAScript 3 and is mutable (i.e. it can
+     * be changed by someone else). undefined isn't really
+     * being passed in so we can ensure that its value is
+     * truly undefined. In ES5, undefined can no longer be
+     * modified.
+     *
+     * window, document and ns are passed through as local
+     * variables rather than as globals, because this (slightly)
+     * quickens the resolution process and can be more
+     * efficiently minified (especially when both are
+     * regularly referenced in your plugin).
+     *
+     */
+
+
+    /**
+     * utility functions
+     *
+     * following the singleton design pattern
+     *
+     */
+    var events = (function () {
+
+        /**
+         * public functions
+         *
+         * @interface
+         */
+        return {
+
+            /**
+             * add event handler
+             *
+             * following the lazy loading design pattern, the on function will be
+             * overridden with the correct implemation the first time it will be
+             * called. after that all consequent calls deliver the correct one without
+             * conditions for different browsers.
+             *
+             * @see
+             * - http://coding.smashingmagazine.com/2013/11/12/an-introduction-to-dom-events/
+             *
+             * @param {string} target The dom object
+             * @param {string} eventType The event type to bind
+             * @param {function} handler The function to bind
+             */
+            on: function (target, eventType, handler) {
+
+                /**
+                 * override existing function based on
+                 * browser capabilities
+                 */
+
+                if (typeof window.addEventListener === 'function') {
+                    // dom2 event
+                    events.on = function (target, eventType, handler) {
+                        target.addEventListener(eventType, handler, false);
+                    };
+                } else if (typeof document.attachEvent === 'function') {
+                    // ie event
+                    events.on = function (target, eventType, handler) {
+                        target.attachEvent('on' + eventType, handler);
+                    };
+                } else {
+                    // older browers
+                    events.on = function (target, eventType, handler) {
+                        target['on' + eventType] = handler;
+                    };
+                }
+
+                // call the new function
+                events.on(target, eventType, handler);
+
+            },
+
+
+            /**
+             * remove event handler
+             *
+             * following the lazy loading design pattern, the off function will be
+             * overridden with the correct implemation the first time it will be
+             * called. after that all consequent calls deliver the correct one without
+             * conditions for different browsers.
+             *
+             * @see
+             * - http://coding.smashingmagazine.com/2013/11/12/an-introduction-to-dom-events/
+             *
+             * @param {string} target The dom object
+             * @param {string} eventType The event type to unbind
+             * @param {function} handler The function to unbind
+             */
+            off: function (target, eventType, handler) {
+
+                /**
+                 * override existing function based on
+                 * browser capabilities
+                 */
+
+                if (typeof window.removeEventListener === 'function') {
+                    // dom2 event
+                    events.off = function (target, eventType, handler) {
+                        target.removeEventListener(eventType, handler, false);
+                    };
+                } else if (typeof document.detachEvent === 'function') {
+                    // ie event
+                    events.off = function (target, eventType, handler) {
+                        target.detachEvent('on' + eventType, handler);
+                    };
+                } else {
+                    // older browsers
+                    events.off = function (target, eventType) {
+                        target['on' + eventType] = null;
+                    };
+                }
+
+                // call the new function
+                events.off(target, eventType, handler);
+
+            }
+
+        };
+
+    }());
+
+
+    /**
+     * make the helper available for ns.helpers.events calls under
+     * the ns.helpers namespace
+     * 
+     * @export
+     */
+    ns.namespace('helpers.events', events);
+
+
+}(window, document, window.getNs())); // immediately invoke function
+
+/*jslint browser: true, devel: true, continue: true, regexp: true, plusplus: true, unparam: true  */
+/*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
+/*global window, document*/
+
+/**
+ * ns.helpers.json
+ *
+ * @description
+ * - provide utility functions for json
+ *
+ * @author Ulrich Merkel, 2014
+ * @version 0.3.0
+ * 
+ * @namespace ns
+ * 
+ * @changelog
+ * - 0.3.0 moved json functions to separate helper
+ * - 0.2.4 bug fix legacy browsers isArray, bug fix console.log ie9
+ * - 0.2.3 bug fix xhr ie6
+ * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
+ * - 0.2.1 examples added, isFunction added, refactoring
+ * - 0.2 improved console.log wrapper, console.warn added
+ * - 0.1.9 improved namespacing
+ * - 0.1.8 inArray function improved
+ * - 0.1.7 trim string + sprintf functions added, isArray function improved
+ * - 0.1.6 get queryString function added
+ * - 0.1.5 moved dom functions to dom helpers, small function improvements
+ * - 0.1.4 refactoring xhr function
+ * - 0.1.3 createDomNode added
+ * - 0.1.2 refactoring
+ * - 0.1.1 bug fix xhr when trying to read binary data on ie
+ * - 0.1 basic functions and structure
+ *
+ * @see
+ * - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/
+ *
+ * @requires
+ * - ns.helpers.namespace
+ *
+ * @bugs
+ * -
+ *
+ * @example
+ *
+ *      // for the complete list of available methods
+ *      // please take a look at the @interface below
+ *
+ *
+ */
+(function (window, document, ns, undefined) {
+
+    'use strict';
+
+    /**
+     * undefined is used here as the undefined global
+     * variable in ECMAScript 3 and is mutable (i.e. it can
+     * be changed by someone else). undefined isn't really
+     * being passed in so we can ensure that its value is
+     * truly undefined. In ES5, undefined can no longer be
+     * modified.
+     *
+     * window, document and ns are passed through as local
+     * variables rather than as globals, because this (slightly)
+     * quickens the resolution process and can be more
+     * efficiently minified (especially when both are
+     * regularly referenced in your plugin).
+     *
+     */
+
+
+    /**
+     * utility functions
+     *
+     * following the singleton design pattern
+     *
+     */
+    var json = (function () {
+
+        var jsonObject = null,                                                                              // @type {object} The current json object
+            windowJsonObject = window.JSON;                                                                 // @type {object} The window json object
+
+        /**
+         * public functions
+         *
+         * @interface
+         */
+        return {
+
+
+            /**
+             * get json object
+             *
+             * @return {object} The window.JSON object or null
+             */
+            getJson: function () {
+
+                // check for json support
+                if (null === jsonObject) {
+                    if (windowJsonObject && windowJsonObject.stringify) {
+                        jsonObject = windowJsonObject;
+                    }
+                }
+
+                //return the json object
+                return jsonObject;
+
+            },
+
+
+            /**
+             * convert json object to string
+             *
+             * @param {object} object The object to be parsed
+             * @param {array|function} replacer The optional replacer
+             * @param {object} space The optional space for pretty print
+             * 
+             * @return {string} The converted string
+             */
+            jsonToString: function (object, replacer, space) {
+
+                // init local vars
+                var result = false;
+
+                // check for json object
+                if (null === jsonObject) {
+                    jsonObject = json.getJson();
+                }
+
+                // convert object to string
+                if (jsonObject && jsonObject.stringify && object !== undefined) {
+
+                    /**
+                     * Syntax JSON.stringify
+                     *
+                     * object (required)
+                     * - The value to convert to a JSON string
+                     *
+                     * replacer (optional)
+                     * - If a function, transforms values and properties encountered while stringifying
+                     * - if an array, specifies the set of properties included in objects in the final string.
+                     * - @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_native_JSON#The_replacer_parameter
+                     *
+                     * space (optional)
+                     * - Causes the resulting string to be pretty-printed.
+                     *
+                     */
+
+                    result = jsonObject.stringify(object, replacer, space);
+                }
+
+                //return the json string
+                return result;
+
+            },
+
+
+            /**
+             * convert string into json object
+             *
+             * @param {string} string The string to be parsed
+             * @param {function} reviver The optional reviver function
+             * 
+             * @return {object} The converted object
+             */
+            jsonToObject: function (string, reviver) {
+
+                // init local vars
+                var result = false;
+
+                // check for json object
+                if (null === jsonObject) {
+                    jsonObject = json.getJson();
+                }
+
+                // convert object to string
+                if (jsonObject && jsonObject.parse && string !== undefined) {
+
+                    /**
+                     * Syntax JSON.parse
+                     *
+                     * string (required)
+                     * - The string to parse as JSON. See the JSON object for a description of JSON syntax.
+                     *
+                     * reviver (optional)
+                     * - If a function, prescribes how the value originally produced by parsing is transformed, before being returned.
+                     * - @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse
+                     *
+                     * Support: Android 2.3
+                     * - Additional String parsing is added as workaround failure to string-cast null input
+                     * - @see jQuery.parseJSON (v.1.10)
+                     *
+                     */
+
+                    result = jsonObject.parse(String(string), reviver);
+                }
+
+                //return the json object
+                return result;
+            }
+
+
+        };
+
+    }());
+
+
+    /**
+     * make the helper available for ns.helpers.json calls under
+     * the ns.helpers namespace
+     * 
+     * @export
+     */
+    ns.namespace('helpers.json', json);
+
+
+}(window, document, window.getNs())); // immediately invoke function
 
 /*global window, document, navigator*/
 
@@ -1140,7 +1735,7 @@
 
             ua = navigator.userAgent || navigator.vendor || window.opera,   // @type {string} The user agent string of the current browser
             uaLowerCase = ua.toLowerCase(),                                 // @type {string} The lower case user agent string for easier matching
-            on = ns.helpers.utils.on;                                       // @type {object} Shortcut for on function
+            on = ns.helpers.events.on;                                       // @type {object} Shortcut for events.on function
 
 
         /**
@@ -1915,8 +2510,10 @@
 
     // create the global vars once
     var storageType = 'fileSystem',                                 // @type {string} The storage type string
-        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        helpers = ns.helpers,                                       // @type {object} Shortcut for ns.helpers
+        utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        jsonHelper = helpers.json,                                  // @type {object} Shortcut for json functions
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
 
@@ -2216,7 +2813,7 @@
 
                     /* create test item */
                     try {
-                        self.create('test-item', utils.jsonToString({test: 'test-content'}), function (success) {
+                        self.create('test-item', jsonHelper.jsonToString({test: 'test-content'}), function (success) {
                             if (!!success) {
                                 self.remove('test-item', function () {
 
@@ -2610,8 +3207,9 @@
 
     // create the global vars once
     var storageType = 'indexedDatabase',                            // @type {string} The storage type string
-        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        helpers = ns.helpers,                                       // @type {object} Shortcut for ns.helpers
+        utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
 
@@ -3333,8 +3931,9 @@
 
     // create the global vars once
     var storageType = 'webSqlDatabase',                             // @type {string} The storage type string
-        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        helpers = ns.helpers,                                       // @type {object} Shortcut for ns.helpers
+        utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
 
@@ -4072,9 +4671,10 @@
 
     // create the global vars once
     var storageType = 'webStorage',                                 // @type {string} The storage type string
-        utils = ns.helpers.utils,                                   // @type {object} Shortcut for utils functions
-        on = utils.on,                                              // @type {function} Shortcut for utils.on function
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
+        utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        on = helpers.events.on,                                     // @type {function} Shortcut for events.on function
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         boolIsSupported = null;                                     // @type {boolean} Bool if this type of storage is supported or not
@@ -4661,7 +5261,7 @@
      * chrome://appcache-internals/ to view and delete cached files 
      * or check the console while the page is loading.
      *
-     * firefox on desktop in general promts a popup
+     * firefox on desktop in general prompts a popup
      * when trying to save data with application cache.
      */
 
@@ -4671,9 +5271,9 @@
         helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
         dom = helpers.dom,                                          // @type {object} Shortcut for dom functions
-        on = utils.on,                                              // @type {object} Shortcut for on function
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
-        checkCallback = utils.callback,                             // @type {function} Shortcur for utils.callback function
+        on = helpers.events.on,                                     // @type {object} Shortcut for events.on function
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
+        checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
         boolIsSupported = null,                                     // @type {boolean} Bool if this type of storage is supported or not
         htmlNode = document.getElementsByTagName('html')[0],        // @type {object} The dom html element
 
@@ -4702,7 +5302,7 @@
     /**
      * adapter files loaded
      * 
-     * invoke a callback function and make shure it's
+     * invoke a callback function and make sure it's
      * only called once.
      *
      * @param {function} callback The function to be called on loaded
@@ -4850,6 +5450,7 @@
 
                     // ask user for refreshing the page
                     if (confirm(self.message)) {
+                        // true indicates, that the current page must be reloaded from the server
                         window.location.reload(true);
                     } else {
                         loaded(callback, self);
@@ -5196,11 +5797,13 @@
         helpers = ns.helpers,                                       // @type {object} Shortcut for helper functions
         client = helpers.client,                                    // @type {object} Shortcut for client functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
+        jsonHelper = helpers.json,                                  // @type {object} Shortcut for json functions
+        ajax = helpers.ajax,                                        // @type {object} Shortcut for ajax functions
         isArray = utils.isArray,                                    // @type {function} Shortcut for utils.isArray function
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        json = utils.getJson(),                                     // @type {object} Global window.Json object if available
-        xhr = utils.xhr,                                            // @type {function} Shortcut for utils.xhr function
+        json = jsonHelper.getJson(),                                // @type {object} Global window.Json object if available
+        xhr = ajax.xhr,                                             // @type {function} Shortcut for utils.xhr function
         trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         appCacheStorageAdapter = ns.cache.storage.adapter,          // @type {object} Shortcut for ns.cache.storage.adapter namespace
         hasCanvasSupport = client.hasCanvas(),                      // @type {boolean} Whether there is canvas support or not
@@ -5320,15 +5923,15 @@
     function handleXhrRequests(url, callback, resource) {
 
         // set timeout if network get lost
-        resource.timeout = window.setTimeout(function () {
+        resource.timeoutXhr = window.setTimeout(function () {
             callback(false);
         }, 4000);
 
         // make xhr call and check data
         xhr(url, function (data) {
 
-            window.clearTimeout(resource.timeout);
-            delete resource.timeout;
+            window.clearTimeout(resource.timeoutXhr);
+            delete resource.timeoutXhr;
 
             if (!!data) {
                 callback(data);
@@ -5355,7 +5958,7 @@
      * @return {string} The converted json string
      */
     function convertObjectToString(object) {
-        return utils.jsonToString(object);
+        return jsonHelper.jsonToString(object);
     }
 
 
@@ -5379,7 +5982,7 @@
          * have to use try/catch here.
          */
         try {
-            result = utils.jsonToObject(string);
+            result = jsonHelper.jsonToObject(string);
         } catch (e) {
 
             /* start-dev-block */
@@ -6528,7 +7131,7 @@
         dom = helpers.dom,                                          // @type {object} Shortcut for dom functions
         utils = helpers.utils,                                      // @type {object} Shortcut for utils functions
         client = helpers.client,                                    // @type {object} Shortcut for client functions
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         isArray = utils.isArray,                                    // @type {function} Shortcut for utils.isArray function
         trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         checkCallback = utils.callback;                             // @type {function} Shortcut for utils.callback function
@@ -7331,12 +7934,13 @@
         helpers = ns.helpers,                                       // @type {object} Shortcut for ns.helpers
         Queue = helpers.queue,                                      // @type {function} Shortcut for queuing functions
         utils = helpers.utils,                                      // @type {object} Shortcut for ns.helpers.utils
-        log = utils.log,                                            // @type {function} Shortcut for utils.log function
+        jsonHelper = helpers.json,                                  // @type {object} Shortcut for ns.helpers.json
+        log = helpers.console.log,                                  // @type {function} Shortcut for console.log function
         isArray = utils.isArray,                                    // @type {function} Shortcut for isArray function
-        json = utils.getJson(),                                     // @type {object} Global window.Json object if available
-        jsonToString = utils.jsonToString,                          // @type {function} Shortcut for jsonToString function
+        json = jsonHelper.getJson(),                                // @type {object} Global window.Json object if available
+        jsonToString = jsonHelper.jsonToString,                     // @type {function} Shortcut for jsonToString function
         checkCallback = utils.callback,                             // @type {function} Shortcut for utils.callback function
-        interval = 15,                                               // @type {integer} Milliseconds for interval controller check
+        interval = 15,                                              // @type {integer} Milliseconds for interval controller check
         timeout = 5000,                                             // @type {integer} Maximum time in milliseconds after we will give up checking
         setupParameters = {};                                       // @type {object} Store parameters from setup call
 
@@ -7511,7 +8115,12 @@
             return;
         }
 
-        // wait for intializing
+        /**
+         * wait for intializing
+         *
+         * this is the main entry point for initiailizing
+         * the interface routine
+         */
         if (!currentInterface.storage) {
 
             // add current load/remove call to queue

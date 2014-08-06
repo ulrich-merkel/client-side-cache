@@ -1,6 +1,6 @@
 /*jslint browser: true, devel: true, continue: true, regexp: true, plusplus: true, unparam: true  */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
-/*global window, document, XMLHttpRequest, ActiveXObject*/
+/*global window, document*/
 
 /**
  * ns.helpers.utils
@@ -9,11 +9,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2014
- * @version 0.2.4
+ * @version 0.3
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.3.0 moved some functions to own helper files, to keep the structure clear
  * - 0.2.4 bug fix legacy browsers isArray, bug fix console.log ie9
  * - 0.2.3 bug fix xhr ie6
  * - 0.2.2 removed unused functions for client-side-cache optimization, complete utils helper moved to separate git
@@ -28,7 +29,7 @@
  * - 0.1.3 createDomNode added
  * - 0.1.2 refactoring
  * - 0.1.1 bug fix xhr when trying to read binary data on ie
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * -
@@ -40,19 +41,7 @@
  * -
  *
  * @example
- *
- *      // add event handler
- *      app.helpers.utils.on(window, 'scroll', function () {
- *          // do something while window scrolling
- *      });
- *
- *      // make ajax request
- *      app.helpers.utils.xhr('ajax.html', function (data) {
- *          if (data) {
- *              // ajax data is ready to use
- *          }
- *      });
- *
+
  *      // check for array type
  *      var isArray = app.helpers.utils.isArray(array);
  *
@@ -91,8 +80,7 @@
     var utils = (function () {
 
         // init global vars
-        var jsonObject = null,                  // @type {object} The current json object
-            emptyArray = [];                    // @type {array} Placeholder for array testing
+        var emptyArray = [];                    // @type {array} Placeholder for array testing
 
 
         /**
@@ -242,6 +230,7 @@
              * @return {function} The checked callback function
              */
             callback: function (callback) {
+
                 // check if param is function, if not set it to empty function
                 if (!utils.isFunction(callback)) {
                     callback = function () {
@@ -251,385 +240,8 @@
 
                 // return checked callback function
                 return callback;
-            },
-
-
-            /**
-             * add event handler
-             *
-             * following the lazy loading design pattern, the on function will be
-             * overridden with the correct implemation the first time it will be
-             * called. after that all consequent calls deliver the correct one without
-             * conditions for different browsers.
-             *
-             * @see
-             * - http://coding.smashingmagazine.com/2013/11/12/an-introduction-to-dom-events/
-             *
-             * @param {string} target The dom object
-             * @param {string} eventType The event type to bind
-             * @param {function} handler The function to bind
-             */
-            on: function (target, eventType, handler) {
-
-                /**
-                 * override existing function based on
-                 * browser capabilities
-                 */
-
-                if (typeof window.addEventListener === 'function') {
-                    // dom2 event
-                    utils.on = function (target, eventType, handler) {
-                        target.addEventListener(eventType, handler, false);
-                    };
-                } else if (typeof document.attachEvent === 'function') {
-                    // ie event
-                    utils.on = function (target, eventType, handler) {
-                        target.attachEvent('on' + eventType, handler);
-                    };
-                } else {
-                    // older browers
-                    utils.on = function (target, eventType, handler) {
-                        target['on' + eventType] = handler;
-                    };
-                }
-
-                // call the new function
-                utils.on(target, eventType, handler);
 
             },
-
-
-            /**
-             * remove event handler
-             *
-             * following the lazy loading design pattern, the off function will be
-             * overridden with the correct implemation the first time it will be
-             * called. after that all consequent calls deliver the correct one without
-             * conditions for different browsers.
-             *
-             * @see
-             * - http://coding.smashingmagazine.com/2013/11/12/an-introduction-to-dom-events/
-             *
-             * @param {string} target The dom object
-             * @param {string} eventType The event type to unbind
-             * @param {function} handler The function to unbind
-             */
-            off: function (target, eventType, handler) {
-
-                /**
-                 * override existing function based on
-                 * browser capabilities
-                 */
-
-                if (typeof window.removeEventListener === 'function') {
-                    // dom2 event
-                    utils.off = function (target, eventType, handler) {
-                        target.removeEventListener(eventType, handler, false);
-                    };
-                } else if (typeof document.detachEvent === 'function') {
-                    // ie event
-                    utils.off = function (target, eventType, handler) {
-                        target.detachEvent('on' + eventType, handler);
-                    };
-                } else {
-                    // older browsers
-                    utils.off = function (target, eventType) {
-                        target['on' + eventType] = null;
-                    };
-                }
-
-                // call the new function
-                utils.off(target, eventType, handler);
-
-            },
-
-
-            /**
-             * get xhr object
-             *
-             * @return {object} The new xhr request object or null
-             */
-            getXhr: function () {
-
-                // set xhr vars
-                var xhrObject = null,
-                    XMLHttpFactories = [
-                        // mozilla, opera, safari and internet explorer (since version 7)
-                        function () {
-                            return new XMLHttpRequest();
-                        },
-                        // internet explorer (since version 5)
-                        function () {
-                            return new ActiveXObject('Msxml2.XMLHTTP');
-                        },
-                        function () {
-                            return new ActiveXObject('Msxml3.XMLHTTP');
-                        },
-                        // internet explorer (since version 6)
-                        function () {
-                            return new ActiveXObject('Microsoft.XMLHTTP');
-                        }
-                    ],
-                    length = XMLHttpFactories.length,
-                    i = 0;
-
-                // toggle through factories and try to init xhr object
-                for (i = 0; i < length; i = i + 1) {
-                    try {
-                        xhrObject = XMLHttpFactories[i]();
-                    } catch (e) {
-                        continue;
-                    }
-                    break;
-                }
-
-                // return ajax object
-                return xhrObject;
-            },
-
-
-            /**
-             * make ajax request
-             * 
-             * @param {string} url The required url to load
-             * @param {function} callback The required callback after success
-             * @param {boolean} async The optional async parameter to load xhr async or sync 
-             * @param {string} postData The optional post request data to send
-             */
-            xhr: function (url, callback, async, postData) {
-
-                // init local function vars
-                var reqObject = utils.getXhr(),
-                    reqCallback,
-                    reqType = 'GET';
-
-                // check callback parameter
-                callback = utils.callback(callback);
-
-                // if ajax is available
-                if (reqObject) {
-
-                    // check parameters (url, request type, async and post data)
-                    if (!url) {
-                        callback(false);
-                        return;
-                    }
-                    if (postData !== undefined) {
-                        reqType = 'POST';
-                    } else {
-                        postData = null;
-                    }
-                    if (async === undefined) {
-                        async = true;
-                    }
-
-                    // listen to results
-                    reqCallback = function () {
-
-                        /**
-                         * ready states
-                         *
-                         * reqObject.readyStates:
-                         * 0: request not initialized
-                         * 1: server connection established
-                         * 2: request received
-                         * 3: processing request
-                         * 4: request finished and response is ready
-                         *
-                         * reqObject.status:
-                         * 200: the request was fulfilled, codes between 200 and < 400 indicate that everything is okay
-                         * 400: the request had bad syntax or was inherently impossible to be satisfied, codes >= 400 indicate errors
-                         * 
-                         */
-
-                        if (reqObject.readyState === 4 && ((reqObject.status >= 200 && reqObject.status < 400) || reqObject.status === 0)) {
-
-                            /**
-                             * checking additionally for response text parsing
-                             * 
-                             * binary data (like images) could not be resolved for ajax
-                             * calls in ie and is throwing an error if we try to do so
-                             */
-                            try {
-                                var data = reqObject.responseText;
-                                if (data) {
-                                    callback(data);
-                                } else {
-                                    callback(false);
-                                }
-                            } catch (e) {
-                                callback(false);
-                            }
-
-                        } else if (reqObject.readyState === 4) {
-
-                            /**
-                             * request is completed but maybe
-                             * called with non-existing url
-                             */
-                            callback(false);
-                        }
-
-                    };
-
-                    // open ajax request and listen for events
-                    reqObject.open(reqType, url, async);
-
-                    /**
-                     * listen to results, onreadystatechange for ie7+ and onload for others
-                     * try catch is added for ie6 (object error for onreadystatechange)
-                     */
-                    try {
-                        if (reqObject.onreadystatechange !== undefined) {
-                            reqObject.onreadystatechange = reqCallback;
-                        } else if (reqObject.onload !== undefined) {
-                            reqObject.onload = reqCallback;
-                        }
-                    } catch (ignore) {
-                    }
-
-                    // send request
-                    reqObject.send(postData);
-
-                } else {
-                    callback(false);
-                }
-
-            },
-
-
-            /**
-             * get json object
-             *
-             * @return {object} The window.JSON object or null
-             */
-            getJson: function () {
-
-                // check for json support
-                if (null === jsonObject) {
-                    if (window.JSON && window.JSON.stringify) {
-                        jsonObject = window.JSON;
-                    }
-                }
-
-                //return the json object
-                return jsonObject;
-
-            },
-
-
-            /**
-             * convert json object to string
-             *
-             * @param {object} object The object to be parsed
-             * 
-             * @return {string} The converted string
-             */
-            jsonToString: function (object) {
-
-                // init local vars
-                var result = false;
-
-                // check for json object
-                if (null === jsonObject) {
-                    jsonObject = utils.getJson();
-                }
-
-                // convert object to string
-                if (jsonObject && object !== undefined) {
-                    result = jsonObject.stringify(object);
-                }
-
-                //return the json string
-                return result;
-
-            },
-
-
-            /**
-             * convert string into json object
-             *
-             * @param {string} string The string to be parsed
-             * 
-             * @return {object} The converted object
-             */
-            jsonToObject: function (string) {
-
-                // init local vars
-                var result = false;
-
-                // check for json object
-                if (null === jsonObject) {
-                    jsonObject = utils.getJson();
-                }
-
-                // convert object to string
-                if (jsonObject && string !== undefined) {
-                    result = jsonObject.parse(string);
-                }
-
-                //return the json object
-                return result;
-            },
-
-
-            /* start-dev-block */
-
-            /**
-             * function to write logging message to screen
-             *
-             * @param {string} message The message to log
-             */
-            logToScreen: function (message) {
-
-                // init local vars
-                var log = document.getElementById('log'),
-                    p = document.createElement('p'),
-                    text = document.createTextNode(message);
-
-                // append message
-                if (log) {
-                    p.appendChild(text);
-                    log.appendChild(p);
-                }
-            },
-
-
-            /**
-             * wrapper for console.log due to some browsers lack of this functions
-             *
-             * @param {arguments} The messages to log
-             */
-            log: function () {
-
-                var args = arguments,
-                    length = args.length,
-                    message,
-                    hasConsole = window.console !== undefined,
-                    console = hasConsole ? window.console : null,
-                    hasConsoleLog = (hasConsole && console.log !== undefined);
-
-                if (!length) {
-                    return;
-                }
-
-                // check for support
-                if (hasConsoleLog) {
-                    // fix for ie9
-                    if (console.log.apply) {
-                        console.log.apply(console, args);
-                    } else {
-                        console.log(args);
-                    }
-                }
-
-                // log messages to dom element
-                message = args[0];
-                utils.logToScreen(message);
-
-            },
-
-            /* end-dev-block */
 
 
             /**
@@ -677,6 +289,7 @@
                     extension: getExtension(url),
                     folder: getFolder()
                 };
+
             },
 
 
