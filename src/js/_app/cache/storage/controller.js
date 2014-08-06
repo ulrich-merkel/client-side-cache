@@ -330,6 +330,19 @@
 
             };
 
+            /**
+             * for webkit browsers, the following line ensures load event fires if
+             * image src is the same as last image src. This is done by setting
+             * the src to an empty string initially.
+             *
+             *  if ($.browser.webkit) {$image.attr('src', '');}
+             *
+             * @see
+             * - Supercharged JavaScript Graphics (O'Reilly, page 83)
+             */
+            image.src = '';
+
+
             // set image source after the event handler is attached
             image.src = url;
 

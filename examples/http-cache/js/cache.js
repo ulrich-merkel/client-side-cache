@@ -2568,7 +2568,7 @@
 
         /**
          * @see https://developer.mozilla.org/en-US/docs/Web/API/FileError
-         * string errors added for newest crome  31.0.1650.57
+         * string errors added for newest chrome (31.0.1650.57)
          */
         if (FileError) {
             switch (code) {
@@ -6061,6 +6061,19 @@
                 callback(result);
 
             };
+
+            /**
+             * for webkit browsers, the following line ensures load event fires if
+             * image src is the same as last image src. This is done by setting
+             * the src to an empty string initially.
+             *
+             *  if ($.browser.webkit) {$image.attr('src', '');}
+             *
+             * @see
+             * - Supercharged JavaScript Graphics (O'Reilly, page 83)
+             */
+            image.src = '';
+
 
             // set image source after the event handler is attached
             image.src = url;

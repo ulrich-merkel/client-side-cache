@@ -163,7 +163,7 @@
 
         /**
          * @see https://developer.mozilla.org/en-US/docs/Web/API/FileError
-         * string errors added for newest crome  31.0.1650.57
+         * string errors added for newest chrome (31.0.1650.57)
          */
         if (FileError) {
             switch (code) {
