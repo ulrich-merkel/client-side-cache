@@ -27,7 +27,7 @@
  * - 0.1.6 improved logging
  * - 0.1.5 improved namespacing
  * - 0.1.4 renamed addEventListener to adapterEvent, bug fixes progress event
- * - 0.1.3 improved module structur
+ * - 0.1.3 improved module structure
  * - 0.1.2 initializing call via images loaded plugin removed (seems to be buggy on edge connections), invoke main callback after 10 sec for slow connections
  * - 0.1.1 update ready event bug fixes
  * - 0.1 basic functions
@@ -498,7 +498,7 @@
                  * internet connections or uncovered non-standard behaviours
                  * which could throw errors.
                  *
-                 * the page is already accessable because all application cache
+                 * the page is already accessible because all application cache
                  * files will be loaded async in the background.
                  */
                 window.setTimeout(function () {
@@ -561,4 +561,4 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, document, window.getNs())); // immediatly invoke function
+}(window, document, window.getNs())); // immediately invoke function

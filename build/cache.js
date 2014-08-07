@@ -15,7 +15,7 @@
  * - 0.1.3 examples added
  * - 0.1.2 createNamespace and getNamespace added
  * - 0.1.1 refactoring
- * - 0.1 basic functions and plugin structur
+ * - 0.1 basic functions and plugin structure
  *
  * @see
  * - nicolas c. zakas - maintainable javascript, writing readable code (o'reilly s.72)
@@ -90,7 +90,7 @@
 
 
     /**
-     * helper function to defining package structur
+     * helper function to defining package structure
      *
      * within the global app object the given namespaces will
      * be created as javascript objects
@@ -163,7 +163,7 @@
     window.getNamespace = window.getNs = getNamespace;
 
 
-}(window));
+}(window)); // immediately invoke function
 
 /*global window*/
 
@@ -182,7 +182,7 @@
  * - 0.1.3 rename instance vars for better compression
  * - 0.1.2 refactoring, examples added
  * - 0.1.1 improved namespacing
- * - 0.1 basic functions and plugin structur
+ * - 0.1 basic functions and plugin structure
  *
  * @see
  * - http://www.dustindiaz.com/async-method-queues/
@@ -321,7 +321,7 @@
     ns.ns('helpers.queue', Queue);
 
 
-}(window.getNs()));  // immediatly invoke function
+}(window.getNs()));  // immediately invoke function
 
 /*jslint browser: true, devel: true, continue: true, regexp: true, plusplus: true, unparam: true  */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
@@ -443,7 +443,7 @@
              * check if value is array
              *
              * following the lazy loading design pattern, the isArray function will be
-             * overridden with the correct browser implemation the first time it will be
+             * overridden with the correct browser implementation the first time it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
              *
@@ -475,7 +475,7 @@
                         return objectProtoypeToString.call(value) === '[object Array]';
                     };
                 } else {
-                    // Duck-Typing arrays (by Douglas Crockford), asume sort function is only available for arrays
+                    // Duck-Typing arrays (by Douglas Crockford), assume sort function is only available for arrays
                     // Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array"
                     utils.isArray = function (value) {
                         return (!!value && !!value.sort && typeof value.sort === 'function');
@@ -492,7 +492,7 @@
              * check if value is in array
              *
              * following the lazy loading design pattern, the inArray function will be
-             * overridden with the correct browser implemation the first time it will be
+             * overridden with the correct browser implementation the first time it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
              *
@@ -583,7 +583,7 @@
                     return;
                 }
 
-                // create test link elmenent
+                // create test link element
                 var a = document.createElement('a'),
                     getFolder = function () {
                         var index = url.lastIndexOf('/'),
@@ -661,7 +661,7 @@
     ns.ns('helpers.utils', utils);
 
 
-}(window, document, window.getNs())); // immediatly invoke function
+}(window, document, window.getNs())); // immediately invoke function
 
 /*jslint browser: true, devel: true, continue: true, regexp: true, plusplus: true, unparam: true  */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50 */
@@ -692,7 +692,7 @@
  * - 0.1.3 createDomNode added
  * - 0.1.2 refactoring
  * - 0.1.1 bug fix xhr when trying to read binary data on ie
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * -
@@ -988,7 +988,7 @@
  * - 0.1.3 createDomNode added
  * - 0.1.2 refactoring
  * - 0.1.1 bug fix xhr when trying to read binary data on ie
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * -
@@ -1673,7 +1673,7 @@
  * - 0.3.1 changed namespace to app
  * - 0.3 isTouchDevice, hasMatrix added
  * - 0.2 Safari, Chrome, Opera Check added, global var useragent
- * - 0.1 basic functions and plugin structur
+ * - 0.1 basic functions and plugin structure
  *
  * @see
  * -
@@ -1728,15 +1728,23 @@
          */
 
         // init global vars
-        var privateIsOpera,                                                 // @type {boolean} Whether this browser is opera or not
+        var privateIsWebkit,                                                // @type {boolean} Whether this browser is webkit or not
+            privateIsOpera,                                                 // @type {boolean} Whether this browser is opera or not
             privateIsMsie,                                                  // @type {boolean} Whether this browser is msie or not
             privateIsOnline,                                                // @type {boolean} Whether this device has network connection or not
             privateHasCanvas,                                               // @type {boolean} Whether the browser has canvas support or not
 
             ua = navigator.userAgent || navigator.vendor || window.opera,   // @type {string} The user agent string of the current browser
             uaLowerCase = ua.toLowerCase(),                                 // @type {string} The lower case user agent string for easier matching
-            on = ns.helpers.events.on;                                       // @type {object} Shortcut for events.on function
+            on = ns.helpers.events.on;                                      // @type {object} Shortcut for events.on function
 
+
+        /**
+         * check for webkit browser
+         */
+        function checkIfIsWebkit() {
+            privateIsWebkit = uaLowerCase.match(/(webkit)/) !== null;
+        }
 
         /**
          * check for microsoft internet explorer
@@ -1770,6 +1778,14 @@
          * @interface
          */
         return {
+
+            // is webkit
+            isWebkit: function () {
+                if (privateIsWebkit === undefined) {
+                    checkIfIsWebkit();
+                }
+                return privateIsWebkit;
+            },
 
             // is microsoft internet explorer
             isMsie: function () {
@@ -1841,7 +1857,7 @@
  * - 0.1.3 createDomNode added
  * - 0.1.2 refactoring
  * - 0.1.1 bug fix xhr when trying to read binary data on ie
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * -
@@ -2432,7 +2448,7 @@
  * - 0.1.3 improved namespacing, handleStorageEvents adjusted to for current browser updates (event object error)
  * - 0.1.2 creating test item while open added, bug fixes for chrome 17
  * - 0.1.1 refactoring, js lint
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * - http://www.w3.org/TR/file-system-api/
@@ -2556,7 +2572,7 @@
 
         /* start-dev-block */
 
-        // check for corrent event object
+        // check for correct event object
         if (!e) {
             return;
         }
@@ -2629,7 +2645,7 @@
 
 
     /**
-     * create directory recursiv
+     * create directory recursively
      *
      * @param {object} root The required storage root
      * @param {array} folders The required value string from database
@@ -2676,7 +2692,7 @@
      * check directory path
      *
      * @param {object} fileSystem The required fileSystem to check
-     * @param {srting} url The required url string to check
+     * @param {string} url The required url string to check
      * @param {function} callback The optional callback after success
      */
     function checkDirectory(fileSystem, url, callback) {
@@ -2916,7 +2932,7 @@
 
                             } else if (BlobBuilder) {
 
-                                // old and depricated blobs
+                                // old and deprecated blobs
                                 blob = new BlobBuilder();
                                 blob.append(content);
                                 fileWriter.write(blob.getBlob('application/json'));
@@ -3100,7 +3116,7 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window, window.getNs())); // immediately invoke function
 
 /*jslint browser: true, devel: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false*/
@@ -3133,7 +3149,7 @@
  * - 0.1.3 improved namespacing
  * - 0.1.2 several fixes for indexedDB.open for non-standard browsers
  * - 0.1.1 bug fixes delete, js lint
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  * 
  * @see
  * - http://www.w3.org/TR/IndexedDB/
@@ -3527,7 +3543,7 @@
          * open and initialize storage if not already done
          * 
          * @param {function} callback The optional function called on success
-         * @param {boolean} setVersion The optional parameter to set the db version on indexeddb.open(), used for recursiv self.open() call if first option failed
+         * @param {boolean} setVersion The optional parameter to set the db version on indexeddb.open(), used for recursive self.open() call if first option failed
          */
         open: function (callback, setVersion) {
 
@@ -3730,7 +3746,7 @@
                 /**
                  * open db
                  *
-                 * hack: different implementations for windowObject.open(dbName, dbVersion) in some browers,
+                 * hack: different implementations for windowObject.open(dbName, dbVersion) in some browsers,
                  * to keep it working in older versions (e.g. firefox 18.0.1 produces version error due to dbVersion param)
                  * we just set dbName parameter if setVersion param isn't set. ie10 also trigger an error here if they
                  * try to access database and the disc space is full
@@ -3823,7 +3839,7 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window, window.getNs())); // immediately invoke function
 
 /*global window, undefined */
 
@@ -3858,7 +3874,7 @@
  * - 0.1.3 refactoring, js lint
  * - 0.1.2 several version change bug fixes
  * - 0.1.1 refactoring, js lint
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * - http://www.w3.org/TR/webdatabase/
@@ -4330,7 +4346,7 @@
                  * sql helper function to create table if not exists
                  *
                  * @param {object} currentAdapter The currently initialized adapter
-                 * @param {object} transaction The optinional transaction object
+                 * @param {object} transaction The optional transaction object
                  */
                 createTableIfNotExists = function (currentAdapter, transaction) {
 
@@ -4513,7 +4529,7 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window, window.getNs())); // immediately invoke function
 
 /*jslint browser: true, devel: true, ass: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50, devel:true, wsh:false */
@@ -4525,7 +4541,7 @@
  *
  * @description
  * - provide a storage api for web storage
- * - enable sychronous and asynchronous interface calls
+ * - enable synchronous and asynchronous interface calls
  * - support:
  *      - Internet Explorer 8.0 +
  *      - Firefox 3.5 +
@@ -4561,7 +4577,7 @@
  * - 0.1.3 polyfill for globalStorage and ie userdata added
  * - 0.1.2 bug fixes for non-standard browsers, trying to read item added to open function
  * - 0.1.1 refactoring, js lint
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * - http://www.w3.org/TR/webstorage/
@@ -4884,7 +4900,7 @@
 
             }
 
-            // return asynch or synchron result
+            // return asynch or synch result
             return checkAsynch(result);
 
         },
@@ -4939,7 +4955,7 @@
 
             }
 
-            // return asynch or synchron result
+            // return asynch or synch result
             return checkAsynch(result);
 
         },
@@ -4959,8 +4975,7 @@
             // init local vars
             var self = this;
 
-            // return asynch or synchron result
-            // same logic as this.create
+            // return asynch or synch result, same logic as this.create
             if (self.asynch) {
                 self.create(key, content, callback);
             } else {
@@ -5013,7 +5028,7 @@
 
             }
 
-            // return asynch or synchron result
+            // return asynch or synch result
             return checkAsynch(result);
         },
 
@@ -5043,7 +5058,7 @@
 
             callback = checkCallback(callback);
 
-            // check for adapter already initiliazed
+            // check if adapter is already initialized
             if (null === adapter) {
                 try {
 
@@ -5105,12 +5120,12 @@
                     handleStorageEvents(e);
                     /* end-dev-block */
 
-                    // return asynch or synchron result
+                    // return asynch or synch result
                     return checkAsynch(false);
                 }
             } else if (self.isSupported()) {
 
-                // return asynch or synchron result
+                // return asynch or synch result
                 return checkAsynch(adapter);
             }
 
@@ -5163,7 +5178,7 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window, window.getNs())); // immediately invoke function
 
 /*global window, document, confirm*/
 
@@ -5194,7 +5209,7 @@
  * - 0.1.6 improved logging
  * - 0.1.5 improved namespacing
  * - 0.1.4 renamed addEventListener to adapterEvent, bug fixes progress event
- * - 0.1.3 improved module structur
+ * - 0.1.3 improved module structure
  * - 0.1.2 initializing call via images loaded plugin removed (seems to be buggy on edge connections), invoke main callback after 10 sec for slow connections
  * - 0.1.1 update ready event bug fixes
  * - 0.1 basic functions
@@ -5665,7 +5680,7 @@
                  * internet connections or uncovered non-standard behaviours
                  * which could throw errors.
                  *
-                 * the page is already accessable because all application cache
+                 * the page is already accessible because all application cache
                  * files will be loaded async in the background.
                  */
                 window.setTimeout(function () {
@@ -5728,7 +5743,7 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, document, window.getNs())); // immediatly invoke function
+}(window, document, window.getNs())); // immediately invoke function
 
 /*jslint browser: true, devel: true, regexp: true */
 /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:false, curly:true, browser:true, indent:4, maxerr:50 */
@@ -5758,7 +5773,7 @@
  * - 0.1.3 bug fix when checking adapter support - additionally checking with adapter.open and not just isSupported, modified getStorageAdapter function
  * - 0.1.2 refactoring, js lint
  * - 0.1.1 bug fix init when cache storage is disabled
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * - http://www.html5rocks.com/en/tutorials/offline/storage/
@@ -5806,6 +5821,7 @@
         xhr = ajax.xhr,                                             // @type {function} Shortcut for utils.xhr function
         trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         appCacheStorageAdapter = ns.cache.storage.adapter,          // @type {object} Shortcut for ns.cache.storage.adapter namespace
+        isWebkit = client.isWebkit(),                               // @type {boolean} Whether the client is webkit based or not
         hasCanvasSupport = client.hasCanvas(),                      // @type {boolean} Whether there is canvas support or not
 
         /**
@@ -6034,7 +6050,7 @@
 
             };
 
-            // asynch event handler when image is loaded
+            // async event handler when image is loaded
             image.onload = function () {
 
                 // avoid memory leaks
@@ -6050,7 +6066,7 @@
                 // set background color (for jpeg images out of transparent png files)
                 context.fillStyle = 'rgba(50, 50, 50, 0)';
 
-                // draw background, start on top/left and set fullwith/height
+                // draw background, start on top/left and set full width/height
                 context.fillRect(0, 0, width, height);
 
                 // draw image in canvas on top/left
@@ -6067,12 +6083,12 @@
              * image src is the same as last image src. This is done by setting
              * the src to an empty string initially.
              *
-             *  if ($.browser.webkit) {$image.attr('src', '');}
-             *
              * @see
              * - Supercharged JavaScript Graphics (O'Reilly, page 83)
              */
-            image.src = '';
+            if (isWebkit) {
+                image.src = '';
+            }
 
 
             // set image source after the event handler is attached
@@ -6104,9 +6120,9 @@
     /**
      * replace relative with absolute urls 
      *
-     * used whithin css resource string  data (e.g css background urls),
+     * used within css resource string  data (e.g css background urls),
      * this needs to be done because the css string a put directly into the
-     * html structur and therefor all relative url pathes needs to change
+     * html structure and therefor all relative url paths needs to change
      *
      * @param {object} resource The resource object item
      *
@@ -6128,7 +6144,7 @@
             folder = urlParts.folder;
 
             /**
-             * search for different css code styles for embeding urls
+             * search for different css code styles for embedding urls
              * in css rules (this is important for some css minifiers
              * and different coding styles)
              */
@@ -6232,7 +6248,7 @@
 
 
     /**
-     * get available storage adapter recursivly
+     * get available storage adapter recursively
      * automatically try to init each storage adapter until a supported adapter is found
      *
      * @param {array} storageAdapters The storage types
@@ -6264,14 +6280,14 @@
             // get new storage adapter instance
             adapter = new appCacheStorageAdapter[storageType](adapterDefaults);
         } else {
-            // recursiv call
+            // recursive call
             getAvailableStorageAdapter(storageAdaptersSliced, callback);
         }
 
         // check for general javascript api support
         if (adapter && adapter.isSupported()) {
 
-            // storage api is avaibable, try to open storage
+            // storage api is available, try to open storage
             adapter.open(function (success) {
 
                 if (!!success) {
@@ -6287,7 +6303,7 @@
 
                 } else {
 
-                    // recursiv call
+                    // recursive call
                     getAvailableStorageAdapter(storageAdaptersSliced, callback);
 
                 }
@@ -6295,7 +6311,7 @@
 
         } else {
 
-            // recursiv call
+            // recursive call
             getAvailableStorageAdapter(storageAdaptersSliced, callback);
         }
     }
@@ -6334,7 +6350,7 @@
 
                 if (adapter && adapter.isSupported()) {
 
-                    // storage api is avaibable, try to open storage
+                    // storage api is available, try to open storage
                     adapter.open(function (success) {
                         if (!!success) {
 
@@ -6367,7 +6383,7 @@
 
                         } else {
 
-                            // recursiv call
+                            // recursive call
                             getStorageAdapter(callback, storageAdapters);
 
                         }
@@ -6567,17 +6583,6 @@
 
             // get resource data based on type
             chooseLoading(resource, createCallback, callback);
-            //if (!!resource.ajax) {
-            //    if (type === 'img') {
-            //        convertImageToBase64(url, createCallback);
-            //    } else {
-            //        handleXhrRequests(url, createCallback, resource);
-            //    }
-            //} else if (!!resource.data) {
-            //    createCallback(resource.data);
-            //} else {
-            //    callback(false);
-            //}
 
         },
 
@@ -6777,17 +6782,6 @@
 
             // get resource data based on type
             chooseLoading(resource, updateCallback, callback);
-            //if (!!resource.ajax) {
-            //    if (type === 'img') {
-            //        convertImageToBase64(url, updateCallback);
-            //    } else {
-            //        handleXhrRequests(url, updateCallback, resource);
-            //    }
-            //} else if (!!resource.data) {
-            //    updateCallback(resource.data);
-            //} else {
-            //    callback(false);
-            //}
 
         },
 
@@ -6882,7 +6876,7 @@
 
                         parametersAdapters = parameters.adapters;
 
-                        // check adapater type params
+                        // check adapter type params
                         if (parametersAdapters.types && isArray(parametersAdapters.types)) {
 
                             parametersAdapterTypes = parametersAdapters.types;
@@ -6908,7 +6902,7 @@
 
                         }
 
-                        // check adpater defaults params
+                        // check adapter defaults params
                         if (parametersAdapters.defaults) {
 
                             parametersAdapterDefaults = parametersAdapters.defaults;
@@ -6988,7 +6982,7 @@
                 /**
                  * storage checking and initializing takes some time
                  * (especially for db's), so we return the current storage
-                 * instance via callbacks, after the adapter get's
+                 * instance via callbacks, after the adapter is
                  * successfully initialized.
                  *
                  * the returned adapter will already be opened and checked
@@ -7013,7 +7007,7 @@
             } else {
 
                 /**
-                 * just return the instance to get the ressource
+                 * just return the instance to get the resource
                  * via xhr if storage is disabled or json is not
                  * available.
                  */
@@ -7036,14 +7030,14 @@
 
     /**
      * make the storage controller constructor available for ns.cache.storage.controller()
-     * calls under the ns.cache namespace, alternativly save it to window object
+     * calls under the ns.cache namespace, alternatively save it to window object
      * 
      * @export
      */
     ns.ns('cache.' + controllerType + '.controller', Storage);
 
 
-}(window, document, window.getNs())); // immediatly invoke function
+}(window, document, window.getNs())); // immediately invoke function
 
 /*global window */
 
@@ -7071,7 +7065,7 @@
  * - 0.1.3 bug fix check for outdated data
  * - 0.1.2 resource attrib check on loadResource function added
  * - 0.1.1 bug fix load resource (item.lifetime is set check added)
- * - 0.1 basic functions and plugin structur
+ * - 0.1 basic functions and plugin structure
  *
  * @see
  * - http://www.winktoolkit.org/
@@ -7327,7 +7321,7 @@
                         }
                     };
 
-                }()), // immediatly invoke function to make init() and loaded() accessable via loadResourceGroupQueue var
+                }()), // immediately invoke function to make init() and loaded() accessible via loadResourceGroupQueue var
 
 
                 /**
@@ -7425,7 +7419,7 @@
                     } else if (!resourceLastmod) {
 
                         /**
-                         * there is no lastmod option set for the resouce request
+                         * there is no lastmod option set for the resource request
                          * so use the defaults
                          */
                         resourceLastmod = resourceDefaults.lastmod;
@@ -7632,7 +7626,7 @@
                         group;
 
                     /**
-                     * check for corrent index value
+                     * check for correct index value
                      * on first load index is undefined/optional, so we set
                      * it to zero to run the loop correctly
                      */
@@ -7655,7 +7649,7 @@
                         return;
                     }
 
-                    // load resources, increase group index recursiv
+                    // load resources, increase group index recursive
                     group = resources[index];
                     loadResourceGroup(group, function () {
                         load(resources, callback, index + 1);
@@ -7860,7 +7854,7 @@
  * - 0.1.3 refactoring
  * - 0.1.2 improved namespacing
  * - 0.1.1 bug fixes for different cache parameters
- * - 0.1 basic functions and plugin structur
+ * - 0.1 basic functions and plugin structure
  *
  * @see
  * -
@@ -8096,7 +8090,7 @@
                     currentInterface.timeout = currentInterfaceTimeout = currentInterface.timeout + interval;
                     currentInterfaceStorage = currentInterface.storage;
 
-                    // if cache and storage controller is completly loaded, start queue
+                    // if cache and storage controller is completely loaded, start queue
                     if (currentInterface.controller && currentInterfaceStorage && (currentInterfaceStorage.adapter || !currentInterfaceStorage.isEnabled)) {
                         window.clearInterval(currentInterfaceInterval);
                         currentInterface.queue.flush();
@@ -8129,9 +8123,9 @@
         }
 
         /**
-         * wait for intializing
+         * wait for initializing
          *
-         * this is the main entry point for initiailizing
+         * this is the main entry point for initializing
          * the interface routine
          */
         if (!currentInterface.storage) {

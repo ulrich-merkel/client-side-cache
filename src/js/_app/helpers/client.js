@@ -26,7 +26,7 @@
  * - 0.3.1 changed namespace to app
  * - 0.3 isTouchDevice, hasMatrix added
  * - 0.2 Safari, Chrome, Opera Check added, global var useragent
- * - 0.1 basic functions and plugin structur
+ * - 0.1 basic functions and plugin structure
  *
  * @see
  * -
@@ -81,15 +81,23 @@
          */
 
         // init global vars
-        var privateIsOpera,                                                 // @type {boolean} Whether this browser is opera or not
+        var privateIsWebkit,                                                // @type {boolean} Whether this browser is webkit or not
+            privateIsOpera,                                                 // @type {boolean} Whether this browser is opera or not
             privateIsMsie,                                                  // @type {boolean} Whether this browser is msie or not
             privateIsOnline,                                                // @type {boolean} Whether this device has network connection or not
             privateHasCanvas,                                               // @type {boolean} Whether the browser has canvas support or not
 
             ua = navigator.userAgent || navigator.vendor || window.opera,   // @type {string} The user agent string of the current browser
             uaLowerCase = ua.toLowerCase(),                                 // @type {string} The lower case user agent string for easier matching
-            on = ns.helpers.events.on;                                       // @type {object} Shortcut for events.on function
+            on = ns.helpers.events.on;                                      // @type {object} Shortcut for events.on function
 
+
+        /**
+         * check for webkit browser
+         */
+        function checkIfIsWebkit() {
+            privateIsWebkit = uaLowerCase.match(/(webkit)/) !== null;
+        }
 
         /**
          * check for microsoft internet explorer
@@ -123,6 +131,14 @@
          * @interface
          */
         return {
+
+            // is webkit
+            isWebkit: function () {
+                if (privateIsWebkit === undefined) {
+                    checkIfIsWebkit();
+                }
+                return privateIsWebkit;
+            },
 
             // is microsoft internet explorer
             isMsie: function () {

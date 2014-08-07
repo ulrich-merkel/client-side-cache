@@ -118,7 +118,7 @@
              * check if value is array
              *
              * following the lazy loading design pattern, the isArray function will be
-             * overridden with the correct browser implemation the first time it will be
+             * overridden with the correct browser implementation the first time it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
              *
@@ -150,7 +150,7 @@
                         return objectProtoypeToString.call(value) === '[object Array]';
                     };
                 } else {
-                    // Duck-Typing arrays (by Douglas Crockford), asume sort function is only available for arrays
+                    // Duck-Typing arrays (by Douglas Crockford), assume sort function is only available for arrays
                     // Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array"
                     utils.isArray = function (value) {
                         return (!!value && !!value.sort && typeof value.sort === 'function');
@@ -167,7 +167,7 @@
              * check if value is in array
              *
              * following the lazy loading design pattern, the inArray function will be
-             * overridden with the correct browser implemation the first time it will be
+             * overridden with the correct browser implementation the first time it will be
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
              *
@@ -258,7 +258,7 @@
                     return;
                 }
 
-                // create test link elmenent
+                // create test link element
                 var a = document.createElement('a'),
                     getFolder = function () {
                         var index = url.lastIndexOf('/'),
@@ -336,4 +336,4 @@
     ns.ns('helpers.utils', utils);
 
 
-}(window, document, window.getNs())); // immediatly invoke function
+}(window, document, window.getNs())); // immediately invoke function

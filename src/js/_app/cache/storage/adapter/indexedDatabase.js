@@ -29,7 +29,7 @@
  * - 0.1.3 improved namespacing
  * - 0.1.2 several fixes for indexedDB.open for non-standard browsers
  * - 0.1.1 bug fixes delete, js lint
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  * 
  * @see
  * - http://www.w3.org/TR/IndexedDB/
@@ -423,7 +423,7 @@
          * open and initialize storage if not already done
          * 
          * @param {function} callback The optional function called on success
-         * @param {boolean} setVersion The optional parameter to set the db version on indexeddb.open(), used for recursiv self.open() call if first option failed
+         * @param {boolean} setVersion The optional parameter to set the db version on indexeddb.open(), used for recursive self.open() call if first option failed
          */
         open: function (callback, setVersion) {
 
@@ -626,7 +626,7 @@
                 /**
                  * open db
                  *
-                 * hack: different implementations for windowObject.open(dbName, dbVersion) in some browers,
+                 * hack: different implementations for windowObject.open(dbName, dbVersion) in some browsers,
                  * to keep it working in older versions (e.g. firefox 18.0.1 produces version error due to dbVersion param)
                  * we just set dbName parameter if setVersion param isn't set. ie10 also trigger an error here if they
                  * try to access database and the disc space is full
@@ -719,4 +719,4 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window, window.getNs())); // immediately invoke function

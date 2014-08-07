@@ -26,7 +26,7 @@
  * - 0.1.3 bug fix when checking adapter support - additionally checking with adapter.open and not just isSupported, modified getStorageAdapter function
  * - 0.1.2 refactoring, js lint
  * - 0.1.1 bug fix init when cache storage is disabled
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * - http://www.html5rocks.com/en/tutorials/offline/storage/
@@ -74,6 +74,7 @@
         xhr = ajax.xhr,                                             // @type {function} Shortcut for utils.xhr function
         trim = utils.trim,                                          // @type {function} Shortcut for utils.trim function
         appCacheStorageAdapter = ns.cache.storage.adapter,          // @type {object} Shortcut for ns.cache.storage.adapter namespace
+        isWebkit = client.isWebkit(),                               // @type {boolean} Whether the client is webkit based or not
         hasCanvasSupport = client.hasCanvas(),                      // @type {boolean} Whether there is canvas support or not
 
         /**
@@ -302,7 +303,7 @@
 
             };
 
-            // asynch event handler when image is loaded
+            // async event handler when image is loaded
             image.onload = function () {
 
                 // avoid memory leaks
@@ -318,7 +319,7 @@
                 // set background color (for jpeg images out of transparent png files)
                 context.fillStyle = 'rgba(50, 50, 50, 0)';
 
-                // draw background, start on top/left and set fullwith/height
+                // draw background, start on top/left and set full width/height
                 context.fillRect(0, 0, width, height);
 
                 // draw image in canvas on top/left
@@ -335,12 +336,12 @@
              * image src is the same as last image src. This is done by setting
              * the src to an empty string initially.
              *
-             *  if ($.browser.webkit) {$image.attr('src', '');}
-             *
              * @see
              * - Supercharged JavaScript Graphics (O'Reilly, page 83)
              */
-            image.src = '';
+            if (isWebkit) {
+                image.src = '';
+            }
 
 
             // set image source after the event handler is attached
@@ -372,9 +373,9 @@
     /**
      * replace relative with absolute urls 
      *
-     * used whithin css resource string  data (e.g css background urls),
+     * used within css resource string  data (e.g css background urls),
      * this needs to be done because the css string a put directly into the
-     * html structur and therefor all relative url pathes needs to change
+     * html structure and therefor all relative url paths needs to change
      *
      * @param {object} resource The resource object item
      *
@@ -396,7 +397,7 @@
             folder = urlParts.folder;
 
             /**
-             * search for different css code styles for embeding urls
+             * search for different css code styles for embedding urls
              * in css rules (this is important for some css minifiers
              * and different coding styles)
              */
@@ -500,7 +501,7 @@
 
 
     /**
-     * get available storage adapter recursivly
+     * get available storage adapter recursively
      * automatically try to init each storage adapter until a supported adapter is found
      *
      * @param {array} storageAdapters The storage types
@@ -532,14 +533,14 @@
             // get new storage adapter instance
             adapter = new appCacheStorageAdapter[storageType](adapterDefaults);
         } else {
-            // recursiv call
+            // recursive call
             getAvailableStorageAdapter(storageAdaptersSliced, callback);
         }
 
         // check for general javascript api support
         if (adapter && adapter.isSupported()) {
 
-            // storage api is avaibable, try to open storage
+            // storage api is available, try to open storage
             adapter.open(function (success) {
 
                 if (!!success) {
@@ -555,7 +556,7 @@
 
                 } else {
 
-                    // recursiv call
+                    // recursive call
                     getAvailableStorageAdapter(storageAdaptersSliced, callback);
 
                 }
@@ -563,7 +564,7 @@
 
         } else {
 
-            // recursiv call
+            // recursive call
             getAvailableStorageAdapter(storageAdaptersSliced, callback);
         }
     }
@@ -602,7 +603,7 @@
 
                 if (adapter && adapter.isSupported()) {
 
-                    // storage api is avaibable, try to open storage
+                    // storage api is available, try to open storage
                     adapter.open(function (success) {
                         if (!!success) {
 
@@ -635,7 +636,7 @@
 
                         } else {
 
-                            // recursiv call
+                            // recursive call
                             getStorageAdapter(callback, storageAdapters);
 
                         }
@@ -835,17 +836,6 @@
 
             // get resource data based on type
             chooseLoading(resource, createCallback, callback);
-            //if (!!resource.ajax) {
-            //    if (type === 'img') {
-            //        convertImageToBase64(url, createCallback);
-            //    } else {
-            //        handleXhrRequests(url, createCallback, resource);
-            //    }
-            //} else if (!!resource.data) {
-            //    createCallback(resource.data);
-            //} else {
-            //    callback(false);
-            //}
 
         },
 
@@ -1045,17 +1035,6 @@
 
             // get resource data based on type
             chooseLoading(resource, updateCallback, callback);
-            //if (!!resource.ajax) {
-            //    if (type === 'img') {
-            //        convertImageToBase64(url, updateCallback);
-            //    } else {
-            //        handleXhrRequests(url, updateCallback, resource);
-            //    }
-            //} else if (!!resource.data) {
-            //    updateCallback(resource.data);
-            //} else {
-            //    callback(false);
-            //}
 
         },
 
@@ -1150,7 +1129,7 @@
 
                         parametersAdapters = parameters.adapters;
 
-                        // check adapater type params
+                        // check adapter type params
                         if (parametersAdapters.types && isArray(parametersAdapters.types)) {
 
                             parametersAdapterTypes = parametersAdapters.types;
@@ -1176,7 +1155,7 @@
 
                         }
 
-                        // check adpater defaults params
+                        // check adapter defaults params
                         if (parametersAdapters.defaults) {
 
                             parametersAdapterDefaults = parametersAdapters.defaults;
@@ -1256,7 +1235,7 @@
                 /**
                  * storage checking and initializing takes some time
                  * (especially for db's), so we return the current storage
-                 * instance via callbacks, after the adapter get's
+                 * instance via callbacks, after the adapter is
                  * successfully initialized.
                  *
                  * the returned adapter will already be opened and checked
@@ -1281,7 +1260,7 @@
             } else {
 
                 /**
-                 * just return the instance to get the ressource
+                 * just return the instance to get the resource
                  * via xhr if storage is disabled or json is not
                  * available.
                  */
@@ -1304,11 +1283,11 @@
 
     /**
      * make the storage controller constructor available for ns.cache.storage.controller()
-     * calls under the ns.cache namespace, alternativly save it to window object
+     * calls under the ns.cache namespace, alternatively save it to window object
      * 
      * @export
      */
     ns.ns('cache.' + controllerType + '.controller', Storage);
 
 
-}(window, document, window.getNs())); // immediatly invoke function
+}(window, document, window.getNs())); // immediately invoke function

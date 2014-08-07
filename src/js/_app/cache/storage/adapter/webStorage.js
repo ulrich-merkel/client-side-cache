@@ -8,7 +8,7 @@
  *
  * @description
  * - provide a storage api for web storage
- * - enable sychronous and asynchronous interface calls
+ * - enable synchronous and asynchronous interface calls
  * - support:
  *      - Internet Explorer 8.0 +
  *      - Firefox 3.5 +
@@ -44,7 +44,7 @@
  * - 0.1.3 polyfill for globalStorage and ie userdata added
  * - 0.1.2 bug fixes for non-standard browsers, trying to read item added to open function
  * - 0.1.1 refactoring, js lint
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * - http://www.w3.org/TR/webstorage/
@@ -367,7 +367,7 @@
 
             }
 
-            // return asynch or synchron result
+            // return asynch or synch result
             return checkAsynch(result);
 
         },
@@ -422,7 +422,7 @@
 
             }
 
-            // return asynch or synchron result
+            // return asynch or synch result
             return checkAsynch(result);
 
         },
@@ -442,8 +442,7 @@
             // init local vars
             var self = this;
 
-            // return asynch or synchron result
-            // same logic as this.create
+            // return asynch or synch result, same logic as this.create
             if (self.asynch) {
                 self.create(key, content, callback);
             } else {
@@ -496,7 +495,7 @@
 
             }
 
-            // return asynch or synchron result
+            // return asynch or synch result
             return checkAsynch(result);
         },
 
@@ -526,7 +525,7 @@
 
             callback = checkCallback(callback);
 
-            // check for adapter already initiliazed
+            // check if adapter is already initialized
             if (null === adapter) {
                 try {
 
@@ -588,12 +587,12 @@
                     handleStorageEvents(e);
                     /* end-dev-block */
 
-                    // return asynch or synchron result
+                    // return asynch or synch result
                     return checkAsynch(false);
                 }
             } else if (self.isSupported()) {
 
-                // return asynch or synchron result
+                // return asynch or synch result
                 return checkAsynch(adapter);
             }
 
@@ -646,4 +645,4 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window, window.getNs())); // immediately invoke function

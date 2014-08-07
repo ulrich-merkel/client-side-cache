@@ -27,7 +27,7 @@
  * - 0.1.3 improved namespacing, handleStorageEvents adjusted to for current browser updates (event object error)
  * - 0.1.2 creating test item while open added, bug fixes for chrome 17
  * - 0.1.1 refactoring, js lint
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * - http://www.w3.org/TR/file-system-api/
@@ -151,7 +151,7 @@
 
         /* start-dev-block */
 
-        // check for corrent event object
+        // check for correct event object
         if (!e) {
             return;
         }
@@ -224,7 +224,7 @@
 
 
     /**
-     * create directory recursiv
+     * create directory recursively
      *
      * @param {object} root The required storage root
      * @param {array} folders The required value string from database
@@ -271,7 +271,7 @@
      * check directory path
      *
      * @param {object} fileSystem The required fileSystem to check
-     * @param {srting} url The required url string to check
+     * @param {string} url The required url string to check
      * @param {function} callback The optional callback after success
      */
     function checkDirectory(fileSystem, url, callback) {
@@ -511,7 +511,7 @@
 
                             } else if (BlobBuilder) {
 
-                                // old and depricated blobs
+                                // old and deprecated blobs
                                 blob = new BlobBuilder();
                                 blob.append(content);
                                 fileWriter.write(blob.getBlob('application/json'));
@@ -695,4 +695,4 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window, window.getNs())); // immediately invoke function

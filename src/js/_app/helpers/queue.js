@@ -15,7 +15,7 @@
  * - 0.1.3 rename instance vars for better compression
  * - 0.1.2 refactoring, examples added
  * - 0.1.1 improved namespacing
- * - 0.1 basic functions and plugin structur
+ * - 0.1 basic functions and plugin structure
  *
  * @see
  * - http://www.dustindiaz.com/async-method-queues/
@@ -154,4 +154,4 @@
     ns.ns('helpers.queue', Queue);
 
 
-}(window.getNs()));  // immediatly invoke function
+}(window.getNs()));  // immediately invoke function

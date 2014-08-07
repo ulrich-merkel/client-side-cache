@@ -20,7 +20,7 @@
  * - 0.1.3 refactoring
  * - 0.1.2 improved namespacing
  * - 0.1.1 bug fixes for different cache parameters
- * - 0.1 basic functions and plugin structur
+ * - 0.1 basic functions and plugin structure
  *
  * @see
  * -
@@ -256,7 +256,7 @@
                     currentInterface.timeout = currentInterfaceTimeout = currentInterface.timeout + interval;
                     currentInterfaceStorage = currentInterface.storage;
 
-                    // if cache and storage controller is completly loaded, start queue
+                    // if cache and storage controller is completely loaded, start queue
                     if (currentInterface.controller && currentInterfaceStorage && (currentInterfaceStorage.adapter || !currentInterfaceStorage.isEnabled)) {
                         window.clearInterval(currentInterfaceInterval);
                         currentInterface.queue.flush();
@@ -289,9 +289,9 @@
         }
 
         /**
-         * wait for intializing
+         * wait for initializing
          *
-         * this is the main entry point for initiailizing
+         * this is the main entry point for initializing
          * the interface routine
          */
         if (!currentInterface.storage) {

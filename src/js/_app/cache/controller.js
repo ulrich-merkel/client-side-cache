@@ -24,7 +24,7 @@
  * - 0.1.3 bug fix check for outdated data
  * - 0.1.2 resource attrib check on loadResource function added
  * - 0.1.1 bug fix load resource (item.lifetime is set check added)
- * - 0.1 basic functions and plugin structur
+ * - 0.1 basic functions and plugin structure
  *
  * @see
  * - http://www.winktoolkit.org/
@@ -280,7 +280,7 @@
                         }
                     };
 
-                }()), // immediatly invoke function to make init() and loaded() accessable via loadResourceGroupQueue var
+                }()), // immediately invoke function to make init() and loaded() accessible via loadResourceGroupQueue var
 
 
                 /**
@@ -378,7 +378,7 @@
                     } else if (!resourceLastmod) {
 
                         /**
-                         * there is no lastmod option set for the resouce request
+                         * there is no lastmod option set for the resource request
                          * so use the defaults
                          */
                         resourceLastmod = resourceDefaults.lastmod;
@@ -585,7 +585,7 @@
                         group;
 
                     /**
-                     * check for corrent index value
+                     * check for correct index value
                      * on first load index is undefined/optional, so we set
                      * it to zero to run the loop correctly
                      */
@@ -608,7 +608,7 @@
                         return;
                     }
 
-                    // load resources, increase group index recursiv
+                    // load resources, increase group index recursive
                     group = resources[index];
                     loadResourceGroup(group, function () {
                         load(resources, callback, index + 1);

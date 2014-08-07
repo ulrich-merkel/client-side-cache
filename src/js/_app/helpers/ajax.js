@@ -29,7 +29,7 @@
  * - 0.1.3 createDomNode added
  * - 0.1.2 refactoring
  * - 0.1.1 bug fix xhr when trying to read binary data on ie
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * -

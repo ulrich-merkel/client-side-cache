@@ -15,7 +15,7 @@
  * - 0.1.3 examples added
  * - 0.1.2 createNamespace and getNamespace added
  * - 0.1.1 refactoring
- * - 0.1 basic functions and plugin structur
+ * - 0.1 basic functions and plugin structure
  *
  * @see
  * - nicolas c. zakas - maintainable javascript, writing readable code (o'reilly s.72)
@@ -90,7 +90,7 @@
 
 
     /**
-     * helper function to defining package structur
+     * helper function to defining package structure
      *
      * within the global app object the given namespaces will
      * be created as javascript objects
@@ -163,4 +163,4 @@
     window.getNamespace = window.getNs = getNamespace;
 
 
-}(window));
+}(window)); // immediately invoke function

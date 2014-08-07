@@ -31,7 +31,7 @@
  * - 0.1.3 refactoring, js lint
  * - 0.1.2 several version change bug fixes
  * - 0.1.1 refactoring, js lint
- * - 0.1 basic functions and structur
+ * - 0.1 basic functions and structure
  *
  * @see
  * - http://www.w3.org/TR/webdatabase/
@@ -503,7 +503,7 @@
                  * sql helper function to create table if not exists
                  *
                  * @param {object} currentAdapter The currently initialized adapter
-                 * @param {object} transaction The optinional transaction object
+                 * @param {object} transaction The optional transaction object
                  */
                 createTableIfNotExists = function (currentAdapter, transaction) {
 
@@ -686,4 +686,4 @@
     ns.ns('cache.storage.adapter.' + storageType, Adapter);
 
 
-}(window, window.getNs())); // immediatly invoke function
+}(window, window.getNs())); // immediately invoke function
