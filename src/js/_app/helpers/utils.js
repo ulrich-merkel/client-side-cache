@@ -9,11 +9,12 @@
  * - provide utility functions
  *
  * @author Ulrich Merkel, 2014
- * @version 0.3
+ * @version 0.3.1
  * 
  * @namespace ns
  * 
  * @changelog
+ * - 0.3.1 isFunction improved
  * - 0.3.0 moved some functions to own helper files, to keep the structure clear
  * - 0.2.4 bug fix legacy browsers isArray, bug fix console.log ie9
  * - 0.2.3 bug fix xhr ie6

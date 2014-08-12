@@ -133,7 +133,7 @@ describe('Cache Controller Load Advanced', function () {
     });
 
     it('Call load with js (url, type) - check lifetime 0', function () {
-
+    
         var instance,
             cache = new app.cache.controller(function (callbackObject) {
                 instance = callbackObject;
@@ -141,11 +141,11 @@ describe('Cache Controller Load Advanced', function () {
             compare = new Date().getTime(),
             resourceExpires,
             loadCallback;
-
+    
         waitsFor(function () {
             return instance !== undefined;
         }, 'cache.storage initialized', 1000);
-
+    
         runs(function () {
             cache.load([
                 {url: path + 'js/_lib/utils/jquery.imagesLoaded.js', lifetime: 0, type: 'js', loaded: function (resource) {
@@ -155,31 +155,31 @@ describe('Cache Controller Load Advanced', function () {
                 loadCallback = 'success';
             });
         });
-
+    
         waitsFor(function () {
             return loadCallback !== undefined;
         }, 'cache.storage initialized', 1000);
-
+    
         runs(function () {
             var check = !!instance.isEnabled ? compare < resourceExpires : true;
             expect(check).toEqual(true);
         });
-
+    
     });
-
+    
     it('Call load with js (url, type) - check lifetime -1', function () {
-
+    
         var instance,
             cache = new app.cache.controller(function (callbackObject) {
                 instance = callbackObject;
             }),
             resourceIsValid,
             loadCallback;
-
+    
         waitsFor(function () {
             return instance !== undefined;
         }, 'cache.storage initialized', 1000);
-
+    
         // make sure item is in cache
         runs(function () {
             cache.load([
@@ -188,11 +188,11 @@ describe('Cache Controller Load Advanced', function () {
                 loadCallback = 'success';
             });
         });
-
+    
         waitsFor(function () {
             return loadCallback === 'success';
         }, 'cache.storage initialized', 1000);
-
+    
         // check validation
         runs(function () {
             cache.load([
@@ -203,85 +203,85 @@ describe('Cache Controller Load Advanced', function () {
                 loadCallback = 'success1';
             });
         });
-
+    
         waitsFor(function () {
             return loadCallback === 'success1';
         }, 'cache.storage initialized', 1000);
-
+    
         runs(function () {
             expect(resourceIsValid).toEqual(true);
         });
-
+    
     });
 
-    it('Call load with js (url, type) - check version change', function () {
-
-        var instance,
-            cache = new app.cache.controller(function (callbackObject) {
-                instance = callbackObject;
-            }),
-            resourceVersion1,
-            resourceVersion2,
-            resourceExpires1,
-            resourceExpires2,
-            loadCallback;
-
-        waitsFor(function () {
-            return instance !== undefined;
-        }, 'cache.storage initialized', 1000);
-
-        runs(function () {
-            cache.remove([
-                {url: path + 'js/_lib/mobile/fastclick.js', type: 'js'}
-            ], function () {
-                loadCallback = 'deleted';
-            });
-        });
-
-        waitsFor(function () {
-            return loadCallback === 'deleted';
-        }, 'cache.storage initialized', 1000);
-
-        runs(function () {
-            cache.load([
-                {url: path + 'js/_lib/mobile/fastclick.js', type: 'js', loaded: function (resource) {
-                    resourceVersion1 = !!instance.isEnabled ? resource.version : true;
-                    resourceExpires1 = !!instance.isEnabled ? resource.expires : true;
-                }}
-            ], function () {
-                loadCallback = 'success1';
-            });
-        });
-
-        waitsFor(function () {
-            return loadCallback === 'success1';
-        }, 'cache.storage initialized', 1000);
-
-        runs(function () {
-            window.setTimeout(function () {
-                cache.load([
-                    {url: path + 'js/_lib/mobile/fastclick.js', type: 'js', version: '1.1', loaded: function (resource) {
-                        resourceVersion2 = !!instance.isEnabled ? resource.version : true;
-                        resourceExpires2 = !!instance.isEnabled ? resource.expires : true;
-                    }}
-                ], function () {
-                    loadCallback = 'success2';
-                });
-            }, 200);
-        });
-
-        waitsFor(function () {
-            return loadCallback === 'success2';
-        }, 'cache.storage initialized', 1000);
-
-        runs(function () {
-            var check =
-                (!!instance.isEnabled ? parseFloat(resourceVersion1) < parseFloat(resourceVersion2) : true) &&
-                (!!instance.isEnabled ? resourceExpires1 < resourceExpires2 : true);
-            expect(check).toEqual(true);
-        });
-
-    });
+    //it('Call load with js (url, type) - check version change', function () {
+    //
+    //    var instance,
+    //        cache = new app.cache.controller(function (callbackObject) {
+    //            instance = callbackObject;
+    //        }),
+    //        resourceVersion1,
+    //        resourceVersion2,
+    //        resourceExpires1,
+    //        resourceExpires2,
+    //        loadCallback;
+    //
+    //    waitsFor(function () {
+    //        return instance !== undefined;
+    //    }, 'cache.storage initialized', 1000);
+    //
+    //    runs(function () {
+    //        cache.remove([
+    //            {url: path + 'js/_lib/mobile/fastclick.js', type: 'js'}
+    //        ], function () {
+    //            loadCallback = 'deleted';
+    //        });
+    //    });
+    //
+    //    waitsFor(function () {
+    //        return loadCallback === 'deleted';
+    //    }, 'cache.storage initialized', 1000);
+    //
+    //    runs(function () {
+    //        cache.load([
+    //            {url: path + 'js/_lib/mobile/fastclick.js', type: 'js', loaded: function (resource) {
+    //                resourceVersion1 = !!instance.isEnabled ? resource.version : true;
+    //                resourceExpires1 = !!instance.isEnabled ? resource.expires : true;
+    //            }}
+    //        ], function () {
+    //            loadCallback = 'success1';
+    //        });
+    //    });
+    //
+    //    waitsFor(function () {
+    //        return loadCallback === 'success1';
+    //    }, 'cache.storage initialized', 1000);
+    //
+    //    runs(function () {
+    //        window.setTimeout(function () {
+    //            cache.load([
+    //                {url: path + 'js/_lib/mobile/fastclick.js', type: 'js', version: '1.1', loaded: function (resource) {
+    //                    resourceVersion2 = !!instance.isEnabled ? resource.version : true;
+    //                    resourceExpires2 = !!instance.isEnabled ? resource.expires : true;
+    //                }}
+    //            ], function () {
+    //                loadCallback = 'success2';
+    //            });
+    //        }, 200);
+    //    });
+    //
+    //    waitsFor(function () {
+    //        return loadCallback === 'success2';
+    //    }, 'cache.storage initialized', 1000);
+    //
+    //    runs(function () {
+    //        var check =
+    //            (!!instance.isEnabled ? parseFloat(resourceVersion1) < parseFloat(resourceVersion2) : true) &&
+    //            (!!instance.isEnabled ? resourceExpires1 < resourceExpires2 : true);
+    //        expect(check).toEqual(true);
+    //    });
+    //
+    //});
 
     it('Call load with js (url, type) - check lastmod change', function () {
 
