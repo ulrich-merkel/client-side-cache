@@ -110,7 +110,23 @@
              * @return {boolean} Whether the given value is a function or not
              */
             isFunction: function (fn) {
-                return typeof fn === 'function' || fn instanceof Function;
+
+                var result = false;
+
+                if (Object.prototype.toString) {
+
+                    /**
+                     * @ see Secrets of the JavaScript Ninja, J.Resig (Page. 132)
+                     */
+                    result = Object.prototype.toString.call(fn) === '[object Function]';
+
+                } else {
+
+                    result = typeof fn === 'function' || fn instanceof Function;
+
+                }
+
+                return result;
             },
 
 
