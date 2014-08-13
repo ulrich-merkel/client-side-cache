@@ -18,7 +18,7 @@
  * - 0.1 basic functions and plugin structure
  *
  * @see
- * - nicolas c. zakas - maintainable javascript, writing readable code (o'reilly s.72)
+ * - nicolas c. zakas - maintainable javascript, writing readable code (o'reilly, page 72)
  * - http://de.slideshare.net/s.barysiuk/javascript-and-ui-architecture-best-practices-presentation
  *
  * @requires

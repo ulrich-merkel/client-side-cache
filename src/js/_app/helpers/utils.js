@@ -106,28 +106,52 @@
             /**
              * check if value is function
              *
+             * following the lazy loading design pattern, the isArray function will be
+             * overridden with the correct browser implementation the first time it will be
+             * called. after that all consequent calls deliver the correct one without
+             * conditions for different browsers.
+             *
+             * @see nicolas c. zakas - maintainable javascript, writing readable code (o'reilly, page 88)
+             * 
              * @param {function} fn The value to check
              *
              * @return {boolean} Whether the given value is a function or not
              */
             isFunction: function (fn) {
 
-                var result = false;
+                /**
+                 * override existing function based on
+                 * browser capabilities
+                 */
 
-                if (Object.prototype.toString) {
+                if (Object.prototype && Object.prototype.toString) {
 
                     /**
-                     * @ see Secrets of the JavaScript Ninja, J.Resig (Page. 132)
+                     * best crossbrowser solution
+                     *
+                     * @ see john resig - secrets of the javaScript ninja (o'reilly, page 132)
                      */
-                    result = Object.prototype.toString.call(fn) === '[object Function]';
+                    utils.isFunction = function (fn) {
+                        return Object.prototype.toString.call(fn) === '[object Function]';
+                    };
 
                 } else {
 
-                    result = typeof fn === 'function' || fn instanceof Function;
+                    /**
+                     * but this type of checking seems to be faster, we prefer
+                     * cross browser saveness over speed in this case
+                     * 
+                     * @see http://jsperf.com/typeof-function-vs-tostring-call/5
+                     */
+                    utils.isFunction = function (fn) {
+                        return typeof fn === 'function' || fn instanceof Function;
+                    };
 
                 }
 
-                return result;
+                // call the new function
+                return utils.isFunction(fn);
+
             },
 
 
@@ -139,7 +163,7 @@
              * called. after that all consequent calls deliver the correct one without
              * conditions for different browsers.
              *
-             * @see nicolas c. zakas - maintainable javascript, writing readable code (o'reilly s.88)
+             * @see nicolas c. zakas - maintainable javascript, writing readable code (o'reilly, page 88)
              *
              * @param {array} value The value to check
              *
@@ -156,22 +180,32 @@
                  * browser capabilities
                  */
 
-                if (!!arrayIsArray && typeof arrayIsArray === 'function') {
+                if (utils.isFunction(arrayIsArray)) {
+
                     // ECMA Script 5
                     utils.isArray = function (value) {
                         return arrayIsArray(value);
                     };
-                } else if (!!objectProtoypeToString && objectProtoypeToString === 'function') {
+
+                } else if (utils.isFunction(objectProtoypeToString)) {
+
                     // Juriy Zaytsev (aka Kangax)
                     utils.isArray = function (value) {
                         return objectProtoypeToString.call(value) === '[object Array]';
                     };
+
                 } else {
-                    // Duck-Typing arrays (by Douglas Crockford), assume sort function is only available for arrays
-                    // Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array"
+
+                    /**
+                     * Duck-Typing arrays (by Douglas Crockford), assume sort function is only available for arrays
+                     * 
+                     * Duck-Typing: "If it looks like a duck, walks like a duck, and smells like a duck - it must be an Array"
+                     *
+                     */
                     utils.isArray = function (value) {
-                        return (!!value && !!value.sort && typeof value.sort === 'function');
+                        return !!value && utils.isFunction(value.sort);
                     };
+
                 }
 
                 // call the new function
@@ -201,12 +235,15 @@
                  * browser capabilities
                  */
 
-                if (!!Array.prototype.indexOf) {
+                if (!!Array.prototype && !!Array.prototype.indexOf) {
+
                     // ECMA Script 5
                     utils.inArray = function (value, array, index) {
                         return emptyArray.indexOf.call(array, value, index);
                     };
+
                 } else {
+
                     // fallback for old browsers
                     utils.inArray = function (value, array, index) {
 

@@ -200,7 +200,7 @@
                  * check if this parameter config object is already
                  * stored in the interface array
                  */
-                if (jsonToString(interfaces[i].params) === jsonToString(parameters)) {
+                if (interfaces[i] && (jsonToString(interfaces[i].params) === jsonToString(parameters))) {
                     currentInterface = interfaces[i];
                 }
 
@@ -313,17 +313,34 @@
                     currentInterface.storage = storage;
 
                     if (!!currentInterface.controller) {
+
                         // if interface is loaded, start queue
                         currentInterface.queue.flush();
+
                     } else {
-                        // wait for asynchronous initializing
+
+                        /**
+                         * wait for asynchronous initializing
+                         *
+                         * the controller will be given back asynch,
+                         * so we have to wait here and start the interval
+                         * 
+                         */
                         startInterval();
+
                     }
+
                 }, parameters);
 
             } else {
 
-                // wait for asynchronous initializing
+                /**
+                 * wait for asynchronous initializing
+                 *
+                 * the controller will be given back asynch,
+                 * so we have to wait here and start the interval
+                 * 
+                 */
                 startInterval();
 
             }
@@ -336,6 +353,7 @@
         }
 
     }
+
 
     /**
      * defining interface functions
@@ -388,7 +406,12 @@
 
             });
 
-            // return this for chaining
+            /**
+             * return this for chaining
+             *
+             * todo: but "this" is returned by javaScript default,
+             * so mayby we can remove this statement savely?
+             */
             return this;
 
         }
@@ -427,7 +450,12 @@
 
             });
 
-            // return this for chaining
+            /**
+             * return this for chaining
+             *
+             * todo: but "this" is returned by javaScript default,
+             * so mayby we can remove this statement savely?
+             */
             return this;
 
         }
@@ -442,11 +470,20 @@
         function setup(parameters) {
 
             if (parameters) {
+
+                // this will override the global config
                 setupParameters = parameters;
+
             }
 
-            // return this for chaining
+            /**
+             * return this for chaining
+             *
+             * todo: but "this" is returned by javaScript default,
+             * so mayby we can remove this statement savely?
+             */
             return this;
+
         }
 
 
