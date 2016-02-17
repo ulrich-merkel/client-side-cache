@@ -39,7 +39,7 @@ If you just want to see a working demo, open the generated **/example/full-cache
 If you are not in the mood to install this project on a webserver, you could also visit the following weblink to get some working demonstrations. Check your browser console (or network panel) or follow the printed stack trace to see the html5 caching in action:
 
 
-[Full featured html5 cache ](http://www.ulrichmerkel.com/test/client-side-cache/full-cache/ "Ulrich Merkel")
+[Full featured html5 cache ](http://test.ulrichmerkel.com/client-side-cache/full-cache/ "Ulrich Merkel")
 
 
 ## Usage ##
